@@ -8,7 +8,8 @@ use super::operation::OperationSet;
 pub const QUESTIONS_PER_ROUND: u32 = 60;
 
 /// What the player chose to play.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, glib::Boxed)]
+#[boxed_type(name = "FastmathGameConfig", nullable)]
 pub struct GameConfig {
     pub ops: OperationSet,
     pub level: Level,

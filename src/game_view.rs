@@ -30,8 +30,9 @@ mod imp {
     use glib::subclass::Signal;
     use std::cell::{Cell, RefCell};
 
-    #[derive(Default, gtk::CompositeTemplate)]
+    #[derive(Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(resource = "/io/github/nacho/fastmath/ui/game_view.ui")]
+    #[properties(wrapper_type = super::GameView)]
     pub struct GameView {
         #[template_child]
         pub time_label: TemplateChild<gtk::Label>,
@@ -44,6 +45,7 @@ mod imp {
         #[template_child]
         pub answer_entry: TemplateChild<gtk::Entry>,
 
+        #[property(get, set, construct_only)]
         pub config: Cell<Option<GameConfig>>,
         pub round: RefCell<Option<Round>>,
         /// When the clock started, moved forward by the time spent paused.
@@ -75,10 +77,15 @@ mod imp {
         }
     }
 
+    #[glib::derived_properties]
     impl ObjectImpl for GameView {
         fn constructed(&self) {
             self.parent_constructed();
             let view = self.obj();
+
+            *self.round.borrow_mut() = Some(Round::new(&view.game_config()));
+            view.update_clock(Duration::ZERO);
+            view.show_question();
 
             // Only digits can be typed.
             self.answer_entry.connect_changed(|entry| {
@@ -139,21 +146,15 @@ glib::wrapper! {
 
 impl GameView {
     pub fn new(config: &GameConfig) -> Self {
-        let view: Self = glib::Object::new();
-        let imp = view.imp();
-        imp.config.set(Some(*config));
-        *imp.round.borrow_mut() = Some(Round::new(config));
-        view.update_clock(Duration::ZERO);
-        view.show_question();
-        view
+        glib::Object::builder().property("config", *config).build()
     }
 
-    fn config(&self) -> GameConfig {
-        self.imp().config.get().expect("the config is set in new()")
+    fn game_config(&self) -> GameConfig {
+        self.config().expect("the config is a construct property")
     }
 
     fn total_time(&self) -> Duration {
-        Duration::from_secs(self.config().duration_secs.into())
+        Duration::from_secs(self.game_config().duration_secs.into())
     }
 
     /// The time elapsed since the round started, not counting pauses.
@@ -374,8 +375,11 @@ impl GameView {
     pub fn summary(&self) -> GameSummary {
         let round = self.imp().round.borrow();
         GameSummary {
-            config: self.config(),
-            result: round.as_ref().expect("the round is set in new()").result(),
+            config: self.game_config(),
+            result: round
+                .as_ref()
+                .expect("the round is set in constructed()")
+                .result(),
         }
     }
 

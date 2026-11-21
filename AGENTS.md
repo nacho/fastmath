@@ -48,9 +48,10 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   started to `Round::submit`, and calls `finish()` when time runs out. The
   game clock starts when the page is shown, so the page transition does not
   cost time, and stops while the abandon dialog is open.
-- `src/lib/` does not use GTK, except that `leaderboard.rs` uses GLib for the
-  data directory and logging. Keep the question generation and scoring there
-  and unit tested.
+- `src/lib/` does not use GTK. It uses GLib in two places: `leaderboard.rs` for
+  the data directory and logging, and `round.rs`, where `GameConfig` is a
+  boxed type so `GameView` can take it as a construct property. Keep the
+  question generation and scoring there and unit tested.
 - Questions: addition and subtraction operands are 1..=max, factors and
   divisors are 2..=max. Division picks the divisor and the quotient and
   multiplies them, so it is always exact. The same question never comes twice
