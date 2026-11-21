@@ -9,8 +9,9 @@ desktop_file = i18n.merge_file(
 )
 
 # GSchema
-install_data('io.github.nacho.fastmath.gschema.xml',
-  install_dir: get_option('datadir') / 'glib-2.0' / 'schemas'
+install_data(
+  'io.github.nacho.fastmath.gschema.xml',
+  install_dir: get_option('datadir') / 'glib-2.0' / 'schemas',
 )
 
 # Metainfo
@@ -23,18 +24,33 @@ metainfo_file = i18n.merge_file(
 )
 
 # Validation
-desktop_file_validate = find_program('desktop-file-validate', required: false)
+desktop_file_validate = find_program(
+  'desktop-file-validate',
+  required: false,
+)
 if desktop_file_validate.found()
-  test('validate-desktop', desktop_file_validate, args: [desktop_file])
+  test(
+    'validate-desktop',
+    desktop_file_validate,
+    args: [desktop_file],
+  )
 endif
 
-appstreamcli = find_program('appstreamcli', required: false)
+appstreamcli = find_program(
+  'appstreamcli',
+  required: false,
+)
 if appstreamcli.found()
-  test('validate-metainfo', appstreamcli,
-    args: ['validate', '--no-net', '--explain', metainfo_file])
+  test(
+    'validate-metainfo',
+    appstreamcli,
+    args: ['validate', '--no-net', '--explain', metainfo_file],
+  )
 endif
 
 # Compile GSettings schemas
-gnome.compile_schemas(build_by_default: true)
+gnome.compile_schemas(
+  build_by_default: true,
+)
 
 subdir('icons')

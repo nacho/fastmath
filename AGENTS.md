@@ -93,6 +93,8 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
 - Run `cargo clippy --all-targets -- -D warnings`
 - Development: `glib-compile-schemas data/ && GSETTINGS_SCHEMA_DIR=data cargo run`
 - Production: `meson setup builddir && meson compile -C builddir && meson test -C builddir`
+- Format the Meson files with `meson format -i -c meson.format meson.build po/meson.build data/meson.build data/icons/meson.build`
+  (2 spaces, one argument per line)
 - Tests that need a display, from a desktop session (they do not show a
   window): compile the schema into a directory, then
   `GSETTINGS_BACKEND=memory GSETTINGS_SCHEMA_DIR=<dir> cargo test -- --ignored --test-threads=1`
