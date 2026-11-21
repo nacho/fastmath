@@ -1,0 +1,295 @@
+# Italian translation for the fastmath package.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the fastmath package.
+# Albano Battistella <albanobattistella@gmail.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fastmath\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-21 14:47+0100\n"
+"PO-Revision-Date: 2026-11-21 17:00+0100\n"
+"Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
+"Language-Team: Italian\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: data/io.github.nacho.fastmath.desktop.in:2
+#: data/io.github.nacho.fastmath.metainfo.xml:5 resources/ui/game_view.ui:4
+#: resources/ui/start_view.ui:23 resources/ui/window.ui:4
+#: src/application.rs:109
+msgid "Fast Math"
+msgstr "Fast Math"
+
+#: data/io.github.nacho.fastmath.desktop.in:3
+#: data/io.github.nacho.fastmath.metainfo.xml:6
+msgid "Practice mental arithmetic against the clock"
+msgstr "Allena il calcolo mentale contro il tempo"
+
+#: data/io.github.nacho.fastmath.desktop.in:9
+msgid "math;arithmetic;calculation;quiz;"
+msgstr "matematica;aritmetica;calcolo;quiz;"
+
+#: data/io.github.nacho.fastmath.metainfo.xml:8
+msgid "Ignacio Casal Quinteiro"
+msgstr "Ignacio Casal Quinteiro"
+
+#: data/io.github.nacho.fastmath.metainfo.xml:19
+msgid ""
+"Fast Math is a game to train your mental arithmetic. Pick the operations you "
+"want to practice, choose a level and answer up to 60 questions before the "
+"time runs out."
+msgstr ""
+"Fast Math è un gioco per allenare il calcolo mentale. Scegli le operazioni "
+"che vuoi esercitare, seleziona un livello e rispondi fino a 60 domande prima "
+"che scada il tempo."
+
+#: data/io.github.nacho.fastmath.metainfo.xml:24
+msgid ""
+"Choose any combination of addition, subtraction, multiplication and "
+"division, and mix them in the same round. Pick one of five levels and set "
+"the time limit, which is two minutes by default. Type each answer and press "
+"Enter. At the end you see how many answers you got right and how fast you "
+"were, and the best scores are kept in a leaderboard."
+msgstr ""
+"Scegli qualsiasi combinazione di addizione, sottrazione, moltiplicazione e "
+"divisione e mescolale nella stessa partita. Scegli uno dei cinque livelli e "
+"imposta il limite di tempo, che per impostazione predefinita è di due "
+"minuti. Digita ogni risposta e premi Invio. Alla fine vedi quante risposte "
+"hai azzeccato e quanto sei stato veloce, e i punteggi migliori vengono "
+"conservati in una classifica."
+
+#: data/io.github.nacho.fastmath.metainfo.xml:40
+msgid "Choose the operations, the level and the time limit"
+msgstr "Scegli le operazioni, il livello e il limite di tempo"
+
+#: data/io.github.nacho.fastmath.metainfo.xml:44
+msgid "Answer as many questions as you can before the time runs out"
+msgstr "Rispondi a più domande che puoi prima che scada il tempo"
+
+#: data/io.github.nacho.fastmath.metainfo.xml:68
+msgid "First release."
+msgstr "Prima versione."
+
+#: resources/ui/game_view.ui:14 resources/ui/shortcuts_dialog.ui:15
+msgid "Abandon Round"
+msgstr "Abbandona partita"
+
+#: resources/ui/game_view.ui:75
+msgid "Answer"
+msgstr "Risposta"
+
+#: resources/ui/results_view.ui:4
+msgid "Results"
+msgstr "Risultati"
+
+#: resources/ui/results_view.ui:37
+msgid "Correct"
+msgstr "Corrette"
+
+#: resources/ui/results_view.ui:49
+msgid "Wrong"
+msgstr "Sbagliate"
+
+#: resources/ui/results_view.ui:61
+msgid "Unanswered"
+msgstr "Senza risposta"
+
+#: resources/ui/results_view.ui:73
+msgid "Average Time per Answer"
+msgstr "Tempo medio per risposta"
+
+#: resources/ui/results_view.ui:88
+msgid "New High Score"
+msgstr "Nuovo record"
+
+#: resources/ui/results_view.ui:89
+msgid "Enter your name to add this score to the leaderboard"
+msgstr "Inserisci il tuo nome per aggiungere questo punteggio alla classifica"
+
+#: resources/ui/results_view.ui:92
+msgid "Name"
+msgstr "Nome"
+
+#: resources/ui/results_view.ui:101
+msgid "Leaderboard"
+msgstr "Classifica"
+
+#: resources/ui/results_view.ui:112
+msgid "_Back"
+msgstr "_Indietro"
+
+#: resources/ui/results_view.ui:121
+msgid "_Play Again"
+msgstr "_Gioca ancora"
+
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:110
+msgid "Round"
+msgstr "Partita"
+
+#: resources/ui/shortcuts_dialog.ui:9
+msgid "Submit Answer"
+msgstr "Invia risposta"
+
+#: resources/ui/shortcuts_dialog.ui:23
+msgid "General"
+msgstr "Generale"
+
+#: resources/ui/shortcuts_dialog.ui:26
+msgid "Keyboard Shortcuts"
+msgstr "Scorciatoie da tastiera"
+
+#: resources/ui/shortcuts_dialog.ui:32
+msgid "Close Window"
+msgstr "Chiudi finestra"
+
+#: resources/ui/shortcuts_dialog.ui:38
+msgid "Quit"
+msgstr "Esci"
+
+#: resources/ui/start_view.ui:6
+msgid "_Sound Effects"
+msgstr "_Effetti sonori"
+
+#: resources/ui/start_view.ui:12
+msgid "_Keyboard Shortcuts"
+msgstr "_Scorciatoie da tastiera"
+
+#: resources/ui/start_view.ui:16
+msgid "_About Fast Math"
+msgstr "I_nformazioni su Fast Math"
+
+#: resources/ui/start_view.ui:33
+msgid "Main Menu"
+msgstr "Menu principale"
+
+#: resources/ui/start_view.ui:42
+msgid "Operations"
+msgstr "Operazioni"
+
+#: resources/ui/start_view.ui:43
+msgid "Select several to mix them in the same round"
+msgstr "Selezionane più di una per mescolarle nella stessa partita"
+
+#: resources/ui/start_view.ui:46
+msgid "Select _All"
+msgstr "Seleziona _tutto"
+
+#: resources/ui/start_view.ui:56 src/labels.rs:10
+msgid "Addition"
+msgstr "Addizione"
+
+#: resources/ui/start_view.ui:69 src/labels.rs:11
+msgid "Subtraction"
+msgstr "Sottrazione"
+
+#: resources/ui/start_view.ui:82 src/labels.rs:12
+msgid "Multiplication"
+msgstr "Moltiplicazione"
+
+#: resources/ui/start_view.ui:95 src/labels.rs:13
+msgid "Division"
+msgstr "Divisione"
+
+#: resources/ui/start_view.ui:113
+msgid "Level"
+msgstr "Livello"
+
+#: resources/ui/start_view.ui:119
+msgid "Time Limit"
+msgstr "Limite di tempo"
+
+#: resources/ui/start_view.ui:120
+msgid "In seconds"
+msgstr "In secondi"
+
+#: resources/ui/start_view.ui:138
+msgid "_Start"
+msgstr "_Inizia"
+
+#: src/application.rs:118
+msgid "translator-credits"
+msgstr ""
+
+#: src/application.rs:121
+msgid "Sound Sources"
+msgstr "Fonti dei suoni"
+
+#: src/application.rs:131
+msgid "Learn geography"
+msgstr "Impara la geografia"
+
+#: src/application.rs:136
+msgid "Learn to type"
+msgstr "Impara a digitare"
+
+#: src/game_view.rs:229
+#, rust-format
+msgid "{} / {}"
+msgstr "{} / {}"
+
+#: src/game_view.rs:327
+msgid "Abandon this round?"
+msgstr "Abbandonare questa partita?"
+
+#: src/game_view.rs:328
+msgid "Your progress in this round will be lost."
+msgstr "I progressi di questa partita andranno persi."
+
+#: src/game_view.rs:331
+msgid "_Keep Playing"
+msgstr "_Continua a giocare"
+
+#: src/game_view.rs:332
+msgid "_Abandon"
+msgstr "_Abbandona"
+
+#: src/labels.rs:19
+msgid "All operations"
+msgstr "Tutte le operazioni"
+
+#: src/labels.rs:33
+#, rust-format
+msgid "Level {}: sums up to {}, tables up to {}"
+msgstr "Livello {}: somme fino a {}, tabelline fino a {}"
+
+#. / Describes what was played, for example
+
+#. / "Addition, Division · Level 2 · 2:00".
+
+#: src/labels.rs:45
+#, rust-format
+msgid "Level {}"
+msgstr "Livello {}"
+
+#: src/labels.rs:57
+#, rust-format
+msgid "{} s"
+msgstr "{} s"
+
+#: src/results_view.rs:146
+#, rust-format
+msgid "{} correct answer"
+msgid_plural "{} correct answers"
+msgstr[0] "{} risposta corretta"
+msgstr[1] "{} risposte corrette"
+
+#: src/results_view.rs:156
+msgid "—"
+msgstr "—"
+
+#: src/results_view.rs:222
+msgid "No scores yet with these settings"
+msgstr "Ancora nessun punteggio con queste impostazioni"
+
+#: src/results_view.rs:224
+msgid "Best scores with these settings"
+msgstr "Migliori punteggi con queste impostazioni"
+
+#: src/results_view.rs:238
+#, rust-format
+msgid "{} correct, {} per answer"
+msgstr "{} corrette, {} per risposta"
