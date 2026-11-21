@@ -1,0 +1,287 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the fastmath package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fastmath\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-21 13:42+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: data/io.github.nacho.fastmath.desktop.in:2
+#: data/io.github.nacho.fastmath.metainfo.xml:5 resources/ui/game_view.ui:4
+#: resources/ui/start_view.ui:23 resources/ui/window.ui:4
+#: src/application.rs:113
+msgid "Fast Math"
+msgstr ""
+
+#: data/io.github.nacho.fastmath.desktop.in:3
+#: data/io.github.nacho.fastmath.metainfo.xml:6
+msgid "Practice mental arithmetic against the clock"
+msgstr ""
+
+#: data/io.github.nacho.fastmath.desktop.in:9
+msgid "math;arithmetic;calculation;quiz;"
+msgstr ""
+
+#: data/io.github.nacho.fastmath.metainfo.xml:8
+msgid "Ignacio Casal Quinteiro"
+msgstr ""
+
+#: data/io.github.nacho.fastmath.metainfo.xml:19
+msgid ""
+"Fast Math is a game to train your mental arithmetic. Pick the operations you "
+"want to practice, choose a level and answer up to 60 questions before the "
+"time runs out."
+msgstr ""
+
+#: data/io.github.nacho.fastmath.metainfo.xml:24
+msgid ""
+"Choose any combination of addition, subtraction, multiplication and "
+"division, and mix them in the same round. Pick one of five levels and set "
+"the time limit, which is two minutes by default. Type each answer and press "
+"Enter. At the end you see how many answers you got right and how fast you "
+"were, and the best scores are kept in a leaderboard."
+msgstr ""
+
+#: data/io.github.nacho.fastmath.metainfo.xml:57
+msgid "First release."
+msgstr ""
+
+#: resources/ui/game_view.ui:14 resources/ui/shortcuts_dialog.ui:15
+msgid "Abandon Round"
+msgstr ""
+
+#: resources/ui/game_view.ui:75
+msgid "Answer"
+msgstr ""
+
+#: resources/ui/preferences_dialog.ui:10
+msgid "Sound Effects"
+msgstr ""
+
+#: resources/ui/results_view.ui:4
+msgid "Results"
+msgstr ""
+
+#: resources/ui/results_view.ui:37
+msgid "Correct"
+msgstr ""
+
+#: resources/ui/results_view.ui:49
+msgid "Wrong"
+msgstr ""
+
+#: resources/ui/results_view.ui:61
+msgid "Unanswered"
+msgstr ""
+
+#: resources/ui/results_view.ui:73
+msgid "Average Time per Answer"
+msgstr ""
+
+#: resources/ui/results_view.ui:88
+msgid "New High Score"
+msgstr ""
+
+#: resources/ui/results_view.ui:89
+msgid "Enter your name to add this score to the leaderboard"
+msgstr ""
+
+#: resources/ui/results_view.ui:92
+msgid "Name"
+msgstr ""
+
+#: resources/ui/results_view.ui:101
+msgid "Leaderboard"
+msgstr ""
+
+#: resources/ui/results_view.ui:112
+msgid "_Back"
+msgstr ""
+
+#: resources/ui/results_view.ui:121
+msgid "_Play Again"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:110
+msgid "Round"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:9
+msgid "Submit Answer"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:23
+msgid "General"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:26
+msgid "Preferences"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:32
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:38
+msgid "Close Window"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:44
+msgid "Quit"
+msgstr ""
+
+#: resources/ui/start_view.ui:6
+msgid "_Preferences"
+msgstr ""
+
+#: resources/ui/start_view.ui:12
+msgid "_Keyboard Shortcuts"
+msgstr ""
+
+#: resources/ui/start_view.ui:16
+msgid "_About Fast Math"
+msgstr ""
+
+#: resources/ui/start_view.ui:33
+msgid "Main Menu"
+msgstr ""
+
+#: resources/ui/start_view.ui:42
+msgid "Operations"
+msgstr ""
+
+#: resources/ui/start_view.ui:43
+msgid "Select several to mix them in the same round"
+msgstr ""
+
+#: resources/ui/start_view.ui:46
+msgid "Select _All"
+msgstr ""
+
+#: resources/ui/start_view.ui:56 src/labels.rs:10
+msgid "Addition"
+msgstr ""
+
+#: resources/ui/start_view.ui:69 src/labels.rs:11
+msgid "Subtraction"
+msgstr ""
+
+#: resources/ui/start_view.ui:82 src/labels.rs:12
+msgid "Multiplication"
+msgstr ""
+
+#: resources/ui/start_view.ui:95 src/labels.rs:13
+msgid "Division"
+msgstr ""
+
+#: resources/ui/start_view.ui:113
+msgid "Level"
+msgstr ""
+
+#: resources/ui/start_view.ui:119
+msgid "Time Limit"
+msgstr ""
+
+#: resources/ui/start_view.ui:120
+msgid "In seconds"
+msgstr ""
+
+#: resources/ui/start_view.ui:138
+msgid "_Start"
+msgstr ""
+
+#: src/application.rs:122
+msgid "translator-credits"
+msgstr ""
+
+#: src/application.rs:125
+msgid "Sound Sources"
+msgstr ""
+
+#: src/application.rs:135
+msgid "Learn geography"
+msgstr ""
+
+#: src/application.rs:140
+msgid "Learn to type"
+msgstr ""
+
+#: src/game_view.rs:229
+#, rust-format
+msgid "{} / {}"
+msgstr ""
+
+#: src/game_view.rs:327
+msgid "Abandon this round?"
+msgstr ""
+
+#: src/game_view.rs:328
+msgid "Your progress in this round will be lost."
+msgstr ""
+
+#: src/game_view.rs:331
+msgid "_Keep Playing"
+msgstr ""
+
+#: src/game_view.rs:332
+msgid "_Abandon"
+msgstr ""
+
+#: src/labels.rs:19
+msgid "All operations"
+msgstr ""
+
+#: src/labels.rs:33
+#, rust-format
+msgid "Level {}: sums up to {}, tables up to {}"
+msgstr ""
+
+#. / Describes what was played, for example
+
+#. / "Addition, Division · Level 2 · 2:00".
+
+#: src/labels.rs:45
+#, rust-format
+msgid "Level {}"
+msgstr ""
+
+#: src/labels.rs:57
+#, rust-format
+msgid "{} s"
+msgstr ""
+
+#: src/results_view.rs:146
+#, rust-format
+msgid "{} correct answer"
+msgid_plural "{} correct answers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/results_view.rs:156
+msgid "—"
+msgstr ""
+
+#: src/results_view.rs:222
+msgid "No scores yet with these settings"
+msgstr ""
+
+#: src/results_view.rs:224
+msgid "Best scores with these settings"
+msgstr ""
+
+#: src/results_view.rs:238
+#, rust-format
+msgid "{} correct, {} per answer"
+msgstr ""

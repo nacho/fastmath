@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.nacho.fastmath" path="/io/github/nacho/fastmath/">
+    <child name="state" schema="io.github.nacho.fastmath.state"/>
+    <key name="operations" type="s">
+      <default>"asmd"</default>
+      <summary>Operations</summary>
+      <description>The operations to practice, as letters: a (addition), s (subtraction), m (multiplication) and d (division).</description>
+    </key>
+    <key name="level" type="u">
+      <range min="1" max="5"/>
+      <default>1</default>
+      <summary>Level</summary>
+      <description>The difficulty level, from 1 to 5.</description>
+    </key>
+    <key name="duration-secs" type="u">
+      <range min="30" max="600"/>
+      <default>120</default>
+      <summary>Time limit</summary>
+      <description>The duration of a round, in seconds.</description>
+    </key>
+    <key name="sound-effects" type="b">
+      <default>true</default>
+      <summary>Enable sound effects</summary>
+    </key>
+    <key name="player-name" type="s">
+      <default>""</default>
+      <summary>Player name</summary>
+      <description>The name used the last time a score was saved.</description>
+    </key>
+  </schema>
+
+  <schema id="io.github.nacho.fastmath.state" path="/io/github/nacho/fastmath/state/">
+    <child name="window" schema="io.github.nacho.fastmath.state.window"/>
+  </schema>
+
+  <schema id="io.github.nacho.fastmath.state.window" path="/io/github/nacho/fastmath/state/window/">
+    <key name="maximized" type="b">
+      <default>false</default>
+    </key>
+    <key name="size" type="(ii)">
+      <default>(600, 700)</default>
+    </key>
+  </schema>
+</schemalist>

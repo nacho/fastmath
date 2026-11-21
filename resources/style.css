@@ -1,0 +1,20 @@
+.question {
+    font-size: 4rem;
+    font-weight: 800;
+}
+
+.answer-entry {
+    font-size: 2rem;
+    min-height: 3.5rem;
+}
+
+.operation-symbol {
+    font-size: 1.5rem;
+    font-weight: 700;
+    min-width: 2rem;
+}
+
+.score {
+    font-size: 3rem;
+    font-weight: 800;
+}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.nacho.fastmath</id>
+
+  <name>Fast Math</name>
+  <summary>Practice mental arithmetic against the clock</summary>
+
+  <developer_name>Ignacio Casal Quinteiro</developer_name>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#99c1f1</color>
+    <color type="primary" scheme_preference="dark">#1a5fb4</color>
+  </branding>
+
+  <description>
+    <p>
+      Fast Math is a game to train your mental arithmetic. Pick the operations
+      you want to practice, choose a level and answer up to 60 questions
+      before the time runs out.
+    </p>
+    <p>
+      Choose any combination of addition, subtraction, multiplication and
+      division, and mix them in the same round. Pick one of five levels and set
+      the time limit, which is two minutes by default. Type each answer and
+      press Enter. At the end you see how many answers you got right and how
+      fast you were, and the best scores are kept in a leaderboard.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.nacho.fastmath.desktop</launchable>
+  <url type="homepage">https://github.com/nacho/fastmath</url>
+  <url type="bugtracker">https://github.com/nacho/fastmath/issues</url>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/nacho/fastmath/main/data/screenshots/1-start.png</image>
+      <caption>Choose the operations, the level and the time limit</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/nacho/fastmath/main/data/screenshots/2-round.png</image>
+      <caption>Answer as many questions as you can before the time runs out</caption>
+    </screenshot>
+  </screenshots>
+
+  <content_rating type="oars-1.1"/>
+
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <recommends>
+    <control>keyboard</control>
+  </recommends>
+  <supports>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+
+  <provides>
+    <binary>fastmath</binary>
+  </provides>
+
+  <releases>
+    <release version="0.1.0" date="2026-11-21">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

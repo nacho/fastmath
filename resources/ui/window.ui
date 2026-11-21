@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="FastmathWindow" parent="AdwApplicationWindow">
+    <property name="title" translatable="yes">Fast Math</property>
+    <property name="default-width">600</property>
+    <property name="default-height">700</property>
+    <property name="width-request">360</property>
+    <property name="height-request">480</property>
+    <property name="content">
+      <object class="AdwNavigationView" id="navigation_view">
+        <child>
+          <object class="FastmathStartView" id="start_view"/>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="primary_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Preferences</attribute>
+        <attribute name="action">app.preferences</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
+        <attribute name="action">app.shortcuts</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">_About Fast Math</attribute>
+        <attribute name="action">app.about</attribute>
+      </item>
+    </section>
+  </menu>
+  <template class="FastmathStartView" parent="AdwNavigationPage">
+    <property name="tag">start</property>
+    <property name="title" translatable="yes">Fast Math</property>
+    <property name="child">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <child type="end">
+              <object class="GtkMenuButton">
+                <property name="icon-name">open-menu-symbolic</property>
+                <property name="menu-model">primary_menu</property>
+                <property name="primary">true</property>
+                <property name="tooltip-text" translatable="yes">Main Menu</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <property name="content">
+          <object class="AdwPreferencesPage">
+            <child>
+              <object class="AdwPreferencesGroup">
+                <property name="title" translatable="yes">Operations</property>
+                <property name="description" translatable="yes">Select several to mix them in the same round</property>
+                <property name="header-suffix">
+                  <object class="GtkButton" id="all_button">
+                    <property name="label" translatable="yes">Select _All</property>
+                    <property name="use-underline">true</property>
+                    <property name="valign">center</property>
+                    <style>
+                      <class name="flat"/>
+                    </style>
+                  </object>
+                </property>
+                <child>
+                  <object class="AdwSwitchRow" id="add_row">
+                    <property name="title" translatable="yes">Addition</property>
+                    <child type="prefix">
+                      <object class="GtkLabel">
+                        <property name="label">+</property>
+                        <style>
+                          <class name="operation-symbol"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwSwitchRow" id="subtract_row">
+                    <property name="title" translatable="yes">Subtraction</property>
+                    <child type="prefix">
+                      <object class="GtkLabel">
+                        <property name="label">−</property>
+                        <style>
+                          <class name="operation-symbol"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwSwitchRow" id="multiply_row">
+                    <property name="title" translatable="yes">Multiplication</property>
+                    <child type="prefix">
+                      <object class="GtkLabel">
+                        <property name="label">×</property>
+                        <style>
+                          <class name="operation-symbol"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwSwitchRow" id="divide_row">
+                    <property name="title" translatable="yes">Division</property>
+                    <child type="prefix">
+                      <object class="GtkLabel">
+                        <property name="label">÷</property>
+                        <style>
+                          <class name="operation-symbol"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="AdwPreferencesGroup">
+                <property name="title" translatable="yes">Round</property>
+                <child>
+                  <object class="AdwComboRow" id="level_row">
+                    <property name="title" translatable="yes">Level</property>
+                    <property name="use-subtitle">true</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwSpinRow" id="duration_row">
+                    <property name="title" translatable="yes">Time Limit</property>
+                    <property name="subtitle" translatable="yes">In seconds</property>
+                    <property name="adjustment">
+                      <object class="GtkAdjustment">
+                        <property name="lower">30</property>
+                        <property name="upper">600</property>
+                        <property name="step-increment">15</property>
+                        <property name="page-increment">60</property>
+                        <property name="value">120</property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="AdwPreferencesGroup">
+                <child>
+                  <object class="GtkButton" id="start_button">
+                    <property name="label" translatable="yes">_Start</property>
+                    <property name="use-underline">true</property>
+                    <property name="halign">center</property>
+                    <style>
+                      <class name="suggested-action"/>
+                      <class name="pill"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

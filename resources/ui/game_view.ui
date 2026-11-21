@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="FastmathGameView" parent="AdwNavigationPage">
+    <property name="title" translatable="yes">Fast Math</property>
+    <property name="can-pop">false</property>
+    <property name="child">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <child type="start">
+              <object class="GtkButton">
+                <property name="icon-name">go-previous-symbolic</property>
+                <property name="action-name">game.abandon</property>
+                <property name="tooltip-text" translatable="yes">Abandon Round</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <property name="content">
+          <object class="AdwClamp">
+            <property name="maximum-size">480</property>
+            <property name="valign">center</property>
+            <property name="vexpand">true</property>
+            <property name="margin-start">24</property>
+            <property name="margin-end">24</property>
+            <property name="margin-bottom">48</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">24</property>
+                <child>
+                  <object class="GtkBox">
+                    <child>
+                      <object class="GtkLabel" id="time_label">
+                        <property name="hexpand">true</property>
+                        <property name="xalign">0</property>
+                        <style>
+                          <class name="title-2"/>
+                          <class name="numeric"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="counter_label">
+                        <style>
+                          <class name="title-2"/>
+                          <class name="numeric"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkProgressBar" id="progress_bar"/>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="question_label">
+                    <property name="margin-top">24</property>
+                    <property name="margin-bottom">12</property>
+                    <style>
+                      <class name="question"/>
+                      <class name="numeric"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="answer_entry">
+                    <property name="halign">center</property>
+                    <property name="width-chars">6</property>
+                    <property name="max-length">5</property>
+                    <property name="xalign">0.5</property>
+                    <property name="input-purpose">digits</property>
+                    <property name="enable-emoji-completion">false</property>
+                    <accessibility>
+                      <property name="label" translatable="yes">Answer</property>
+                    </accessibility>
+                    <style>
+                      <class name="answer-entry"/>
+                      <class name="numeric"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

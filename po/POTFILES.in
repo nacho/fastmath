@@ -1,0 +1,12 @@
+data/io.github.nacho.fastmath.desktop.in
+data/io.github.nacho.fastmath.metainfo.xml
+resources/ui/game_view.ui
+resources/ui/preferences_dialog.ui
+resources/ui/results_view.ui
+resources/ui/shortcuts_dialog.ui
+resources/ui/start_view.ui
+resources/ui/window.ui
+src/application.rs
+src/game_view.rs
+src/labels.rs
+src/results_view.rs

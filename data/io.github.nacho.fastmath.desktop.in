@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Fast Math
+Comment=Practice mental arithmetic against the clock
+Exec=fastmath
+Icon=io.github.nacho.fastmath
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Education;Game;
+Keywords=math;arithmetic;calculation;quiz;
+StartupNotify=true
