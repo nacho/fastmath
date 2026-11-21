@@ -80,6 +80,7 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
 ## Tooling & Config
 
 - **CI** (`.github/workflows/ci.yml`): on `ubuntu-26.04`, `cargo fmt --check`,
+  `meson format --check-diff` (fails if the Meson files are not formatted),
   `cargo clippy --all-targets -D warnings`, `cargo build`, `cargo test`, then
   Meson setup, compile and test (`desktop-file-validate`, `appstreamcli
   validate`).
