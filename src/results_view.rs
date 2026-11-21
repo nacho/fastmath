@@ -16,10 +16,11 @@ use crate::lib::round::GameConfig;
 mod imp {
     use super::*;
     use glib::subclass::Signal;
-    use std::cell::{Cell, OnceCell, RefCell};
+    use std::cell::{Cell, RefCell};
 
-    #[derive(Default, gtk::CompositeTemplate)]
+    #[derive(Default, gtk::CompositeTemplate, glib::Properties)]
     #[template(resource = "/io/github/nacho/fastmath/ui/results_view.ui")]
+    #[properties(wrapper_type = super::ResultsView)]
     pub struct ResultsView {
         #[template_child]
         pub score_label: TemplateChild<gtk::Label>,
@@ -44,7 +45,8 @@ mod imp {
         #[template_child]
         pub retry_button: TemplateChild<gtk::Button>,
 
-        pub summary: OnceCell<GameSummary>,
+        #[property(get, set, construct_only)]
+        pub summary: Cell<Option<GameSummary>>,
         pub leaderboard: RefCell<Leaderboard>,
         pub rows: RefCell<Vec<adw::ActionRow>>,
         pub saved: Cell<bool>,
@@ -65,10 +67,16 @@ mod imp {
         }
     }
 
+    #[glib::derived_properties]
     impl ObjectImpl for ResultsView {
         fn constructed(&self) {
             self.parent_constructed();
             let view = self.obj();
+
+            *self.leaderboard.borrow_mut() = Leaderboard::load(&view.game_summary().config);
+            view.show_summary();
+            view.show_leaderboard(None);
+            view.offer_to_save();
 
             self.back_button.connect_clicked(glib::clone!(
                 #[weak]
@@ -110,29 +118,21 @@ glib::wrapper! {
 
 impl ResultsView {
     pub fn new(summary: &GameSummary) -> Self {
-        let view: Self = glib::Object::new();
-        let imp = view.imp();
-        let _ = imp.summary.set(*summary);
-        *imp.leaderboard.borrow_mut() = Leaderboard::load(&summary.config);
-        view.show_summary();
-        view.show_leaderboard(None);
-        view.offer_to_save();
-        view
+        glib::Object::builder()
+            .property("summary", *summary)
+            .build()
     }
 
-    fn summary(&self) -> &GameSummary {
-        self.imp()
-            .summary
-            .get()
-            .expect("the summary is set in new()")
+    fn game_summary(&self) -> GameSummary {
+        self.summary().expect("the summary is a construct property")
     }
 
     pub fn config(&self) -> GameConfig {
-        self.summary().config
+        self.game_summary().config
     }
 
     fn average_ms(&self) -> Option<u64> {
-        self.summary()
+        self.game_summary()
             .result
             .average_time
             .map(|time| time.as_millis() as u64)
@@ -140,7 +140,7 @@ impl ResultsView {
 
     fn show_summary(&self) {
         let imp = self.imp();
-        let GameSummary { config, result } = *self.summary();
+        let GameSummary { config, result } = self.game_summary();
 
         imp.score_label.set_text(&i18n_fmt! {
             i18n_nfmt("{} correct answer", "{} correct answers", result.correct, result.correct)
@@ -160,7 +160,7 @@ impl ResultsView {
     /// Shows the name entry when the score earns a place in the leaderboard.
     fn offer_to_save(&self) {
         let imp = self.imp();
-        let result = self.summary().result;
+        let result = self.game_summary().result;
         let qualifies = result.correct > 0
             && imp
                 .leaderboard
@@ -189,7 +189,7 @@ impl ResultsView {
             return;
         }
 
-        let result = self.summary().result;
+        let result = self.game_summary().result;
         let rank = {
             let mut leaderboard = imp.leaderboard.borrow_mut();
             let rank = leaderboard.insert(LeaderboardEntry {
@@ -197,7 +197,7 @@ impl ResultsView {
                 correct: result.correct,
                 average_ms: self.average_ms().unwrap_or(0),
             });
-            leaderboard.save(&self.summary().config);
+            leaderboard.save(&self.game_summary().config);
             rank
         };
 

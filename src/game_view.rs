@@ -19,7 +19,8 @@ const TICK: Duration = Duration::from_millis(100);
 const FLASH: Duration = Duration::from_millis(400);
 
 /// What was played and how it went.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, glib::Boxed)]
+#[boxed_type(name = "FastmathGameSummary", nullable)]
 pub struct GameSummary {
     pub config: GameConfig,
     pub result: RoundResult,
