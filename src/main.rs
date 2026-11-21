@@ -18,7 +18,6 @@ mod config {
 mod application;
 mod game_view;
 mod labels;
-mod preferences_dialog;
 mod results_view;
 mod sound_player;
 mod start_view;

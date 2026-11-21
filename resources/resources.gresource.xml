@@ -5,7 +5,6 @@
     <file preprocess="xml-stripblanks">ui/start_view.ui</file>
     <file preprocess="xml-stripblanks">ui/game_view.ui</file>
     <file preprocess="xml-stripblanks">ui/results_view.ui</file>
-    <file preprocess="xml-stripblanks">ui/preferences_dialog.ui</file>
     <file preprocess="xml-stripblanks">ui/shortcuts_dialog.ui</file>
     <file>style.css</file>
     <file>sounds/correct.oga</file>

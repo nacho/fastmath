@@ -7,7 +7,6 @@ use libadwaita::prelude::*;
 use libadwaita::subclass::prelude::*;
 
 use crate::config;
-use crate::preferences_dialog::PreferencesDialog;
 use crate::window::FastmathWindow;
 
 mod imp {
@@ -31,7 +30,6 @@ mod imp {
             let app = self.obj();
             app.setup_actions();
             app.set_accels_for_action("app.quit", &["<Ctrl>Q"]);
-            app.set_accels_for_action("app.preferences", &["<Ctrl>comma"]);
             app.set_accels_for_action("app.shortcuts", &["<Ctrl>question"]);
             app.set_accels_for_action("window.close", &["<Ctrl>W"]);
 
@@ -76,15 +74,13 @@ impl FastmathApplication {
     }
 
     fn setup_actions(&self) {
+        // The sound effects item in the menu toggles the setting directly.
+        let settings = gio::Settings::new(config::APPLICATION_ID);
+        self.add_action(&settings.create_action("sound-effects"));
+
         self.add_action_entries(vec![
             gio::ActionEntry::builder("quit")
                 .activate(|app: &Self, _, _| app.quit())
-                .build(),
-            gio::ActionEntry::builder("preferences")
-                .activate(|app: &Self, _, _| {
-                    let dialog = PreferencesDialog::new();
-                    dialog.present(app.active_window().as_ref());
-                })
                 .build(),
             gio::ActionEntry::builder("shortcuts")
                 .activate(|app: &Self, _, _| app.show_shortcuts())
