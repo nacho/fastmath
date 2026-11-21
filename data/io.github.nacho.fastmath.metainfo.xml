@@ -64,8 +64,15 @@
 
   <releases>
     <release version="0.1.0" date="2026-11-21">
-      <description>
-        <p>First release.</p>
+      <description translate="no">
+        <ul>
+          <li>Practice addition, subtraction, multiplication and division, alone or mixed in the same round</li>
+          <li>Five levels, from small numbers up to sums of 1000 and tables of 20</li>
+          <li>Rounds of up to 60 questions with a configurable time limit, two minutes by default</li>
+          <li>Sound effects and music, which can be turned off from the menu</li>
+          <li>A leaderboard with the best scores for each combination of operations, level and time limit</li>
+          <li>Spanish translation</li>
+        </ul>
       </description>
     </release>
   </releases>

@@ -108,6 +108,7 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
    - New version number
    - Release date (YYYY-MM-DD format, use current date)
    - List of changes since last release
+   - Keep `translate="no"` on the release `<description>`, the release notes are not translated
 3. Generate changelog: `git log vPREVIOUS..HEAD --oneline --no-merges`
 4. Organize changes into categories: **Added**, **Improved**, **Fixed**, **Updated**
 5. Run `cargo fmt` and `cargo update -p fastmath`

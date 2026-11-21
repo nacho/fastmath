@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-21 14:47+0100\n"
+"POT-Creation-Date: 2026-11-21 22:49+0100\n"
 "PO-Revision-Date: 2026-11-21 14:47+0100\n"
 "Last-Translator: Ignacio Casal Quinteiro\n"
 "Language-Team: Spanish\n"
@@ -43,9 +43,9 @@ msgid ""
 "want to practice, choose a level and answer up to 60 questions before the "
 "time runs out."
 msgstr ""
-"Fast Math es un juego para entrenar el cálculo mental. Elige las "
-"operaciones que quieres practicar, escoge un nivel y responde hasta 60 "
-"preguntas antes de que se acabe el tiempo."
+"Fast Math es un juego para entrenar el cálculo mental. Elige las operaciones "
+"que quieres practicar, escoge un nivel y responde hasta 60 preguntas antes "
+"de que se acabe el tiempo."
 
 #: data/io.github.nacho.fastmath.metainfo.xml:24
 msgid ""
@@ -55,12 +55,11 @@ msgid ""
 "Enter. At the end you see how many answers you got right and how fast you "
 "were, and the best scores are kept in a leaderboard."
 msgstr ""
-"Elige cualquier combinación de sumas, restas, multiplicaciones y "
-"divisiones, y mézclalas en la misma ronda. Escoge uno de los cinco niveles "
-"y ajusta el límite de tiempo, que por defecto son dos minutos. Escribe "
-"cada respuesta y pulsa Intro. Al final verás cuántas respuestas has "
-"acertado y lo rápido que has sido, y las mejores puntuaciones se guardan "
-"en una clasificación."
+"Elige cualquier combinación de sumas, restas, multiplicaciones y divisiones, "
+"y mézclalas en la misma ronda. Escoge uno de los cinco niveles y ajusta el "
+"límite de tiempo, que por defecto son dos minutos. Escribe cada respuesta y "
+"pulsa Intro. Al final verás cuántas respuestas has acertado y lo rápido que "
+"has sido, y las mejores puntuaciones se guardan en una clasificación."
 
 #: data/io.github.nacho.fastmath.metainfo.xml:40
 msgid "Choose the operations, the level and the time limit"
@@ -68,11 +67,8 @@ msgstr "Elige las operaciones, el nivel y el límite de tiempo"
 
 #: data/io.github.nacho.fastmath.metainfo.xml:44
 msgid "Answer as many questions as you can before the time runs out"
-msgstr "Responde a tantas preguntas como puedas antes de que se acabe el tiempo"
-
-#: data/io.github.nacho.fastmath.metainfo.xml:68
-msgid "First release."
-msgstr "Primera versión."
+msgstr ""
+"Responde a tantas preguntas como puedas antes de que se acabe el tiempo"
 
 #: resources/ui/game_view.ui:14 resources/ui/shortcuts_dialog.ui:15
 msgid "Abandon Round"
@@ -226,23 +222,23 @@ msgstr "Aprende geografía"
 msgid "Learn to type"
 msgstr "Aprende mecanografía"
 
-#: src/game_view.rs:229
+#: src/game_view.rs:231
 msgid "{} / {}"
 msgstr "{} / {}"
 
-#: src/game_view.rs:327
+#: src/game_view.rs:329
 msgid "Abandon this round?"
 msgstr "¿Abandonar esta ronda?"
 
-#: src/game_view.rs:328
+#: src/game_view.rs:330
 msgid "Your progress in this round will be lost."
 msgstr "Se perderá tu progreso en esta ronda."
 
-#: src/game_view.rs:331
+#: src/game_view.rs:333
 msgid "_Keep Playing"
 msgstr "_Seguir jugando"
 
-#: src/game_view.rs:332
+#: src/game_view.rs:334
 msgid "_Abandon"
 msgstr "_Abandonar"
 

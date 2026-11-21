@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-21 14:47+0100\n"
+"POT-Creation-Date: 2026-11-21 22:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,10 +60,6 @@ msgstr ""
 
 #: data/io.github.nacho.fastmath.metainfo.xml:44
 msgid "Answer as many questions as you can before the time runs out"
-msgstr ""
-
-#: data/io.github.nacho.fastmath.metainfo.xml:68
-msgid "First release."
 msgstr ""
 
 #: resources/ui/game_view.ui:14 resources/ui/shortcuts_dialog.ui:15
@@ -218,24 +214,24 @@ msgstr ""
 msgid "Learn to type"
 msgstr ""
 
-#: src/game_view.rs:229
+#: src/game_view.rs:231
 #, rust-format
 msgid "{} / {}"
 msgstr ""
 
-#: src/game_view.rs:327
+#: src/game_view.rs:329
 msgid "Abandon this round?"
 msgstr ""
 
-#: src/game_view.rs:328
+#: src/game_view.rs:330
 msgid "Your progress in this round will be lost."
 msgstr ""
 
-#: src/game_view.rs:331
+#: src/game_view.rs:333
 msgid "_Keep Playing"
 msgstr ""
 
-#: src/game_view.rs:332
+#: src/game_view.rs:334
 msgid "_Abandon"
 msgstr ""
 
