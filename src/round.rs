@@ -1,8 +1,8 @@
 use std::time::Duration;
 
-use super::generator::{Generator, Question};
-use super::level::Level;
-use super::operation::OperationSet;
+use crate::generator::{Generator, Question};
+use crate::level::Level;
+use crate::operation::OperationSet;
 
 /// The number of questions in a round.
 pub const QUESTIONS_PER_ROUND: u32 = 60;

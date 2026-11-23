@@ -3,8 +3,8 @@ use std::cmp::Ordering;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use super::round::GameConfig;
 use crate::G_LOG_DOMAIN;
+use crate::round::GameConfig;
 
 pub const MAX_ENTRIES: usize = 10;
 

@@ -5,8 +5,8 @@ use libadwaita::subclass::prelude::*;
 
 use crate::config;
 use crate::game_view::GameView;
-use crate::lib::round::GameConfig;
 use crate::results_view::ResultsView;
+use crate::round::GameConfig;
 use crate::start_view::StartView;
 
 mod imp {

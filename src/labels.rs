@@ -1,9 +1,9 @@
 use gettextrs::gettext;
 use i18n_format::i18n_fmt;
 
-use crate::lib::level::Level;
-use crate::lib::operation::{Operation, OperationSet};
-use crate::lib::round::GameConfig;
+use crate::level::Level;
+use crate::operation::{Operation, OperationSet};
+use crate::round::GameConfig;
 
 pub fn operation_name(op: Operation) -> String {
     match op {

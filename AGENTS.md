@@ -24,12 +24,11 @@ src/
   sound_player.rs       # gtk::MediaFile wrapper, copied from Mundi
   labels.rs             # Translatable names and formatting shared by views
   ui_tests.rs           # Ignored tests that need a display
-  lib/                  # Game logic (no widgets)
-    operation.rs        # Operation, OperationSet bitmask <-> "asmd" string
-    level.rs            # Level 1..5 and the operand ranges
-    generator.rs        # Question generator
-    round.rs            # Round state machine, GameConfig, RoundResult
-    leaderboard.rs      # Top-10 JSON store
+  operation.rs          # Game logic (no widgets): Operation, OperationSet bitmask <-> "asmd"
+  level.rs              # Game logic: Level 1..5 and the operand ranges
+  generator.rs          # Game logic: question generator
+  round.rs              # Game logic: round state machine, GameConfig, RoundResult
+  leaderboard.rs        # Game logic: top-10 JSON store
 resources/              # GResource: ui/*.ui, style.css, sounds/*.oga
 data/                   # Desktop file, metainfo, GSettings schema, icons
 po/                     # Translations
@@ -48,10 +47,11 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   started to `Round::submit`, and calls `finish()` when time runs out. The
   game clock starts when the page is shown, so the page transition does not
   cost time, and stops while the abandon dialog is open.
-- `src/lib/` does not use GTK. It uses GLib in two places: `leaderboard.rs` for
-  the data directory and logging, and `round.rs`, where `GameConfig` is a
-  boxed type so `GameView` can take it as a construct property. Keep the
-  question generation and scoring there and unit tested.
+- The game logic (`operation.rs`, `level.rs`, `generator.rs`, `round.rs` and
+  `leaderboard.rs`) does not use GTK. It uses GLib in two places:
+  `leaderboard.rs` for the data directory and logging, and `round.rs`, where
+  `GameConfig` is a boxed type so `GameView` can take it as a construct
+  property. Keep the question generation and scoring there and unit tested.
 - Questions: addition and subtraction operands are 1..=max, factors and
   divisors are 2..=max. Division picks the divisor and the quotient and
   multiplies them, so it is always exact. The same question never comes twice

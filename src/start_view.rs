@@ -7,9 +7,9 @@ use std::sync::OnceLock;
 
 use crate::config;
 use crate::labels;
-use crate::lib::level::{LEVEL_COUNT, Level};
-use crate::lib::operation::{Operation, OperationSet};
-use crate::lib::round::GameConfig;
+use crate::level::{LEVEL_COUNT, Level};
+use crate::operation::{Operation, OperationSet};
+use crate::round::GameConfig;
 
 mod imp {
     use super::*;

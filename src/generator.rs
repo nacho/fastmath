@@ -1,5 +1,5 @@
-use super::level::Level;
-use super::operation::{Operation, OperationSet};
+use crate::level::Level;
+use crate::operation::{Operation, OperationSet};
 
 /// An arithmetic question with an integer answer.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -106,8 +106,8 @@ impl Generator {
 
 #[cfg(test)]
 mod tests {
-    use super::super::level::LEVEL_COUNT;
     use super::*;
+    use crate::level::LEVEL_COUNT;
 
     const SAMPLES: usize = 2000;
 

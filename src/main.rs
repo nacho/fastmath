@@ -2,14 +2,6 @@
 /// `glib::warn!`.
 pub const G_LOG_DOMAIN: &str = "fastmath";
 
-mod lib {
-    pub mod generator;
-    pub mod leaderboard;
-    pub mod level;
-    pub mod operation;
-    pub mod round;
-}
-
 mod config {
     #![allow(dead_code)]
     include!(concat!(env!("OUT_DIR"), "/config.rs"));
@@ -17,8 +9,13 @@ mod config {
 
 mod application;
 mod game_view;
+mod generator;
 mod labels;
+mod leaderboard;
+mod level;
+mod operation;
 mod results_view;
+mod round;
 mod sound_player;
 mod start_view;
 #[cfg(test)]

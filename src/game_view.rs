@@ -10,7 +10,7 @@ use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 
 use crate::G_LOG_DOMAIN;
-use crate::lib::round::{AnswerResult, GameConfig, Round, RoundResult};
+use crate::round::{AnswerResult, GameConfig, Round, RoundResult};
 use crate::sound_player::SoundPlayer;
 
 /// How often the clock and the progress bar are refreshed.

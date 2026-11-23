@@ -10,8 +10,8 @@ use std::sync::OnceLock;
 use crate::config;
 use crate::game_view::GameSummary;
 use crate::labels;
-use crate::lib::leaderboard::{Leaderboard, LeaderboardEntry};
-use crate::lib::round::GameConfig;
+use crate::leaderboard::{Leaderboard, LeaderboardEntry};
+use crate::round::GameConfig;
 
 mod imp {
     use super::*;

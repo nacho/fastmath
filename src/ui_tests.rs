@@ -18,10 +18,10 @@ use std::time::{Duration, Instant};
 
 use crate::config;
 use crate::game_view::GameView;
-use crate::lib::level::Level;
-use crate::lib::operation::{Operation, OperationSet};
-use crate::lib::round::{GameConfig, QUESTIONS_PER_ROUND};
+use crate::level::Level;
+use crate::operation::{Operation, OperationSet};
 use crate::results_view::ResultsView;
+use crate::round::{GameConfig, QUESTIONS_PER_ROUND};
 use crate::start_view::StartView;
 
 fn config() -> GameConfig {
