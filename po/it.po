@@ -218,11 +218,6 @@ msgstr "Impara la geografia"
 msgid "Learn to type"
 msgstr "Impara a digitare"
 
-#: src/game_view.rs:229
-#, rust-format
-msgid "{} / {}"
-msgstr "{} / {}"
-
 #: src/game_view.rs:327
 msgid "Abandon this round?"
 msgstr "Abbandonare questa partita?"

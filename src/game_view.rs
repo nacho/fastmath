@@ -2,7 +2,6 @@ use gettextrs::gettext;
 use gtk::gdk;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use i18n_format::i18n_fmt;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use libadwaita::subclass::prelude::*;
@@ -228,7 +227,7 @@ impl GameView {
             imp.question_label.set_text(&question.text());
             let number = round.answered() + 1;
             imp.counter_label
-                .set_text(&i18n_fmt! { i18n_fmt("{} / {}", number, round.limit()) });
+                .set_text(&format!("{} / {}", number, round.limit()));
         }
     }
 

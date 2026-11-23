@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 09:39+0100\n"
+"POT-Creation-Date: 2026-11-23 09:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -210,24 +210,19 @@ msgstr ""
 msgid "Learn to type"
 msgstr ""
 
-#: src/game_view.rs:231
-#, rust-format
-msgid "{} / {}"
-msgstr ""
-
-#: src/game_view.rs:329
+#: src/game_view.rs:328
 msgid "Abandon this round?"
 msgstr ""
 
-#: src/game_view.rs:330
+#: src/game_view.rs:329
 msgid "Your progress in this round will be lost."
 msgstr ""
 
-#: src/game_view.rs:333
+#: src/game_view.rs:332
 msgid "_Keep Playing"
 msgstr ""
 
-#: src/game_view.rs:334
+#: src/game_view.rs:333
 msgid "_Abandon"
 msgstr ""
 
