@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-21 22:49+0100\n"
+"POT-Creation-Date: 2026-11-23 09:39+0100\n"
 "PO-Revision-Date: 2026-11-21 14:47+0100\n"
 "Last-Translator: Ignacio Casal Quinteiro\n"
 "Language-Team: Spanish\n"
@@ -32,10 +32,6 @@ msgstr "Practica el cálculo mental contra el reloj"
 #: data/io.github.nacho.fastmath.desktop.in:9
 msgid "math;arithmetic;calculation;quiz;"
 msgstr "matemáticas;aritmética;cálculo;cuestionario;"
-
-#: data/io.github.nacho.fastmath.metainfo.xml:8
-msgid "Ignacio Casal Quinteiro"
-msgstr "Ignacio Casal Quinteiro"
 
 #: data/io.github.nacho.fastmath.metainfo.xml:19
 msgid ""

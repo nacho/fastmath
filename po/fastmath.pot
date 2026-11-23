@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-21 22:49+0100\n"
+"POT-Creation-Date: 2026-11-23 09:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,10 +32,6 @@ msgstr ""
 
 #: data/io.github.nacho.fastmath.desktop.in:9
 msgid "math;arithmetic;calculation;quiz;"
-msgstr ""
-
-#: data/io.github.nacho.fastmath.metainfo.xml:8
-msgid "Ignacio Casal Quinteiro"
 msgstr ""
 
 #: data/io.github.nacho.fastmath.metainfo.xml:19

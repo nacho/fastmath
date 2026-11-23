@@ -5,7 +5,7 @@
   <name>Fast Math</name>
   <summary>Practice mental arithmetic against the clock</summary>
 
-  <developer_name>Ignacio Casal Quinteiro</developer_name>
+  <developer_name translate="no">Ignacio Casal Quinteiro</developer_name>
 
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
