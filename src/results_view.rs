@@ -143,6 +143,8 @@ impl ResultsView {
         let GameSummary { config, result } = self.game_summary();
 
         imp.score_label.set_text(&i18n_fmt! {
+            // Translators: {} is the number of questions answered correctly
+            // in the round, for example "12 correct answers".
             i18n_nfmt("{} correct answer", "{} correct answers", result.correct, result.correct)
         });
         imp.config_label.set_text(&labels::config_summary(&config));
@@ -235,6 +237,10 @@ impl ResultsView {
                 .title(&entry.name)
                 .use_markup(false)
                 .subtitle(i18n_fmt! {
+                    // Translators: This is a leaderboard entry. The first {}
+                    // is the number of correct answers, and the second {} is
+                    // the average time per answer, already with its unit, for
+                    // example "12 correct, 2.5 s per answer".
                     i18n_fmt("{} correct, {} per answer", entry.correct, average)
                 })
                 .build();

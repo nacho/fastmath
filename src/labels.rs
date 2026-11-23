@@ -30,6 +30,11 @@ pub fn level_description(level: Level) -> String {
     let sums = level.max_operand(Operation::Add);
     let tables = level.max_operand(Operation::Multiply);
     i18n_fmt! {
+        // Translators: This describes a difficulty level. The first {} is
+        // the level number, from 1 to 5, the second {} is the largest number
+        // used in additions and subtractions, and the third {} is the largest
+        // number used in the multiplication tables and divisions, for
+        // example "Level 2: sums up to 20, tables up to 10".
         i18n_fmt("Level {}: sums up to {}, tables up to {}", level.number(), sums, tables)
     }
 }
@@ -42,7 +47,11 @@ pub fn format_clock(secs: u32) -> String {
 /// Describes what was played, for example
 /// "Addition, Division · Level 2 · 2:00".
 pub fn config_summary(config: &GameConfig) -> String {
-    let level = i18n_fmt! { i18n_fmt("Level {}", config.level.number()) };
+    let level = i18n_fmt! {
+        // Translators: {} is the difficulty level number, from 1 to 5, for
+        // example "Level 2".
+        i18n_fmt("Level {}", config.level.number())
+    };
     format!(
         "{} · {} · {}",
         operations_summary(config.ops),
@@ -54,5 +63,9 @@ pub fn config_summary(config: &GameConfig) -> String {
 /// An average time per answer, for example "2.5 s".
 pub fn format_average(average_ms: u64) -> String {
     let secs = format!("{:.1}", average_ms as f64 / 1000.0);
-    i18n_fmt! { i18n_fmt("{} s", secs) }
+    i18n_fmt! {
+        // Translators: {} is a number of seconds with one decimal and "s" is
+        // the abbreviation of seconds, for example "2.5 s".
+        i18n_fmt("{} s", secs)
+    }
 }
