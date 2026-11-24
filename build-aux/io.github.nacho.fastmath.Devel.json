@@ -20,6 +20,9 @@
         "build-args" : [
             "--share=network"
         ],
+        "test-args" : [
+            "--share=network"
+        ],
         "env" : {
             "RUST_BACKTRACE" : "1"
         }
