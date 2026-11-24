@@ -1,0 +1,287 @@
+# Galician translations for fastmath package.
+# Copyright (C) 2026 Ignacio Casal Quinteiro
+# This file is distributed under the same license as the fastmath package.
+# Ignacio Casal Quinteiro, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fastmath\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-23 09:45+0100\n"
+"PO-Revision-Date: 2026-11-24 16:34+0100\n"
+"Last-Translator: Ignacio Casal Quinteiro\n"
+"Language-Team: Galician\n"
+"Language: gl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: data/io.github.nacho.fastmath.desktop.in:2
+#: data/io.github.nacho.fastmath.metainfo.xml:5 resources/ui/game_view.ui:4
+#: resources/ui/start_view.ui:23 resources/ui/window.ui:4
+#: src/application.rs:109
+msgid "Fast Math"
+msgstr "Fast Math"
+
+#: data/io.github.nacho.fastmath.desktop.in:3
+#: data/io.github.nacho.fastmath.metainfo.xml:6
+msgid "Practice mental arithmetic against the clock"
+msgstr "Practica o cálculo mental contra o reloxo"
+
+#: data/io.github.nacho.fastmath.desktop.in:9
+msgid "math;arithmetic;calculation;quiz;"
+msgstr "matemáticas;aritmética;cálculo;cuestionario;"
+
+#: data/io.github.nacho.fastmath.metainfo.xml:19
+msgid ""
+"Fast Math is a game to train your mental arithmetic. Pick the operations you "
+"want to practice, choose a level and answer up to 60 questions before the "
+"time runs out."
+msgstr ""
+"Fast Math é un xogo para adestrar o cálculo mental. Elixe as operacións que "
+"queres practicar, escolle un nivel e responde ata 60 preguntas antes de que "
+"se acabe o tempo."
+
+#: data/io.github.nacho.fastmath.metainfo.xml:24
+msgid ""
+"Choose any combination of addition, subtraction, multiplication and "
+"division, and mix them in the same round. Pick one of five levels and set "
+"the time limit, which is two minutes by default. Type each answer and press "
+"Enter. At the end you see how many answers you got right and how fast you "
+"were, and the best scores are kept in a leaderboard."
+msgstr ""
+"Elixe calquera combinación de sumas, restas, multiplicacións e divisións, e "
+"mestúraas na mesma rolda. Escolle un dos cinco niveis e axusta o límite de "
+"tempo, que por defecto é de dous minutos. Escribe cada resposta e preme "
+"Intro. Ao final verás cantas respostas acertaches e o rápido que fuches, e "
+"as mellores puntuacións gárdanse nunha clasificación."
+
+#: data/io.github.nacho.fastmath.metainfo.xml:40
+msgid "Choose the operations, the level and the time limit"
+msgstr "Elixe as operacións, o nivel e o límite de tempo"
+
+#: data/io.github.nacho.fastmath.metainfo.xml:44
+msgid "Answer as many questions as you can before the time runs out"
+msgstr "Responde a tantas preguntas como poidas antes de que se acabe o tempo"
+
+#: resources/ui/game_view.ui:14 resources/ui/shortcuts_dialog.ui:15
+msgid "Abandon Round"
+msgstr "Abandonar rolda"
+
+#: resources/ui/game_view.ui:75
+msgid "Answer"
+msgstr "Resposta"
+
+#: resources/ui/results_view.ui:4
+msgid "Results"
+msgstr "Resultados"
+
+#: resources/ui/results_view.ui:37
+msgid "Correct"
+msgstr "Correctas"
+
+#: resources/ui/results_view.ui:49
+msgid "Wrong"
+msgstr "Incorrectas"
+
+#: resources/ui/results_view.ui:61
+msgid "Unanswered"
+msgstr "Sen responder"
+
+#: resources/ui/results_view.ui:73
+msgid "Average Time per Answer"
+msgstr "Tempo medio por resposta"
+
+#: resources/ui/results_view.ui:88
+msgid "New High Score"
+msgstr "Nova puntuación máxima"
+
+#: resources/ui/results_view.ui:89
+msgid "Enter your name to add this score to the leaderboard"
+msgstr "Escribe o teu nome para engadir esta puntuación á clasificación"
+
+#: resources/ui/results_view.ui:92
+msgid "Name"
+msgstr "Nome"
+
+#: resources/ui/results_view.ui:101
+msgid "Leaderboard"
+msgstr "Clasificación"
+
+#: resources/ui/results_view.ui:112
+msgid "_Back"
+msgstr "_Volver"
+
+#: resources/ui/results_view.ui:121
+msgid "_Play Again"
+msgstr "_Xogar de novo"
+
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:110
+msgid "Round"
+msgstr "Rolda"
+
+#: resources/ui/shortcuts_dialog.ui:9
+msgid "Submit Answer"
+msgstr "Enviar resposta"
+
+#: resources/ui/shortcuts_dialog.ui:23
+msgid "General"
+msgstr "Xeral"
+
+#: resources/ui/shortcuts_dialog.ui:26
+msgid "Keyboard Shortcuts"
+msgstr "Atallos de teclado"
+
+#: resources/ui/shortcuts_dialog.ui:32
+msgid "Close Window"
+msgstr "Pechar a xanela"
+
+#: resources/ui/shortcuts_dialog.ui:38
+msgid "Quit"
+msgstr "Saír"
+
+#: resources/ui/start_view.ui:6
+msgid "_Sound Effects"
+msgstr "_Efectos de son"
+
+#: resources/ui/start_view.ui:12
+msgid "_Keyboard Shortcuts"
+msgstr "_Atallos de teclado"
+
+#: resources/ui/start_view.ui:16
+msgid "_About Fast Math"
+msgstr "_Sobre Fast Math"
+
+#: resources/ui/start_view.ui:33
+msgid "Main Menu"
+msgstr "Menú principal"
+
+#: resources/ui/start_view.ui:42
+msgid "Operations"
+msgstr "Operacións"
+
+#: resources/ui/start_view.ui:43
+msgid "Select several to mix them in the same round"
+msgstr "Selecciona varias para mesturalas na mesma rolda"
+
+#: resources/ui/start_view.ui:46
+msgid "Select _All"
+msgstr "Seleccionar _todas"
+
+#: resources/ui/start_view.ui:56 src/labels.rs:10
+msgid "Addition"
+msgstr "Suma"
+
+#: resources/ui/start_view.ui:69 src/labels.rs:11
+msgid "Subtraction"
+msgstr "Resta"
+
+#: resources/ui/start_view.ui:82 src/labels.rs:12
+msgid "Multiplication"
+msgstr "Multiplicación"
+
+#: resources/ui/start_view.ui:95 src/labels.rs:13
+msgid "Division"
+msgstr "División"
+
+#: resources/ui/start_view.ui:113
+msgid "Level"
+msgstr "Nivel"
+
+#: resources/ui/start_view.ui:119
+msgid "Time Limit"
+msgstr "Límite de tempo"
+
+#: resources/ui/start_view.ui:120
+msgid "In seconds"
+msgstr "En segundos"
+
+#: resources/ui/start_view.ui:138
+msgid "_Start"
+msgstr "_Comezar"
+
+#: src/application.rs:118
+msgid "translator-credits"
+msgstr ""
+
+#: src/application.rs:121
+msgid "Sound Sources"
+msgstr "Fontes de son"
+
+#: src/application.rs:131
+msgid "Learn geography"
+msgstr "Aprende xeografía"
+
+#: src/application.rs:136
+msgid "Learn to type"
+msgstr "Aprende mecanografía"
+
+#: src/game_view.rs:328
+msgid "Abandon this round?"
+msgstr "¿Abandonar esta rolda?"
+
+#: src/game_view.rs:329
+msgid "Your progress in this round will be lost."
+msgstr "Perderase o teu progreso nesta rolda."
+
+#: src/game_view.rs:332
+msgid "_Keep Playing"
+msgstr "_Seguir xogando"
+
+#: src/game_view.rs:333
+msgid "_Abandon"
+msgstr "_Abandonar"
+
+#: src/labels.rs:19
+msgid "All operations"
+msgstr "Todas as operacións"
+
+#. Translators: This describes a difficulty level. The first {} is
+#. the level number, from 1 to 5, the second {} is the largest number
+#. used in additions and subtractions, and the third {} is the largest
+#. number used in the multiplication tables and divisions, for
+#. example "Level 2: sums up to 20, tables up to 10".
+#: src/labels.rs:38
+msgid "Level {}: sums up to {}, tables up to {}"
+msgstr "Nivel {}: sumas ata {}, táboas ata {}"
+
+#. Translators: {} is the difficulty level number, from 1 to 5, for
+#. example "Level 2".
+#: src/labels.rs:53
+msgid "Level {}"
+msgstr "Nivel {}"
+
+#. Translators: {} is a number of seconds with one decimal and "s" is
+#. the abbreviation of seconds, for example "2.5 s".
+#: src/labels.rs:69
+msgid "{} s"
+msgstr "{} s"
+
+#. Translators: {} is the number of questions answered correctly
+#. in the round, for example "12 correct answers".
+#: src/results_view.rs:148
+msgid "{} correct answer"
+msgid_plural "{} correct answers"
+msgstr[0] "{} resposta correcta"
+msgstr[1] "{} respostas correctas"
+
+#: src/results_view.rs:158
+msgid "—"
+msgstr "—"
+
+#: src/results_view.rs:224
+msgid "No scores yet with these settings"
+msgstr "Aínda non hai puntuacións con esta configuración"
+
+#: src/results_view.rs:226
+msgid "Best scores with these settings"
+msgstr "Mellores puntuacións con esta configuración"
+
+#. Translators: This is a leaderboard entry. The first {}
+#. is the number of correct answers, and the second {} is
+#. the average time per answer, already with its unit, for
+#. example "12 correct, 2.5 s per answer".
+#: src/results_view.rs:244
+msgid "{} correct, {} per answer"
+msgstr "{} correctas, {} por resposta"
