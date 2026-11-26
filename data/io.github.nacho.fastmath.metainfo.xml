@@ -33,6 +33,11 @@
       greater than another. Compare whole numbers, decimals like 8.3 and 8.25,
       fractions like 1/3 and 1/4, or calculations, alone or mixed.
     </p>
+    <p>
+      The fractions mode shows a pizza, a chocolate bar or a grid of squares
+      and asks which fraction was eaten, is left or is coloured, from halves
+      to twelfths and more than a whole.
+    </p>
   </description>
 
   <launchable type="desktop-id">io.github.nacho.fastmath.desktop</launchable>
