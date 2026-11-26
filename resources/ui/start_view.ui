@@ -39,6 +39,29 @@
           <object class="AdwPreferencesPage">
             <child>
               <object class="AdwPreferencesGroup">
+                <child>
+                  <object class="AdwToggleGroup" id="mode_group">
+                    <property name="homogeneous">true</property>
+                    <child>
+                      <object class="AdwToggle">
+                        <property name="name">arithmetic</property>
+                        <property name="label" translatable="yes">_Arithmetic</property>
+                        <property name="use-underline">true</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwToggle">
+                        <property name="name">comparison</property>
+                        <property name="label" translatable="yes">_Comparison</property>
+                        <property name="use-underline">true</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="AdwPreferencesGroup" id="operations_group">
                 <property name="title" translatable="yes">Operations</property>
                 <property name="description" translatable="yes">Select several to mix them in the same round</property>
                 <property name="header-suffix">

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 09:45+0100\n"
+"POT-Creation-Date: 2026-11-26 11:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,11 +50,18 @@ msgid ""
 "were, and the best scores are kept in a leaderboard."
 msgstr ""
 
-#: data/io.github.nacho.fastmath.metainfo.xml:40
+#: data/io.github.nacho.fastmath.metainfo.xml:31
+msgid ""
+"The comparison mode asks whether a number is less than, equal to or greater "
+"than another, from whole numbers to decimals like 8.3 and 8.25, negative "
+"numbers and calculations."
+msgstr ""
+
+#: data/io.github.nacho.fastmath.metainfo.xml:45
 msgid "Choose the operations, the level and the time limit"
 msgstr ""
 
-#: data/io.github.nacho.fastmath.metainfo.xml:44
+#: data/io.github.nacho.fastmath.metainfo.xml:49
 msgid "Answer as many questions as you can before the time runs out"
 msgstr ""
 
@@ -64,6 +71,21 @@ msgstr ""
 
 #: resources/ui/game_view.ui:75
 msgid "Answer"
+msgstr ""
+
+#: resources/ui/game_view.ui:95 resources/ui/game_view.ui:97
+#: resources/ui/shortcuts_dialog.ui:26
+msgid "Less Than"
+msgstr ""
+
+#: resources/ui/game_view.ui:111 resources/ui/game_view.ui:113
+#: resources/ui/shortcuts_dialog.ui:32
+msgid "Equal To"
+msgstr ""
+
+#: resources/ui/game_view.ui:127 resources/ui/game_view.ui:129
+#: resources/ui/shortcuts_dialog.ui:38
+msgid "Greater Than"
 msgstr ""
 
 #: resources/ui/results_view.ui:4
@@ -110,7 +132,7 @@ msgstr ""
 msgid "_Play Again"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:110
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:133
 msgid "Round"
 msgstr ""
 
@@ -118,19 +140,23 @@ msgstr ""
 msgid "Submit Answer"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:23
+#: resources/ui/shortcuts_dialog.ui:23 src/labels.rs:102
+msgid "Comparison"
+msgstr ""
+
+#: resources/ui/shortcuts_dialog.ui:46
 msgid "General"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:26
+#: resources/ui/shortcuts_dialog.ui:49
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:32
+#: resources/ui/shortcuts_dialog.ui:55
 msgid "Close Window"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:38
+#: resources/ui/shortcuts_dialog.ui:61
 msgid "Quit"
 msgstr ""
 
@@ -150,47 +176,55 @@ msgstr ""
 msgid "Main Menu"
 msgstr ""
 
-#: resources/ui/start_view.ui:42
+#: resources/ui/start_view.ui:48
+msgid "_Arithmetic"
+msgstr ""
+
+#: resources/ui/start_view.ui:55
+msgid "_Comparison"
+msgstr ""
+
+#: resources/ui/start_view.ui:65
 msgid "Operations"
 msgstr ""
 
-#: resources/ui/start_view.ui:43
+#: resources/ui/start_view.ui:66
 msgid "Select several to mix them in the same round"
 msgstr ""
 
-#: resources/ui/start_view.ui:46
+#: resources/ui/start_view.ui:69
 msgid "Select _All"
 msgstr ""
 
-#: resources/ui/start_view.ui:56 src/labels.rs:10
+#: resources/ui/start_view.ui:79 src/labels.rs:11
 msgid "Addition"
 msgstr ""
 
-#: resources/ui/start_view.ui:69 src/labels.rs:11
+#: resources/ui/start_view.ui:92 src/labels.rs:12
 msgid "Subtraction"
 msgstr ""
 
-#: resources/ui/start_view.ui:82 src/labels.rs:12
+#: resources/ui/start_view.ui:105 src/labels.rs:13
 msgid "Multiplication"
 msgstr ""
 
-#: resources/ui/start_view.ui:95 src/labels.rs:13
+#: resources/ui/start_view.ui:118 src/labels.rs:14
 msgid "Division"
 msgstr ""
 
-#: resources/ui/start_view.ui:113
+#: resources/ui/start_view.ui:136
 msgid "Level"
 msgstr ""
 
-#: resources/ui/start_view.ui:119
+#: resources/ui/start_view.ui:142
 msgid "Time Limit"
 msgstr ""
 
-#: resources/ui/start_view.ui:120
+#: resources/ui/start_view.ui:143
 msgid "In seconds"
 msgstr ""
 
-#: resources/ui/start_view.ui:138
+#: resources/ui/start_view.ui:161
 msgid "_Start"
 msgstr ""
 
@@ -210,24 +244,67 @@ msgstr ""
 msgid "Learn to type"
 msgstr ""
 
-#: src/game_view.rs:328
+#: src/game_view.rs:403
 msgid "Abandon this round?"
 msgstr ""
 
-#: src/game_view.rs:329
+#: src/game_view.rs:404
 msgid "Your progress in this round will be lost."
 msgstr ""
 
-#: src/game_view.rs:332
+#: src/game_view.rs:407
 msgid "_Keep Playing"
 msgstr ""
 
-#: src/game_view.rs:333
+#: src/game_view.rs:408
 msgid "_Abandon"
 msgstr ""
 
-#: src/labels.rs:19
+#: src/labels.rs:20
 msgid "All operations"
+msgstr ""
+
+#. Translators: This describes a difficulty level of the
+#. comparisons. The first {} is the level number and the
+#. second {} the largest number, for example "Level 1: whole
+#. numbers up to 100".
+#: src/labels.rs:39
+#, rust-format
+msgid "Level {}: whole numbers up to {}"
+msgstr ""
+
+#. Translators: This describes a difficulty level of the
+#. comparisons, with numbers like 8.3 and 8.25. {} is the
+#. level number, for example "Level 2: tenths and hundredths".
+#: src/labels.rs:45
+#, rust-format
+msgid "Level {}: tenths and hundredths"
+msgstr ""
+
+#. Translators: This describes a difficulty level of the
+#. comparisons, with numbers like 2.045 and −2.5. {} is the
+#. level number, for example "Level 3: thousandths and
+#. negative numbers".
+#: src/labels.rs:52
+#, rust-format
+msgid "Level {}: thousandths and negative numbers"
+msgstr ""
+
+#. Translators: This describes a difficulty level of the
+#. comparisons, with questions like "7 × 8 ? 54". {} is the
+#. level number, for example "Level 4: a calculation and a
+#. number".
+#: src/labels.rs:59
+#, rust-format
+msgid "Level {}: a calculation and a number"
+msgstr ""
+
+#. Translators: This describes a difficulty level of the
+#. comparisons, with questions like "6 × 9 ? 50 + 4". {} is
+#. the level number, for example "Level 5: two calculations".
+#: src/labels.rs:65
+#, rust-format
+msgid "Level {}: two calculations"
 msgstr ""
 
 #. Translators: This describes a difficulty level. The first {} is
@@ -235,21 +312,28 @@ msgstr ""
 #. used in additions and subtractions, and the third {} is the largest
 #. number used in the multiplication tables and divisions, for
 #. example "Level 2: sums up to 20, tables up to 10".
-#: src/labels.rs:38
+#: src/labels.rs:77
 #, rust-format
 msgid "Level {}: sums up to {}, tables up to {}"
 msgstr ""
 
+#. Translators: The decimal separator, as in 8.25. Translate it as ","
+#. if your language writes 8,25.
+#: src/labels.rs:84
+msgctxt "decimal separator"
+msgid "."
+msgstr ""
+
 #. Translators: {} is the difficulty level number, from 1 to 5, for
 #. example "Level 2".
-#: src/labels.rs:53
+#: src/labels.rs:98
 #, rust-format
 msgid "Level {}"
 msgstr ""
 
 #. Translators: {} is a number of seconds with one decimal and "s" is
 #. the abbreviation of seconds, for example "2.5 s".
-#: src/labels.rs:69
+#: src/labels.rs:118
 #, rust-format
 msgid "{} s"
 msgstr ""

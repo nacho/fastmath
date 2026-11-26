@@ -80,6 +80,62 @@
                     </style>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkBox" id="compare_box">
+                    <property name="visible">false</property>
+                    <property name="halign">center</property>
+                    <property name="homogeneous">true</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkButton" id="less_button">
+                        <property name="label">&lt;</property>
+                        <property name="action-name">game.compare</property>
+                        <property name="action-target">'less'</property>
+                        <property name="focus-on-click">false</property>
+                        <property name="tooltip-text" translatable="yes">Less Than</property>
+                        <accessibility>
+                          <property name="label" translatable="yes">Less Than</property>
+                        </accessibility>
+                        <style>
+                          <class name="compare-button"/>
+                          <class name="numeric"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="equal_button">
+                        <property name="label">=</property>
+                        <property name="action-name">game.compare</property>
+                        <property name="action-target">'equal'</property>
+                        <property name="focus-on-click">false</property>
+                        <property name="tooltip-text" translatable="yes">Equal To</property>
+                        <accessibility>
+                          <property name="label" translatable="yes">Equal To</property>
+                        </accessibility>
+                        <style>
+                          <class name="compare-button"/>
+                          <class name="numeric"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="greater_button">
+                        <property name="label">&gt;</property>
+                        <property name="action-name">game.compare</property>
+                        <property name="action-target">'greater'</property>
+                        <property name="focus-on-click">false</property>
+                        <property name="tooltip-text" translatable="yes">Greater Than</property>
+                        <accessibility>
+                          <property name="label" translatable="yes">Greater Than</property>
+                        </accessibility>
+                        <style>
+                          <class name="compare-button"/>
+                          <class name="numeric"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

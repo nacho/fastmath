@@ -9,7 +9,7 @@ use crate::config;
 use crate::labels;
 use crate::level::{LEVEL_COUNT, Level};
 use crate::operation::{Operation, OperationSet};
-use crate::round::GameConfig;
+use crate::round::{GameConfig, Mode};
 
 mod imp {
     use super::*;
@@ -19,6 +19,10 @@ mod imp {
     #[derive(Default, gtk::CompositeTemplate)]
     #[template(resource = "/io/github/nacho/fastmath/ui/start_view.ui")]
     pub struct StartView {
+        #[template_child]
+        pub mode_group: TemplateChild<adw::ToggleGroup>,
+        #[template_child]
+        pub operations_group: TemplateChild<adw::PreferencesGroup>,
         #[template_child]
         pub add_row: TemplateChild<adw::SwitchRow>,
         #[template_child]
@@ -116,14 +120,6 @@ impl StartView {
             }
         ));
 
-        let levels: Vec<String> = (1..=LEVEL_COUNT)
-            .map(|n| labels::level_description(Level::new(n)))
-            .collect();
-        let levels: Vec<&str> = levels.iter().map(String::as_str).collect();
-        imp.level_row
-            .set_model(Some(&gtk::StringList::new(&levels)));
-        imp.level_row
-            .set_selected(Level::new(settings.uint("level")).number() - 1);
         imp.level_row.connect_selected_notify(glib::clone!(
             #[weak(rename_to = this)]
             self,
@@ -136,11 +132,44 @@ impl StartView {
             .bind("duration-secs", &*imp.duration_row, "value")
             .build();
 
+        settings
+            .bind("mode", &*imp.mode_group, "active-name")
+            .build();
+        imp.mode_group.connect_active_name_notify(glib::clone!(
+            #[weak(rename_to = this)]
+            self,
+            move |_| this.mode_changed()
+        ));
+        self.mode_changed();
+
         imp.start_button.connect_clicked(glib::clone!(
             #[weak(rename_to = this)]
             self,
             move |_| this.emit_by_name::<()>("start", &[])
         ));
+    }
+
+    fn mode(&self) -> Mode {
+        Mode::from_id(&self.imp().mode_group.active_name().unwrap_or_default())
+    }
+
+    /// Shows the choices of the selected mode.
+    fn mode_changed(&self) {
+        let imp = self.imp();
+        let mode = self.mode();
+        imp.operations_group.set_visible(mode == Mode::Arithmetic);
+
+        // Changing the model selects the first level, so keep the saved one.
+        let level = Level::new(self.settings().uint("level"));
+        let levels: Vec<String> = (1..=LEVEL_COUNT)
+            .map(|n| labels::level_description(mode, Level::new(n)))
+            .collect();
+        let levels: Vec<&str> = levels.iter().map(String::as_str).collect();
+        imp.level_row
+            .set_model(Some(&gtk::StringList::new(&levels)));
+        imp.level_row.set_selected(level.number() - 1);
+
+        self.operations_changed();
     }
 
     /// The operations currently selected.
@@ -152,7 +181,8 @@ impl StartView {
             })
     }
 
-    /// Saves the selected operations. Starting needs at least one.
+    /// Saves the selected operations. An arithmetic round needs at least
+    /// one.
     fn operations_changed(&self) {
         let ops = self.operations();
         if !ops.is_empty() {
@@ -160,13 +190,16 @@ impl StartView {
                 .settings()
                 .set_string("operations", &ops.to_id_string());
         }
-        self.imp().start_button.set_sensitive(!ops.is_empty());
+        self.imp()
+            .start_button
+            .set_sensitive(self.mode() == Mode::Comparison || !ops.is_empty());
     }
 
     /// What the player has chosen to play.
     pub fn game_config(&self) -> GameConfig {
         let settings = self.settings();
         GameConfig {
+            mode: self.mode(),
             ops: self.operations(),
             level: Level::new(settings.uint("level")),
             duration_secs: settings.uint("duration-secs"),

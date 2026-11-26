@@ -5,16 +5,18 @@ use gtk::subclass::prelude::*;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use libadwaita::subclass::prelude::*;
+use std::cmp::Ordering;
 use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 
 use crate::G_LOG_DOMAIN;
-use crate::round::{AnswerResult, GameConfig, Round, RoundResult};
+use crate::labels;
+use crate::round::{Answer, AnswerResult, GameConfig, Mode, Round, RoundResult};
 use crate::sound_player::SoundPlayer;
 
 /// How often the clock and the progress bar are refreshed.
 const TICK: Duration = Duration::from_millis(100);
-/// How long the answer entry shows whether the answer was right.
+/// How long the answer entry or button shows whether the answer was right.
 const FLASH: Duration = Duration::from_millis(400);
 
 /// What was played and how it went.
@@ -44,6 +46,14 @@ mod imp {
         pub question_label: TemplateChild<gtk::Label>,
         #[template_child]
         pub answer_entry: TemplateChild<gtk::Entry>,
+        #[template_child]
+        pub compare_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub less_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub equal_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub greater_button: TemplateChild<gtk::Button>,
 
         #[property(get, set, construct_only)]
         pub config: Cell<Option<GameConfig>>,
@@ -70,6 +80,33 @@ mod imp {
                 view.confirm_abandon();
             });
             klass.add_binding_action(gdk::Key::Escape, gdk::ModifierType::empty(), "game.abandon");
+
+            klass.install_action(
+                "game.compare",
+                Some(glib::VariantTy::STRING),
+                |view, _, target| {
+                    let order = match target.and_then(|t| t.str()) {
+                        Some("less") => Ordering::Less,
+                        Some("equal") => Ordering::Equal,
+                        Some("greater") => Ordering::Greater,
+                        _ => return,
+                    };
+                    view.submit(Answer::Order(order));
+                },
+            );
+            for (key, order) in [
+                (gdk::Key::less, Ordering::Less),
+                (gdk::Key::equal, Ordering::Equal),
+                (gdk::Key::greater, Ordering::Greater),
+            ] {
+                klass.add_binding(key, gdk::ModifierType::empty(), move |view| {
+                    if view.game_config().mode != Mode::Comparison {
+                        return glib::Propagation::Proceed;
+                    }
+                    view.submit(Answer::Order(order));
+                    glib::Propagation::Stop
+                });
+            }
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -83,7 +120,13 @@ mod imp {
             self.parent_constructed();
             let view = self.obj();
 
-            *self.round.borrow_mut() = Some(Round::new(&view.game_config()));
+            let config = view.game_config();
+            *self.round.borrow_mut() = Some(Round::new(&config));
+            if config.mode == Mode::Comparison {
+                self.answer_entry.set_visible(false);
+                self.compare_box.set_visible(true);
+                self.question_label.add_css_class("comparison");
+            }
             view.update_clock(Duration::ZERO);
             view.show_question();
 
@@ -99,7 +142,11 @@ mod imp {
             self.answer_entry.connect_activate(glib::clone!(
                 #[weak]
                 view,
-                move |_| view.submit_answer()
+                move |entry| {
+                    if let Ok(answer) = entry.text().parse::<u32>() {
+                        view.submit(Answer::Number(answer));
+                    }
+                }
             ));
         }
 
@@ -130,7 +177,7 @@ mod imp {
         fn shown(&self) {
             self.parent_shown();
             let view = self.obj();
-            self.answer_entry.grab_focus();
+            view.focus_answer();
             if self.started_at.get().is_none() && !self.done.get() {
                 view.start_clock();
             }
@@ -212,7 +259,7 @@ impl GameView {
         let remaining = total.saturating_sub(elapsed);
         let remaining_secs = remaining.as_secs_f64().ceil() as u32;
         imp.time_label
-            .set_text(&crate::labels::format_clock(remaining_secs));
+            .set_text(&labels::format_clock(remaining_secs));
         imp.progress_bar
             .set_fraction(remaining.as_secs_f64() / total.as_secs_f64());
     }
@@ -224,21 +271,30 @@ impl GameView {
             return;
         };
         if let Some(question) = round.current() {
-            imp.question_label.set_text(&question.text());
+            imp.question_label
+                .set_text(&question.text(&labels::decimal_separator()));
             let number = round.answered() + 1;
             imp.counter_label
                 .set_text(&format!("{} / {}", number, round.limit()));
         }
     }
 
-    fn submit_answer(&self) {
+    /// Gives the keyboard focus to the answer entry, or to the middle button
+    /// of a comparison so that the keys reach the page.
+    fn focus_answer(&self) {
+        let imp = self.imp();
+        if self.game_config().mode == Mode::Comparison {
+            imp.equal_button.grab_focus();
+        } else {
+            imp.answer_entry.grab_focus();
+        }
+    }
+
+    fn submit(&self, answer: Answer) {
         let imp = self.imp();
         if imp.done.get() || imp.started_at.get().is_none() || imp.paused_at.get().is_some() {
             return;
         }
-        let Ok(answer) = imp.answer_entry.text().parse::<u32>() else {
-            return;
-        };
 
         let elapsed = self.elapsed();
         let (result, finished) = {
@@ -253,15 +309,24 @@ impl GameView {
             return;
         };
 
-        imp.answer_entry.set_text("");
+        // Show the result on what the player used to answer.
+        let widget: gtk::Widget = match answer {
+            Answer::Number(_) => {
+                imp.answer_entry.set_text("");
+                imp.answer_entry.clone().upcast()
+            }
+            Answer::Order(Ordering::Less) => imp.less_button.clone().upcast(),
+            Answer::Order(Ordering::Equal) => imp.equal_button.clone().upcast(),
+            Answer::Order(Ordering::Greater) => imp.greater_button.clone().upcast(),
+        };
         match result {
             AnswerResult::Correct => {
                 imp.sound_player.play_correct();
-                self.flash_entry("success");
+                self.flash(&widget, "success");
             }
             AnswerResult::Wrong => {
                 imp.sound_player.play_wrong();
-                self.flash_entry("error");
+                self.flash(&widget, "error");
             }
         }
 
@@ -272,25 +337,35 @@ impl GameView {
         }
     }
 
-    /// Highlights the answer entry for a moment with a style class.
-    fn flash_entry(&self, class: &'static str) {
+    /// Highlights `widget`, the entry or a button, for a moment with a
+    /// style class.
+    fn flash(&self, widget: &gtk::Widget, class: &'static str) {
         let imp = self.imp();
         if let Some(source) = imp.flash.take() {
             source.remove();
         }
-        imp.answer_entry.remove_css_class("success");
-        imp.answer_entry.remove_css_class("error");
-        imp.answer_entry.add_css_class(class);
+        let widgets: [&gtk::Widget; 4] = [
+            imp.answer_entry.upcast_ref(),
+            imp.less_button.upcast_ref(),
+            imp.equal_button.upcast_ref(),
+            imp.greater_button.upcast_ref(),
+        ];
+        for w in widgets {
+            w.remove_css_class("success");
+            w.remove_css_class("error");
+        }
+        widget.add_css_class(class);
 
         let source = glib::timeout_add_local_once(
             FLASH,
             glib::clone!(
                 #[weak(rename_to = view)]
                 self,
+                #[weak]
+                widget,
                 move || {
-                    let imp = view.imp();
-                    imp.flash.take();
-                    imp.answer_entry.remove_css_class(class);
+                    view.imp().flash.take();
+                    widget.remove_css_class(class);
                 }
             ),
         );
@@ -359,7 +434,7 @@ impl GameView {
         }
         imp.sound_player.play_music();
         self.start_timer();
-        imp.answer_entry.grab_focus();
+        self.focus_answer();
     }
 
     fn abandon(&self) {

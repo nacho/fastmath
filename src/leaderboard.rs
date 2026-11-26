@@ -4,7 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::G_LOG_DOMAIN;
-use crate::round::GameConfig;
+use crate::round::{GameConfig, Mode};
 
 pub const MAX_ENTRIES: usize = 10;
 
@@ -26,7 +26,8 @@ impl LeaderboardEntry {
     }
 }
 
-/// The top scores for one combination of operations, level and duration.
+/// The top scores for one combination of operations or comparisons, level
+/// and duration.
 #[derive(Default, Debug)]
 pub struct Leaderboard {
     pub entries: Vec<LeaderboardEntry>,
@@ -34,9 +35,15 @@ pub struct Leaderboard {
 
 impl Leaderboard {
     fn file_path(config: &GameConfig) -> PathBuf {
+        // Operations are stored as the letters a, s, m and d, so "c" for
+        // comparisons cannot clash with them.
+        let questions = match config.mode {
+            Mode::Arithmetic => config.ops.to_id_string(),
+            Mode::Comparison => "c".to_string(),
+        };
         glib::user_data_dir().join("fastmath").join(format!(
             "{}-{}-{}.json",
-            config.ops.to_id_string(),
+            questions,
             config.level.number(),
             config.duration_secs
         ))

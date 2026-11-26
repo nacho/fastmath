@@ -28,6 +28,11 @@
       press Enter. At the end you see how many answers you got right and how
       fast you were, and the best scores are kept in a leaderboard.
     </p>
+    <p>
+      The comparison mode asks whether a number is less than, equal to or
+      greater than another, from whole numbers to decimals like 8.3 and 8.25,
+      negative numbers and calculations.
+    </p>
   </description>
 
   <launchable type="desktop-id">io.github.nacho.fastmath.desktop</launchable>

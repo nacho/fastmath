@@ -20,6 +20,29 @@
     </child>
     <child>
       <object class="AdwShortcutsSection">
+        <property name="title" translatable="yes">Comparison</property>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes">Less Than</property>
+            <property name="accelerator">less</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes">Equal To</property>
+            <property name="accelerator">equal</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes">Greater Than</property>
+            <property name="accelerator">greater</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwShortcutsSection">
         <property name="title" translatable="yes">General</property>
         <child>
           <object class="AdwShortcutsItem">

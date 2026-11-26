@@ -1,9 +1,9 @@
 # AGENTS.md — Fast Math
 
-Fast Math is a mental arithmetic game for GNOME. The player picks operations
-(addition, subtraction, multiplication, division, in any mix), a level and a
-time limit, then types answers to up to 60 questions. The app ID is
-`io.github.nacho.fastmath`.
+Fast Math is a mental arithmetic game for GNOME. The player picks a mode,
+arithmetic (addition, subtraction, multiplication, division, in any mix) or
+comparison (less than, equal to or greater than), a level and a time limit,
+then answers up to 60 questions. The app ID is `io.github.nacho.fastmath`.
 
 It is written in Rust (edition 2024) with GTK 4.20 and libadwaita 1.8 (the
 `v4_20` and `v1_8` features). Meson builds it for production and Cargo for
@@ -18,8 +18,9 @@ src/
   application.rs        # FastmathApplication: actions (the sound effects toggle is the
                         # `app.sound-effects` GSettings action), CSS, About, shortcuts dialog
   window.rs             # FastmathWindow: AdwNavigationView flow, window state
-  start_view.rs         # Operation switches, level, time limit, Start
-  game_view.rs          # The round: question, entry, clock, sounds, abandon dialog
+  start_view.rs         # Mode, operation switches, level, time limit, Start
+  game_view.rs          # The round: question, entry or < = > buttons, clock, sounds,
+                        # abandon dialog
   results_view.rs       # Score, leaderboard, name entry, Play Again / Back
   sound_player.rs       # gtk::MediaFile wrapper, copied from Mundi
   labels.rs             # Translatable names and formatting shared by views
@@ -27,7 +28,9 @@ src/
   operation.rs          # Game logic (no widgets): Operation, OperationSet bitmask <-> "asmd"
   level.rs              # Game logic: Level 1..5 and the operand ranges
   generator.rs          # Game logic: question generator
-  round.rs              # Game logic: round state machine, GameConfig, RoundResult
+  comparison.rs         # Game logic: Decimal, Comparison and the comparison generator
+  round.rs              # Game logic: Mode, Prompt/Answer, round state machine,
+                        # GameConfig, RoundResult
   leaderboard.rs        # Game logic: top-10 JSON store
 resources/              # GResource: ui/*.ui, style.css, sounds/*.oga
 data/                   # Desktop file, metainfo, GSettings schema, icons
@@ -47,8 +50,8 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   started to `Round::submit`, and calls `finish()` when time runs out. The
   game clock starts when the page is shown, so the page transition does not
   cost time, and stops while the abandon dialog is open.
-- The game logic (`operation.rs`, `level.rs`, `generator.rs`, `round.rs` and
-  `leaderboard.rs`) does not use GTK. It uses GLib in two places:
+- The game logic (`operation.rs`, `level.rs`, `generator.rs`,
+  `comparison.rs`, `round.rs` and `leaderboard.rs`) does not use GTK. It uses GLib in two places:
   `leaderboard.rs` for the data directory and logging, and `round.rs`, where
   `GameConfig` is a boxed type so `GameView` can take it as a construct
   property. Keep the question generation and scoring there and unit tested.
@@ -56,10 +59,20 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   divisors are 2..=max. Division picks the divisor and the quotient and
   multiplies them, so it is always exact. The same question never comes twice
   in a row.
+- Comparisons: `Round` holds a `Prompt` (an arithmetic `Question` or a
+  `Comparison`) and takes an `Answer` (a number or an `Ordering`). The
+  generator picks the answer first, so each comes up a third of the time.
+  Levels: 1 whole numbers up to 100, 2 tenths and hundredths, 3 thousandths
+  and negatives, 4 a calculation and a number, 5 two calculations (all four
+  operations). `Decimal` stores thousandths plus the places shown, so 8.3 and
+  8.30 are equal but written differently. The decimal separator is a
+  translatable string (context "decimal separator").
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
-  operations/level/duration (`asmd-2-120.json`), ranked by correct answers and
-  then by a lower average time per answer.
-- GSettings: `operations` (letters `a`, `s`, `m`, `d`), `level`,
+  operations/level/duration (`asmd-2-120.json`, or `c-2-120.json` for
+  comparisons), ranked by correct answers and then by a lower average time
+  per answer.
+- GSettings: `mode` (`arithmetic` or `comparison`), `operations` (letters
+  `a`, `s`, `m`, `d`), `level`,
   `duration-secs`, `sound-effects`, `player-name`, and the
   `.state.window` child for the window size.
 
@@ -76,7 +89,9 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   `AdwShortcutsDialog`). On older distributions such as Ubuntu 24.04, build
   and run inside the GNOME Flatpak SDK.
 - **Display tests** run as one `#[test]` because the widgets start clocks on
-  the default main context, which only one thread can own.
+  the default main context, which only one thread can own. A button only
+  finds its action (`game.compare`) once it is inside a window, so tests
+  that click buttons put the view in a window that is never shown.
 
 ## Tooling & Config
 

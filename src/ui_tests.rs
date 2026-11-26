@@ -13,6 +13,7 @@ use gtk::subclass::prelude::*;
 use libadwaita as adw;
 use libadwaita::prelude::*;
 use std::cell::Cell;
+use std::cmp::Ordering;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
@@ -21,11 +22,12 @@ use crate::game_view::GameView;
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
 use crate::results_view::ResultsView;
-use crate::round::{GameConfig, QUESTIONS_PER_ROUND};
+use crate::round::{Answer, GameConfig, Mode, QUESTIONS_PER_ROUND};
 use crate::start_view::StartView;
 
 fn config() -> GameConfig {
     GameConfig {
+        mode: Mode::Arithmetic,
         ops: OperationSet::ALL,
         level: Level::new(1),
         duration_secs: 120,
@@ -38,9 +40,16 @@ fn answer(view: &GameView, text: &str) {
     entry.emit_by_name::<()>("activate", &[]);
 }
 
-fn current_answer(view: &GameView) -> u32 {
+fn current_answer(view: &GameView) -> Answer {
     let round = view.imp().round.borrow();
-    round.as_ref().unwrap().current().unwrap().answer
+    round.as_ref().unwrap().current().unwrap().answer()
+}
+
+fn current_number(view: &GameView) -> u32 {
+    let Answer::Number(n) = current_answer(view) else {
+        panic!("not an arithmetic question");
+    };
+    n
 }
 
 fn watch_finished(view: &GameView) -> Rc<Cell<u32>> {
@@ -91,6 +100,91 @@ fn start_view_keeps_the_choices(settings: &gio::Settings) {
     assert_eq!(again.game_config().level.number(), 4);
     assert_eq!(again.imp().level_row.selected(), 3);
     assert_eq!(again.game_config().duration_secs, 45);
+
+    // Comparisons need no operations, and keep the level.
+    imp.add_row.set_active(false);
+    imp.subtract_row.set_active(false);
+    imp.multiply_row.set_active(false);
+    imp.divide_row.set_active(false);
+    assert!(!imp.start_button.is_sensitive());
+    let arithmetic_level = level_subtitle(&view);
+    imp.mode_group.set_active_name(Some("comparison"));
+    assert_eq!(settings.string("mode"), "comparison");
+    assert_eq!(view.game_config().mode, Mode::Comparison);
+    assert!(!imp.operations_group.get_visible());
+    assert!(imp.start_button.is_sensitive());
+    assert_eq!(imp.level_row.selected(), 3);
+    assert_eq!(settings.uint("level"), 4);
+    assert_ne!(level_subtitle(&view), arithmetic_level);
+
+    let again: StartView = glib::Object::new();
+    assert_eq!(again.game_config().mode, Mode::Comparison);
+    assert_eq!(again.imp().level_row.selected(), 3);
+
+    imp.mode_group.set_active_name(Some("arithmetic"));
+    assert!(imp.operations_group.get_visible());
+    assert!(!imp.start_button.is_sensitive());
+    imp.all_button.emit_by_name::<()>("clicked", &[]);
+}
+
+fn level_subtitle(view: &StartView) -> String {
+    let row = &view.imp().level_row;
+    row.selected_item()
+        .and_downcast::<gtk::StringObject>()
+        .unwrap()
+        .string()
+        .into()
+}
+
+fn a_comparison_round_is_answered_with_buttons() {
+    let config = GameConfig {
+        mode: Mode::Comparison,
+        level: Level::new(2),
+        ..config()
+    };
+    let view = GameView::new(&config);
+    // Buttons only find their actions inside a window. It is never shown.
+    let navigation = adw::NavigationView::new();
+    navigation.push(&view);
+    let window = gtk::Window::new();
+    window.set_child(Some(&navigation));
+    let finished = watch_finished(&view);
+    let imp = view.imp();
+    assert!(!imp.answer_entry.get_visible());
+    assert!(imp.compare_box.get_visible());
+    assert!(imp.question_label.text().contains(" ? "));
+    view.start_clock();
+
+    let button = |order| match order {
+        Ordering::Less => &imp.less_button,
+        Ordering::Equal => &imp.equal_button,
+        Ordering::Greater => &imp.greater_button,
+    };
+    let Answer::Order(order) = current_answer(&view) else {
+        panic!("not a comparison");
+    };
+    let wrong = if order == Ordering::Equal {
+        Ordering::Greater
+    } else {
+        Ordering::Equal
+    };
+    button(wrong).emit_clicked();
+    assert!(button(wrong).has_css_class("error"));
+    assert_eq!(imp.counter_label.text(), "2 / 60");
+
+    for _ in 1..QUESTIONS_PER_ROUND {
+        assert_eq!(finished.get(), 0);
+        let Answer::Order(order) = current_answer(&view) else {
+            panic!("not a comparison");
+        };
+        button(order).emit_clicked();
+    }
+
+    assert_eq!(finished.get(), 1);
+    let result = view.summary().result;
+    assert_eq!(result.wrong, 1);
+    assert_eq!(result.correct, QUESTIONS_PER_ROUND - 1);
+    window.destroy();
 }
 
 fn a_full_round_ends_after_60_answers() {
@@ -108,14 +202,14 @@ fn a_full_round_ends_after_60_answers() {
     imp.answer_entry.emit_by_name::<()>("activate", &[]);
     assert_eq!(imp.round.borrow().as_ref().unwrap().answered(), 0);
 
-    let wrong = current_answer(&view) + 1;
+    let wrong = current_number(&view) + 1;
     answer(&view, &wrong.to_string());
     assert_eq!(imp.answer_entry.text(), "");
     assert_eq!(imp.counter_label.text(), "2 / 60");
 
     for _ in 1..QUESTIONS_PER_ROUND {
         assert_eq!(finished.get(), 0);
-        let correct = current_answer(&view);
+        let correct = current_number(&view);
         answer(&view, &correct.to_string());
     }
 
@@ -136,7 +230,7 @@ fn a_round_ends_when_the_time_is_up() {
     view.start_clock();
 
     for _ in 0..3 {
-        let correct = current_answer(&view);
+        let correct = current_number(&view);
         answer(&view, &correct.to_string());
     }
     assert_eq!(view.tick(), glib::ControlFlow::Continue);
@@ -160,7 +254,7 @@ fn results_keep_a_leaderboard() {
     let view = GameView::new(&config);
     view.start_clock();
     for _ in 0..4 {
-        let correct = current_answer(&view);
+        let correct = current_number(&view);
         answer(&view, &correct.to_string());
     }
     view.imp()
@@ -215,6 +309,7 @@ fn ui_smoke() {
 
     start_view_keeps_the_choices(&settings);
     a_full_round_ends_after_60_answers();
+    a_comparison_round_is_answered_with_buttons();
     a_round_ends_when_the_time_is_up();
     results_keep_a_leaderboard();
     the_shortcuts_dialog_loads();

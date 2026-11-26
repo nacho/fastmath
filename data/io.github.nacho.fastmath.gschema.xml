@@ -2,10 +2,19 @@
 <schemalist>
   <schema id="io.github.nacho.fastmath" path="/io/github/nacho/fastmath/">
     <child name="state" schema="io.github.nacho.fastmath.state"/>
+    <key name="mode" type="s">
+      <choices>
+        <choice value="arithmetic"/>
+        <choice value="comparison"/>
+      </choices>
+      <default>"arithmetic"</default>
+      <summary>Mode</summary>
+      <description>The kind of questions: arithmetic (calculations with the selected operations) or comparison (whether a number is less than, equal to or greater than another).</description>
+    </key>
     <key name="operations" type="s">
       <default>"asmd"</default>
       <summary>Operations</summary>
-      <description>The operations to practice, as letters: a (addition), s (subtraction), m (multiplication) and d (division).</description>
+      <description>The operations to practice in arithmetic mode, as letters: a (addition), s (subtraction), m (multiplication) and d (division).</description>
     </key>
     <key name="level" type="u">
       <range min="1" max="5"/>

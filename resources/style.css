@@ -18,3 +18,24 @@
     font-size: 3rem;
     font-weight: 800;
 }
+
+.question.comparison {
+    font-size: 3rem;
+}
+
+.compare-button {
+    font-size: 2rem;
+    font-weight: 800;
+    min-width: 4.5rem;
+    min-height: 3.5rem;
+}
+
+.compare-button.success {
+    background-color: var(--success-bg-color);
+    color: var(--success-fg-color);
+}
+
+.compare-button.error {
+    background-color: var(--error-bg-color);
+    color: var(--error-fg-color);
+}

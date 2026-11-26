@@ -1,5 +1,7 @@
+use std::cmp::Ordering;
 use std::time::Duration;
 
+use crate::comparison::{Comparison, ComparisonGenerator};
 use crate::generator::{Generator, Question};
 use crate::level::Level;
 use crate::operation::OperationSet;
@@ -7,13 +9,97 @@ use crate::operation::OperationSet;
 /// The number of questions in a round.
 pub const QUESTIONS_PER_ROUND: u32 = 60;
 
+/// The kind of questions in a round.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum Mode {
+    /// Calculations with the selected operations.
+    Arithmetic,
+    /// Whether a number is less than, equal to or greater than another.
+    Comparison,
+}
+
+impl Mode {
+    /// The name used to store the mode in settings.
+    pub fn id(self) -> &'static str {
+        match self {
+            Mode::Arithmetic => "arithmetic",
+            Mode::Comparison => "comparison",
+        }
+    }
+
+    /// Parses the output of `id`. Anything else is arithmetic.
+    pub fn from_id(id: &str) -> Self {
+        if id == Mode::Comparison.id() {
+            Mode::Comparison
+        } else {
+            Mode::Arithmetic
+        }
+    }
+}
+
 /// What the player chose to play.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, glib::Boxed)]
 #[boxed_type(name = "FastmathGameConfig", nullable)]
 pub struct GameConfig {
+    pub mode: Mode,
+    /// The operations of an arithmetic round.
     pub ops: OperationSet,
     pub level: Level,
     pub duration_secs: u32,
+}
+
+/// What the player answers.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Answer {
+    Number(u32),
+    Order(Ordering),
+}
+
+/// A question of either mode.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Prompt {
+    Arithmetic(Question),
+    Comparison(Comparison),
+}
+
+impl Prompt {
+    pub fn answer(&self) -> Answer {
+        match self {
+            Prompt::Arithmetic(q) => Answer::Number(q.answer),
+            Prompt::Comparison(c) => Answer::Order(c.answer()),
+        }
+    }
+
+    /// The question as shown to the player, with `separator` between the
+    /// whole part and the decimals of a number.
+    pub fn text(&self, separator: &str) -> String {
+        match self {
+            Prompt::Arithmetic(q) => q.text(),
+            Prompt::Comparison(c) => c.text(separator),
+        }
+    }
+}
+
+/// Where the questions of a round come from.
+pub enum Questions {
+    Arithmetic(Generator),
+    Comparison(ComparisonGenerator),
+}
+
+impl Questions {
+    pub fn new(config: &GameConfig) -> Self {
+        match config.mode {
+            Mode::Arithmetic => Questions::Arithmetic(Generator::new(config.ops, config.level)),
+            Mode::Comparison => Questions::Comparison(ComparisonGenerator::new(config.level)),
+        }
+    }
+
+    fn next(&mut self) -> Prompt {
+        match self {
+            Questions::Arithmetic(g) => Prompt::Arithmetic(g.next_question()),
+            Questions::Comparison(g) => Prompt::Comparison(g.next_comparison()),
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -37,8 +123,8 @@ pub struct RoundResult {
 /// The round has no clock of its own. The caller passes the time elapsed
 /// since the round started, and ends it with `finish` when time runs out.
 pub struct Round {
-    generator: Generator,
-    current: Option<Question>,
+    questions: Questions,
+    current: Option<Prompt>,
     limit: u32,
     correct: u32,
     wrong: u32,
@@ -48,16 +134,13 @@ pub struct Round {
 
 impl Round {
     pub fn new(config: &GameConfig) -> Self {
-        Self::with_generator(
-            Generator::new(config.ops, config.level),
-            QUESTIONS_PER_ROUND,
-        )
+        Self::with_questions(Questions::new(config), QUESTIONS_PER_ROUND)
     }
 
-    pub fn with_generator(mut generator: Generator, limit: u32) -> Self {
-        let current = (limit > 0).then(|| generator.next_question());
+    pub fn with_questions(mut questions: Questions, limit: u32) -> Self {
+        let current = (limit > 0).then(|| questions.next());
         Round {
-            generator,
+            questions,
             current,
             limit,
             correct: 0,
@@ -68,7 +151,7 @@ impl Round {
     }
 
     /// The question waiting for an answer, or `None` once the round is over.
-    pub fn current(&self) -> Option<&Question> {
+    pub fn current(&self) -> Option<&Prompt> {
         self.current.as_ref()
     }
 
@@ -86,13 +169,13 @@ impl Round {
 
     /// Answers the current question `elapsed` after the round started, and
     /// moves on to the next one. Returns `None` if the round is over.
-    pub fn submit(&mut self, answer: u32, elapsed: Duration) -> Option<AnswerResult> {
+    pub fn submit(&mut self, answer: Answer, elapsed: Duration) -> Option<AnswerResult> {
         let question = self.current?;
 
         self.answer_time += elapsed.saturating_sub(self.last_answer_at);
         self.last_answer_at = elapsed;
 
-        let result = if answer == question.answer {
+        let result = if answer == question.answer() {
             self.correct += 1;
             AnswerResult::Correct
         } else {
@@ -100,7 +183,7 @@ impl Round {
             AnswerResult::Wrong
         };
 
-        self.current = (self.answered() < self.limit).then(|| self.generator.next_question());
+        self.current = (self.answered() < self.limit).then(|| self.questions.next());
         Some(result)
     }
 
@@ -130,7 +213,19 @@ mod tests {
             Level::new(1),
             fastrand::Rng::with_seed(7),
         );
-        Round::with_generator(generator, limit)
+        Round::with_questions(Questions::Arithmetic(generator), limit)
+    }
+
+    fn correct(round: &Round) -> Answer {
+        round.current().unwrap().answer()
+    }
+
+    fn wrong(round: &Round) -> Answer {
+        match correct(round) {
+            Answer::Number(n) => Answer::Number(n + 1),
+            Answer::Order(Ordering::Equal) => Answer::Order(Ordering::Less),
+            Answer::Order(order) => Answer::Order(order.reverse()),
+        }
     }
 
     fn secs(s: u64) -> Duration {
@@ -142,13 +237,12 @@ mod tests {
         let mut round = round(QUESTIONS_PER_ROUND);
         for i in 0..QUESTIONS_PER_ROUND {
             assert!(!round.is_finished());
-            let answer = round.current().unwrap().answer;
-            let result = round.submit(answer, secs(i as u64 + 1));
+            let result = round.submit(correct(&round), secs(i as u64 + 1));
             assert_eq!(result, Some(AnswerResult::Correct));
         }
         assert!(round.is_finished());
         assert!(round.current().is_none());
-        assert_eq!(round.submit(1, secs(100)), None);
+        assert_eq!(round.submit(Answer::Number(1), secs(100)), None);
 
         let result = round.result();
         assert_eq!(result.correct, QUESTIONS_PER_ROUND);
@@ -161,7 +255,7 @@ mod tests {
     fn wrong_answers_are_counted_and_the_round_moves_on() {
         let mut round = round(5);
         let first = *round.current().unwrap();
-        let result = round.submit(first.answer + 1, secs(2));
+        let result = round.submit(wrong(&round), secs(2));
         assert_eq!(result, Some(AnswerResult::Wrong));
         assert_ne!(round.current(), Some(&first));
         assert_eq!(round.result().wrong, 1);
@@ -172,8 +266,11 @@ mod tests {
     fn finishing_early_counts_the_rest_as_unanswered() {
         let mut round = round(QUESTIONS_PER_ROUND);
         for i in 0..10u64 {
-            let answer = round.current().unwrap().answer;
-            let answer = if i % 2 == 0 { answer } else { answer + 1 };
+            let answer = if i % 2 == 0 {
+                correct(&round)
+            } else {
+                wrong(&round)
+            };
             round.submit(answer, secs(2 * (i + 1)));
         }
         round.finish();
@@ -199,5 +296,32 @@ mod tests {
         let result = round.result();
         assert_eq!(result.unanswered, QUESTIONS_PER_ROUND);
         assert_eq!(result.average_time, None);
+    }
+
+    #[test]
+    fn comparison_rounds_take_the_order_as_the_answer() {
+        let generator = ComparisonGenerator::with_rng(Level::new(2), fastrand::Rng::with_seed(7));
+        let mut round = Round::with_questions(Questions::Comparison(generator), 10);
+        for i in 0..10u64 {
+            assert!(matches!(round.current(), Some(Prompt::Comparison(_))));
+            let answer = if i < 7 {
+                correct(&round)
+            } else {
+                wrong(&round)
+            };
+            assert!(matches!(answer, Answer::Order(_)));
+            round.submit(answer, secs(i + 1));
+        }
+        assert!(round.is_finished());
+        let result = round.result();
+        assert_eq!((result.correct, result.wrong), (7, 3));
+    }
+
+    #[test]
+    fn mode_id_round_trips() {
+        for mode in [Mode::Arithmetic, Mode::Comparison] {
+            assert_eq!(Mode::from_id(mode.id()), mode);
+        }
+        assert_eq!(Mode::from_id("nonsense"), Mode::Arithmetic);
     }
 }

@@ -7,10 +7,10 @@ A mental arithmetic game for GNOME. Answer as many questions as you can before t
 
 ## How to Play
 
-1. Pick the operations to practice: addition, subtraction, multiplication and division. Select several to mix them in the same round.
+1. Pick a mode. In **Arithmetic**, choose the operations to practice: addition, subtraction, multiplication and division. Select several to mix them in the same round. In **Comparison**, say whether the left side is less than, equal to or greater than the right side.
 2. Choose a level and the time limit (two minutes by default).
-3. Type each answer and press Enter. A round has up to 60 questions and ends when you answer them all or the time is up.
-4. See how many answers you got right and how fast you were. Good scores go into a top-10 leaderboard for each combination of operations, level and time limit.
+3. Type each answer and press Enter, or in comparisons press the <, = or > button or key. A round has up to 60 questions and ends when you answer them all or the time is up.
+4. See how many answers you got right and how fast you were. Good scores go into a top-10 leaderboard for each combination of operations (or comparisons), level and time limit.
 
 A wrong answer moves on to the next question and costs nothing. Press Escape to abandon a round.
 
@@ -25,6 +25,18 @@ A wrong answer moves on to the next question and costs nothing. Press Escape to 
 | 5     | up to 1000               | tables up to 20             |
 
 Divisions are always exact and subtractions never go below zero.
+
+In comparison mode:
+
+| Level | Questions                                     | Example        |
+|-------|-----------------------------------------------|----------------|
+| 1     | whole numbers up to 100                       | 47 ? 52        |
+| 2     | decimals with tenths and hundredths           | 8.3 ? 8.25     |
+| 3     | thousandths and negative numbers              | −2.5 ? −2.045  |
+| 4     | a calculation and a number                    | 7 × 8 ? 54     |
+| 5     | two calculations                              | 6 × 9 ? 50 + 4 |
+
+Each answer comes up about a third of the time. Equal decimals are written differently (8.3 and 8.30), and many unequal ones test place value: 8.3 is greater than 8.25, and 3.04 is less than 3.4.
 
 ## Building
 
