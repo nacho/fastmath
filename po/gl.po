@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 17:28+0100\n"
-"PO-Revision-Date: 2026-11-26 17:30+0100\n"
+"POT-Creation-Date: 2026-11-26 18:10+0100\n"
+"PO-Revision-Date: 2026-11-26 18:11+0100\n"
 "Last-Translator: Ignacio Casal Quinteiro\n"
 "Language-Team: Galician\n"
 "Language: gl\n"
@@ -67,11 +67,21 @@ msgstr ""
 "que outro. Compara números enteiros, decimais como 8,3 e 8,25, fraccións "
 "como 1/3 e 1/4, ou cálculos, por separado ou mesturados."
 
-#: data/io.github.nacho.fastmath.metainfo.xml:45
+#: data/io.github.nacho.fastmath.metainfo.xml:36
+msgid ""
+"The fractions mode shows a pizza, a chocolate bar or a grid of squares and "
+"asks which fraction was eaten, is left or is coloured, from halves to "
+"twelfths and more than a whole."
+msgstr ""
+"O modo de fraccións amosa unha pizza, unha táboa de chocolate ou unha "
+"cuadrícula e pregunta que fracción se comeu, queda ou está coloreada, desde "
+"medios ata doceavos e máis dunha unidade."
+
+#: data/io.github.nacho.fastmath.metainfo.xml:50
 msgid "Choose the operations, the level and the time limit"
 msgstr "Elixe as operacións, o nivel e o límite de tempo"
 
-#: data/io.github.nacho.fastmath.metainfo.xml:49
+#: data/io.github.nacho.fastmath.metainfo.xml:54
 msgid "Answer as many questions as you can before the time runs out"
 msgstr "Responde a tantas preguntas como poidas antes de que se acabe o tempo"
 
@@ -83,17 +93,25 @@ msgstr "Abandonar rolda"
 msgid "Answer"
 msgstr "Resposta"
 
-#: resources/ui/game_view.ui:93 resources/ui/game_view.ui:95
+#: resources/ui/game_view.ui:95
+msgid "Numerator"
+msgstr "Numerador"
+
+#: resources/ui/game_view.ui:118
+msgid "Denominator"
+msgstr "Denominador"
+
+#: resources/ui/game_view.ui:140 resources/ui/game_view.ui:142
 #: resources/ui/shortcuts_dialog.ui:26
 msgid "Less Than"
 msgstr "Menor que"
 
-#: resources/ui/game_view.ui:109 resources/ui/game_view.ui:111
+#: resources/ui/game_view.ui:156 resources/ui/game_view.ui:158
 #: resources/ui/shortcuts_dialog.ui:32
 msgid "Equal To"
 msgstr "Igual a"
 
-#: resources/ui/game_view.ui:125 resources/ui/game_view.ui:127
+#: resources/ui/game_view.ui:172 resources/ui/game_view.ui:174
 #: resources/ui/shortcuts_dialog.ui:38
 msgid "Greater Than"
 msgstr "Maior que"
@@ -142,7 +160,7 @@ msgstr "_Volver"
 msgid "_Play Again"
 msgstr "_Xogar de novo"
 
-#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:201
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:208
 msgid "Round"
 msgstr "Rolda"
 
@@ -154,19 +172,28 @@ msgstr "Enviar resposta"
 msgid "Comparison"
 msgstr "Comparación"
 
-#: resources/ui/shortcuts_dialog.ui:46
+#: resources/ui/shortcuts_dialog.ui:46 resources/ui/start_view.ui:180
+#: src/labels.rs:33 src/labels.rs:215
+msgid "Fractions"
+msgstr "Fraccións"
+
+#: resources/ui/shortcuts_dialog.ui:49
+msgid "Move to the Denominator"
+msgstr "Ir ao denominador"
+
+#: resources/ui/shortcuts_dialog.ui:57
 msgid "General"
 msgstr "Xeral"
 
-#: resources/ui/shortcuts_dialog.ui:49
+#: resources/ui/shortcuts_dialog.ui:60
 msgid "Keyboard Shortcuts"
 msgstr "Atallos de teclado"
 
-#: resources/ui/shortcuts_dialog.ui:55
+#: resources/ui/shortcuts_dialog.ui:66
 msgid "Close Window"
 msgstr "Pechar a xanela"
 
-#: resources/ui/shortcuts_dialog.ui:61
+#: resources/ui/shortcuts_dialog.ui:72
 msgid "Quit"
 msgstr "Saír"
 
@@ -194,67 +221,67 @@ msgstr "_Aritmética"
 msgid "_Comparison"
 msgstr "_Comparación"
 
-#: resources/ui/start_view.ui:65
+#: resources/ui/start_view.ui:62
+msgid "_Fractions"
+msgstr "_Fraccións"
+
+#: resources/ui/start_view.ui:72
 msgid "Operations"
 msgstr "Operacións"
 
-#: resources/ui/start_view.ui:66 resources/ui/start_view.ui:134
+#: resources/ui/start_view.ui:73 resources/ui/start_view.ui:141
 msgid "Select several to mix them in the same round"
 msgstr "Selecciona varias para mesturalas na mesma rolda"
 
-#: resources/ui/start_view.ui:69 resources/ui/start_view.ui:137
+#: resources/ui/start_view.ui:76 resources/ui/start_view.ui:144
 msgid "Select _All"
 msgstr "Seleccionar _todas"
 
-#: resources/ui/start_view.ui:79 src/labels.rs:11
+#: resources/ui/start_view.ui:86 src/labels.rs:12
 msgid "Addition"
 msgstr "Suma"
 
-#: resources/ui/start_view.ui:92 src/labels.rs:12
+#: resources/ui/start_view.ui:99 src/labels.rs:13
 msgid "Subtraction"
 msgstr "Resta"
 
-#: resources/ui/start_view.ui:105 src/labels.rs:13
+#: resources/ui/start_view.ui:112 src/labels.rs:14
 msgid "Multiplication"
 msgstr "Multiplicación"
 
-#: resources/ui/start_view.ui:118 src/labels.rs:14
+#: resources/ui/start_view.ui:125 src/labels.rs:15
 msgid "Division"
 msgstr "División"
 
-#: resources/ui/start_view.ui:133
+#: resources/ui/start_view.ui:140
 msgid "Comparisons"
 msgstr "Comparacións"
 
-#: resources/ui/start_view.ui:147 src/labels.rs:30
+#: resources/ui/start_view.ui:154 src/labels.rs:31
 msgid "Whole Numbers"
 msgstr "Números enteiros"
 
-#: resources/ui/start_view.ui:160 src/labels.rs:31
+#: resources/ui/start_view.ui:167 src/labels.rs:32
 msgid "Decimals"
 msgstr "Decimais"
 
-#: resources/ui/start_view.ui:173 src/labels.rs:32
-msgid "Fractions"
-msgstr "Fraccións"
-
-#: resources/ui/start_view.ui:186 src/labels.rs:33
+#: resources/ui/start_view.ui:193 src/labels.rs:34
 msgid "Calculations"
 msgstr "Cálculos"
 
-#: resources/ui/start_view.ui:204
+#: resources/ui/start_view.ui:211
 msgid "Level"
 msgstr "Nivel"
 
-#: resources/ui/start_view.ui:210
+#: resources/ui/start_view.ui:217
 msgid "Time Limit"
 msgstr "Límite de tempo"
 
-#: resources/ui/start_view.ui:211
+#: resources/ui/start_view.ui:218
 msgid "In seconds"
 msgstr "En segundos"
 
-#: resources/ui/start_view.ui:229
+#: resources/ui/start_view.ui:236
 msgid "_Start"
 msgstr "_Comezar"
 
@@ -289,42 +316,120 @@ msgstr "{} e {} sobre {}"
 msgid "{} over {}"
 msgstr "{} sobre {}"
 
-#: src/game_view.rs:421
+#. Translators: Describes a picture for screen readers. The
+#. first {} is the number of slices and the second {} the
+#. number of eaten slices, which picks the plural form, for
+#. example "A pizza in 8 slices, 3 of them eaten".
+#: src/fraction_picture.rs:161
+msgid "A pizza in {} slices, {} of them eaten"
+msgid_plural "A pizza in {} slices, {} of them eaten"
+msgstr[0] "Unha pizza de {} porcións, {} delas comida"
+msgstr[1] "Unha pizza de {} porcións, {} delas comidas"
+
+#. Translators: Describes a picture for screen readers. The
+#. first {} is the number of squares and the second {} the
+#. number of eaten squares, which picks the plural form, for
+#. example "A chocolate bar of 8 squares, 3 of them eaten".
+#: src/fraction_picture.rs:168
+msgid "A chocolate bar of {} squares, {} of them eaten"
+msgid_plural "A chocolate bar of {} squares, {} of them eaten"
+msgstr[0] "Unha táboa de chocolate de {} onzas, {} delas comida"
+msgstr[1] "Unha táboa de chocolate de {} onzas, {} delas comidas"
+
+#. Translators: Describes a picture for screen readers. The
+#. first {} is the number of squares and the second {} the
+#. number of coloured squares, which picks the plural form,
+#. for example "A grid of 8 squares, 3 of them coloured".
+#: src/fraction_picture.rs:175
+msgid "A grid of {} squares, {} of them coloured"
+msgid_plural "A grid of {} squares, {} of them coloured"
+msgstr[0] "Unha cuadrícula de {} cadrados, {} deles coloreado"
+msgstr[1] "Unha cuadrícula de {} cadrados, {} deles coloreados"
+
+#. Translators: Describes a picture for screen readers. The
+#. first {} is the number of slices of each pizza and the
+#. second {} the number of eaten slices of both pizzas, which
+#. picks the plural form, for example "Two pizzas in 4 slices
+#. each, 7 slices eaten".
+#: src/fraction_picture.rs:183
+msgid "Two pizzas in {} slices each, {} slice eaten"
+msgid_plural "Two pizzas in {} slices each, {} slices eaten"
+msgstr[0] "Dúas pizzas de {} porcións cada unha, {} porción comida"
+msgstr[1] "Dúas pizzas de {} porcións cada unha, {} porcións comidas"
+
+#: src/game_view.rs:513
 msgid "Abandon this round?"
 msgstr "¿Abandonar esta rolda?"
 
-#: src/game_view.rs:422
+#: src/game_view.rs:514
 msgid "Your progress in this round will be lost."
 msgstr "Perderase o teu progreso nesta rolda."
 
-#: src/game_view.rs:425
+#: src/game_view.rs:517
 msgid "_Keep Playing"
 msgstr "_Seguir xogando"
 
-#: src/game_view.rs:426
+#: src/game_view.rs:518
 msgid "_Abandon"
 msgstr "_Abandonar"
 
-#: src/labels.rs:20
+#: src/labels.rs:21
 msgid "All operations"
 msgstr "Todas as operacións"
 
-#: src/labels.rs:39
+#: src/labels.rs:40
 msgid "All comparisons"
 msgstr "Todas as comparacións"
 
 #. Translators: {} is the difficulty level number, from 1 to 5, for
 #. example "Level 2".
-#: src/labels.rs:53
+#: src/labels.rs:54
 msgid "Level {}"
 msgstr "Nivel {}"
+
+#. Translators: This describes a difficulty level of the
+#. fractions mode. {} is the level number, for example
+#. "Level 1: halves, thirds and quarters".
+#: src/labels.rs:72
+msgid "Level {}: halves, thirds and quarters"
+msgstr "Nivel {}: medios, terzos e cuartos"
+
+#. Translators: This describes a difficulty level of the
+#. fractions mode, with fractions like 5/12. {} is the
+#. level number, for example "Level 2: up to twelfths".
+#: src/labels.rs:78
+msgid "Level {}: up to twelfths"
+msgstr "Nivel {}: ata doceavos"
+
+#. Translators: This describes a difficulty level of the
+#. fractions mode, asking which fraction was eaten or is
+#. left. {} is the level number, for example "Level 3:
+#. eaten and left".
+#: src/labels.rs:85
+msgid "Level {}: eaten and left"
+msgstr "Nivel {}: o comido e o que queda"
+
+#. Translators: This describes a difficulty level of the
+#. fractions mode, where 4/8 must be answered as 1/2. {}
+#. is the level number, for example "Level 4: simplest
+#. form".
+#: src/labels.rs:92
+msgid "Level {}: simplest form"
+msgstr "Nivel {}: forma simplificada"
+
+#. Translators: This describes a difficulty level of the
+#. fractions mode, with answers like 7/4. {} is the level
+#. number, for example "Level 5: more than a whole".
+#: src/labels.rs:98
+msgid "Level {}: more than a whole"
+msgstr "Nivel {}: máis dunha unidade"
 
 #. Translators: This describes a difficulty level. The first {} is
 #. the level number, from 1 to 5, the second {} is the largest number
 #. used in additions and subtractions, and the third {} is the largest
 #. number used in the multiplication tables and divisions, for
 #. example "Level 2: sums up to 20, tables up to 10".
-#: src/labels.rs:73
+#: src/labels.rs:111
 msgid "Level {}: sums up to {}, tables up to {}"
 msgstr "Nivel {}: sumas ata {}, táboas ata {}"
 
@@ -332,54 +437,54 @@ msgstr "Nivel {}: sumas ata {}, táboas ata {}"
 #. difficulty level. Both {} are the same number, for example
 #. "Negative numbers, from −100 to 100". The first one comes
 #. after a minus sign.
-#: src/labels.rs:89
+#: src/labels.rs:127
 msgid "Negative numbers, from −{} to {}"
 msgstr "Números negativos, de −{} a {}"
 
 #. Translators: This describes the whole numbers compared at a
 #. difficulty level. {} is the largest number, for example
 #. "Up to 20".
-#: src/labels.rs:98
+#: src/labels.rs:136
 msgid "Up to {}"
 msgstr "Ata {}"
 
-#: src/labels.rs:102
+#: src/labels.rs:140
 msgid "Tenths"
 msgstr "Décimas"
 
-#: src/labels.rs:103
+#: src/labels.rs:141
 msgid "Tenths and hundredths"
 msgstr "Décimas e centésimas"
 
-#: src/labels.rs:104
+#: src/labels.rs:142
 msgid "Thousandths"
 msgstr "Milésimas"
 
-#: src/labels.rs:105
+#: src/labels.rs:143
 msgid "Negative numbers with hundredths"
 msgstr "Números negativos con centésimas"
 
-#: src/labels.rs:106
+#: src/labels.rs:144
 msgid "Negative numbers with thousandths"
 msgstr "Números negativos con milésimas"
 
-#: src/labels.rs:109
+#: src/labels.rs:147
 msgid "The same denominator"
 msgstr "O mesmo denominador"
 
-#: src/labels.rs:110
+#: src/labels.rs:148
 msgid "The same numerator"
 msgstr "O mesmo numerador"
 
-#: src/labels.rs:111
+#: src/labels.rs:149
 msgid "Equivalent fractions"
 msgstr "Fraccións equivalentes"
 
-#: src/labels.rs:112
+#: src/labels.rs:150
 msgid "Different denominators"
 msgstr "Denominadores distintos"
 
-#: src/labels.rs:113
+#: src/labels.rs:151
 msgid "Improper fractions and mixed numbers"
 msgstr "Fraccións impropias e números mixtos"
 
@@ -387,7 +492,7 @@ msgstr "Fraccións impropias e números mixtos"
 #. at a difficulty level, for example "7 + 2 ? 8". {} is
 #. the largest number added or subtracted, for example
 #. "A sum or a difference and a number, up to 10".
-#: src/labels.rs:125
+#: src/labels.rs:163
 msgid "A sum or a difference and a number, up to {}"
 msgstr "Unha suma ou unha resta e un número, ata {}"
 
@@ -397,7 +502,7 @@ msgstr "Unha suma ou unha resta e un número, ata {}"
 #. the second {} the largest multiplication table, for
 #. example "A calculation and a number, sums up to 20,
 #. tables up to 10".
-#: src/labels.rs:134
+#: src/labels.rs:172
 msgid "A calculation and a number, sums up to {}, tables up to {}"
 msgstr "Un cálculo e un número, sumas ata {}, táboas ata {}"
 
@@ -407,20 +512,36 @@ msgstr "Un cálculo e un número, sumas ata {}, táboas ata {}"
 #. and the second {} the largest multiplication table, for
 #. example "Two calculations, sums up to 50, tables up to
 #. 12".
-#: src/labels.rs:143
+#: src/labels.rs:181
 msgid "Two calculations, sums up to {}, tables up to {}"
 msgstr "Dous cálculos, sumas ata {}, táboas ata {}"
 
+#: src/labels.rs:191
+msgid "What fraction is coloured?"
+msgstr "¿Que fracción está coloreada?"
+
+#: src/labels.rs:192
+msgid "What fraction is not coloured?"
+msgstr "¿Que fracción non está coloreada?"
+
+#: src/labels.rs:193
+msgid "How much was eaten?"
+msgstr "¿Canto se comeu?"
+
+#: src/labels.rs:194
+msgid "How much is left?"
+msgstr "¿Canto queda?"
+
 #. Translators: The decimal separator, as in 8.25. Translate it as ","
 #. if your language writes 8,25.
-#: src/labels.rs:153
+#: src/labels.rs:201
 msgctxt "decimal separator"
 msgid "."
 msgstr ","
 
 #. Translators: {} is a number of seconds with one decimal and "s" is
 #. the abbreviation of seconds, for example "2.5 s".
-#: src/labels.rs:182
+#: src/labels.rs:231
 msgid "{} s"
 msgstr "{} s"
 
