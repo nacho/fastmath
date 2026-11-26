@@ -18,7 +18,7 @@ src/
   application.rs        # FastmathApplication: actions (the sound effects toggle is the
                         # `app.sound-effects` GSettings action), CSS, About, shortcuts dialog
   window.rs             # FastmathWindow: AdwNavigationView flow, window state
-  start_view.rs         # Mode, operation switches, level, time limit, Start
+  start_view.rs         # Mode, operation or comparison switches, level, time limit, Start
   game_view.rs          # The round: question, entry or < = > buttons, clock, sounds,
                         # abandon dialog
   results_view.rs       # Score, leaderboard, name entry, Play Again / Back
@@ -29,7 +29,8 @@ src/
   operation.rs          # Game logic: Operation, OperationSet (ChoiceSet of "asmd")
   level.rs              # Game logic: Level 1..5 and the operand ranges
   generator.rs          # Game logic: question generator
-  comparison.rs         # Game logic: Decimal, Comparison and the comparison generator
+  comparison.rs         # Game logic: Decimal, Comparison, ComparisonKind and the
+                        # comparison generator
   round.rs              # Game logic: Mode, Prompt/Answer, round state machine,
                         # GameConfig, RoundResult
   leaderboard.rs        # Game logic: top-10 JSON store
@@ -62,18 +63,19 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   in a row.
 - Comparisons: `Round` holds a `Prompt` (an arithmetic `Question` or a
   `Comparison`) and takes an `Answer` (a number or an `Ordering`). The
-  generator picks the answer first, so each comes up a third of the time.
-  Levels: 1 whole numbers up to 100, 2 tenths and hundredths, 3 thousandths
-  and negatives, 4 a calculation and a number, 5 two calculations (all four
-  operations). `Decimal` stores thousandths plus the places shown, so 8.3 and
-  8.30 are equal but written differently. The decimal separator is a
+  generator picks a selected `ComparisonKind` (whole numbers, decimals,
+  calculations) and then the answer, so each answer comes up a third of the
+  time. The level sets the difficulty of each kind (see the table in
+  `comparison.rs` and the README); `labels::comparison_kind_description`
+  shows it as the subtitle of each switch row. `Decimal` stores thousandths
+  plus the places shown, so 8.3 and 8.30 are equal but written differently. The decimal separator is a
   translatable string (context "decimal separator").
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
-  operations/level/duration (`asmd-2-120.json`, or `c-2-120.json` for
+  operations/level/duration (`asmd-2-120.json`, or `c-wdc-2-120.json` for
   comparisons), ranked by correct answers and then by a lower average time
   per answer.
 - GSettings: `mode` (`arithmetic` or `comparison`), `operations` (letters
-  `a`, `s`, `m`, `d`), `level`,
+  `a`, `s`, `m`, `d`), `comparisons` (letters `w`, `d`, `c`), `level`,
   `duration-secs`, `sound-effects`, `player-name`, and the
   `.state.window` child for the window size.
 

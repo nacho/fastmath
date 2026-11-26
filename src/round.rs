@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::time::Duration;
 
-use crate::comparison::{Comparison, ComparisonGenerator};
+use crate::comparison::{Comparison, ComparisonGenerator, ComparisonKinds};
 use crate::generator::{Generator, Question};
 use crate::level::Level;
 use crate::operation::OperationSet;
@@ -44,6 +44,8 @@ pub struct GameConfig {
     pub mode: Mode,
     /// The operations of an arithmetic round.
     pub ops: OperationSet,
+    /// What a comparison round compares.
+    pub kinds: ComparisonKinds,
     pub level: Level,
     pub duration_secs: u32,
 }
@@ -90,7 +92,9 @@ impl Questions {
     pub fn new(config: &GameConfig) -> Self {
         match config.mode {
             Mode::Arithmetic => Questions::Arithmetic(Generator::new(config.ops, config.level)),
-            Mode::Comparison => Questions::Comparison(ComparisonGenerator::new(config.level)),
+            Mode::Comparison => {
+                Questions::Comparison(ComparisonGenerator::new(config.kinds, config.level))
+            }
         }
     }
 
@@ -300,7 +304,11 @@ mod tests {
 
     #[test]
     fn comparison_rounds_take_the_order_as_the_answer() {
-        let generator = ComparisonGenerator::with_rng(Level::new(2), fastrand::Rng::with_seed(7));
+        let generator = ComparisonGenerator::with_rng(
+            ComparisonKinds::ALL,
+            Level::new(2),
+            fastrand::Rng::with_seed(7),
+        );
         let mut round = Round::with_questions(Questions::Comparison(generator), 10);
         for i in 0..10u64 {
             assert!(matches!(round.current(), Some(Prompt::Comparison(_))));

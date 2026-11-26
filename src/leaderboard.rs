@@ -35,11 +35,11 @@ pub struct Leaderboard {
 
 impl Leaderboard {
     fn file_path(config: &GameConfig) -> PathBuf {
-        // Operations are stored as the letters a, s, m and d, so "c" for
-        // comparisons cannot clash with them.
+        // Operations are stored as the letters a, s, m and d, so the "c-"
+        // prefix of comparisons cannot clash with them.
         let questions = match config.mode {
             Mode::Arithmetic => config.ops.to_id_string(),
-            Mode::Comparison => "c".to_string(),
+            Mode::Comparison => format!("c-{}", config.kinds.to_id_string()),
         };
         glib::user_data_dir().join("fastmath").join(format!(
             "{}-{}-{}.json",
@@ -138,6 +138,36 @@ mod tests {
 
     fn temp_path(name: &str) -> PathBuf {
         std::env::temp_dir().join(format!("fastmath-test-{}-{name}", std::process::id()))
+    }
+
+    #[test]
+    fn file_names_depend_on_what_is_played() {
+        use crate::comparison::{ComparisonKind, ComparisonKinds};
+        use crate::level::Level;
+        use crate::operation::OperationSet;
+
+        let config = GameConfig {
+            mode: Mode::Arithmetic,
+            ops: OperationSet::from_id_string("am"),
+            kinds: ComparisonKinds::ALL,
+            level: Level::new(2),
+            duration_secs: 120,
+        };
+        let name = |config: &GameConfig| {
+            Leaderboard::file_path(config)
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .into_owned()
+        };
+        assert_eq!(name(&config), "am-2-120.json");
+
+        let comparison = GameConfig {
+            mode: Mode::Comparison,
+            kinds: ComparisonKinds::ALL.with(ComparisonKind::Decimals, false),
+            ..config
+        };
+        assert_eq!(name(&comparison), "c-wc-2-120.json");
     }
 
     #[test]

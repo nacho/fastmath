@@ -17,6 +17,7 @@ use std::cmp::Ordering;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
+use crate::comparison::{ComparisonKind, ComparisonKinds};
 use crate::config;
 use crate::game_view::GameView;
 use crate::level::Level;
@@ -29,6 +30,7 @@ fn config() -> GameConfig {
     GameConfig {
         mode: Mode::Arithmetic,
         ops: OperationSet::ALL,
+        kinds: ComparisonKinds::ALL,
         level: Level::new(1),
         duration_secs: 120,
     }
@@ -121,8 +123,34 @@ fn start_view_keeps_the_choices(settings: &gio::Settings) {
     assert_eq!(again.game_config().mode, Mode::Comparison);
     assert_eq!(again.imp().level_row.selected(), 3);
 
+    // The comparisons are chosen like the operations, and their rows
+    // describe the selected level.
+    assert!(imp.comparisons_group.get_visible());
+    assert_eq!(view.game_config().kinds, ComparisonKinds::ALL);
+    assert_eq!(level_subtitle(&view), "Level 4");
+    let level_4 = imp.decimals_row.subtitle().unwrap();
+    imp.level_row.set_selected(0);
+    assert_ne!(imp.decimals_row.subtitle().unwrap(), level_4);
+    imp.level_row.set_selected(3);
+    imp.whole_numbers_row.set_active(false);
+    imp.calculations_row.set_active(false);
+    assert_eq!(settings.string("comparisons"), "d");
+    imp.decimals_row.set_active(false);
+    assert!(!imp.start_button.is_sensitive());
+    assert_eq!(settings.string("comparisons"), "d");
+    imp.all_comparisons_button
+        .emit_by_name::<()>("clicked", &[]);
+    assert!(imp.start_button.is_sensitive());
+    imp.calculations_row.set_active(false);
+    let kinds = view.game_config().kinds;
+    assert!(!kinds.contains(ComparisonKind::Calculations));
+    assert_eq!(settings.string("comparisons"), "wd");
+    imp.all_comparisons_button
+        .emit_by_name::<()>("clicked", &[]);
+
     imp.mode_group.set_active_name(Some("arithmetic"));
     assert!(imp.operations_group.get_visible());
+    assert!(!imp.comparisons_group.get_visible());
     assert!(!imp.start_button.is_sensitive());
     imp.all_button.emit_by_name::<()>("clicked", &[]);
 }

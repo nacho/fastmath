@@ -16,6 +16,11 @@
       <summary>Operations</summary>
       <description>The operations to practice in arithmetic mode, as letters: a (addition), s (subtraction), m (multiplication) and d (division).</description>
     </key>
+    <key name="comparisons" type="s">
+      <default>"wdc"</default>
+      <summary>Comparisons</summary>
+      <description>What to compare in comparison mode, as letters: w (whole numbers), d (decimals) and c (calculations).</description>
+    </key>
     <key name="level" type="u">
       <range min="1" max="5"/>
       <default>1</default>

@@ -1,11 +1,17 @@
 use std::cmp::Ordering;
 
+use crate::choice::{Choice, ChoiceSet};
 use crate::generator::{Generator, Question};
-use crate::level::Level;
+use crate::level::{LEVEL_COUNT, Level};
 use crate::operation::{Operation, OperationSet};
 
-/// The largest whole number compared at level 1.
-pub const WHOLE_MAX: u32 = 100;
+/// The largest whole number compared, per level. Levels 4 and 5 go from
+/// minus this to this.
+const WHOLE_MAX: [u32; LEVEL_COUNT as usize] = [20, 100, 1000, 100, 1000];
+/// The most decimal places shown, per level.
+const DECIMAL_PLACES: [u32; LEVEL_COUNT as usize] = [1, 2, 3, 2, 3];
+/// The arithmetic level of the calculations compared, per level.
+const CALCULATION_LEVEL: [u32; LEVEL_COUNT as usize] = [1, 2, 2, 3, 4];
 /// The most decimal places a number can have.
 const MAX_PLACES: u32 = 3;
 /// How many thousandths make one unit.
@@ -100,18 +106,65 @@ impl Comparison {
     }
 }
 
-/// Produces random comparisons for a level:
+/// What a comparison compares.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub enum ComparisonKind {
+    WholeNumbers,
+    Decimals,
+    Calculations,
+}
+
+impl Choice for ComparisonKind {
+    const ALL: &'static [Self] = &[
+        ComparisonKind::WholeNumbers,
+        ComparisonKind::Decimals,
+        ComparisonKind::Calculations,
+    ];
+
+    /// The letter used to store the kind in settings and file names.
+    fn id(self) -> char {
+        match self {
+            ComparisonKind::WholeNumbers => 'w',
+            ComparisonKind::Decimals => 'd',
+            ComparisonKind::Calculations => 'c',
+        }
+    }
+}
+
+/// A set of comparison kinds, stored as `"wdc"` letters.
+pub type ComparisonKinds = ChoiceSet<ComparisonKind>;
+
+/// The largest whole number compared at `level`.
+pub fn whole_max(level: Level) -> u32 {
+    WHOLE_MAX[level.number() as usize - 1]
+}
+
+/// Whether `level` compares negative whole numbers and decimals.
+pub fn has_negatives(level: Level) -> bool {
+    level.number() >= 4
+}
+
+/// The arithmetic level whose operands the calculations use at `level`.
+pub fn calculation_level(level: Level) -> Level {
+    Level::new(CALCULATION_LEVEL[level.number() as usize - 1])
+}
+
+/// Produces random comparisons of the selected kinds for a level:
 ///
-/// 1. whole numbers up to `WHOLE_MAX`,
-/// 2. decimals with up to two places,
-/// 3. decimals with up to three places, some of them negative,
-/// 4. a calculation and a number,
-/// 5. two calculations.
+/// | Level | Whole numbers | Decimals                   | Calculations               |
+/// |-------|---------------|----------------------------|----------------------------|
+/// | 1     | up to 20      | tenths                     | a sum or difference and a number |
+/// | 2     | up to 100     | tenths and hundredths      | a calculation and a number |
+/// | 3     | up to 1000    | thousandths                | two calculations           |
+/// | 4     | −100 to 100   | negatives with hundredths  | two calculations           |
+/// | 5     | −1000 to 1000 | negatives with thousandths | two calculations           |
 ///
-/// Each answer comes up about a third of the time. Unequal decimals are
-/// often built to catch place value mistakes, such as thinking that 8.25 is
-/// greater than 8.3 because 25 is greater than 3.
+/// Calculations use the operands of `calculation_level`. Each answer comes
+/// up about a third of the time. Unequal decimals are often built to catch
+/// place value mistakes, such as thinking that 8.25 is greater than 8.3
+/// because 25 is greater than 3.
 pub struct ComparisonGenerator {
+    kinds: Vec<ComparisonKind>,
     level: Level,
     rng: fastrand::Rng,
     calculations: Generator,
@@ -119,16 +172,27 @@ pub struct ComparisonGenerator {
 }
 
 impl ComparisonGenerator {
-    pub fn new(level: Level) -> Self {
-        Self::with_rng(level, fastrand::Rng::new())
+    pub fn new(kinds: ComparisonKinds, level: Level) -> Self {
+        Self::with_rng(kinds, level, fastrand::Rng::new())
     }
 
-    pub fn with_rng(level: Level, mut rng: fastrand::Rng) -> Self {
-        // Calculations against a number use the operands of arithmetic
-        // level 2, two calculations those of level 3.
-        let calculation_level = Level::new(if level.number() <= 4 { 2 } else { 3 });
-        let calculations = Generator::with_rng(OperationSet::ALL, calculation_level, rng.fork());
+    pub fn with_rng(kinds: ComparisonKinds, level: Level, mut rng: fastrand::Rng) -> Self {
+        // An empty set cannot produce questions, so compare everything.
+        let kinds = if kinds.is_empty() {
+            ComparisonKinds::ALL
+        } else {
+            kinds
+        };
+        // A calculation against a number at level 1 is a sum or a
+        // difference.
+        let ops = if level.number() == 1 {
+            OperationSet::from_id_string("as")
+        } else {
+            OperationSet::ALL
+        };
+        let calculations = Generator::with_rng(ops, calculation_level(level), rng.fork());
         ComparisonGenerator {
+            kinds: kinds.iter().collect(),
             level,
             rng,
             calculations,
@@ -139,8 +203,9 @@ impl ComparisonGenerator {
     /// Returns the next comparison, never equal to the previous one.
     pub fn next_comparison(&mut self) -> Comparison {
         loop {
+            let kind = self.kinds[self.rng.usize(..self.kinds.len())];
             let answer = [Ordering::Less, Ordering::Equal, Ordering::Greater][self.rng.usize(..3)];
-            let comparison = self.make(answer);
+            let comparison = self.make(kind, answer);
             if self.last != Some(comparison) {
                 self.last = Some(comparison);
                 return comparison;
@@ -148,14 +213,21 @@ impl ComparisonGenerator {
         }
     }
 
-    fn make(&mut self, answer: Ordering) -> Comparison {
+    fn make(&mut self, kind: ComparisonKind, answer: Ordering) -> Comparison {
         let equal = answer == Ordering::Equal;
-        let (low, high) = match self.level.number() {
-            1 => self.whole_numbers(equal),
-            2 => self.decimals(equal, 2, 9),
-            3 => self.signed_decimals(equal),
-            4 => self.calculation_and_number(equal),
-            _ => self.two_calculations(equal),
+        let (low, high) = match kind {
+            ComparisonKind::WholeNumbers => {
+                let (low, high) = self.whole_numbers(equal);
+                (Side::Number(low), Side::Number(high))
+            }
+            ComparisonKind::Decimals => {
+                let (low, high) = self.decimals(equal);
+                (Side::Number(low), Side::Number(high))
+            }
+            ComparisonKind::Calculations if self.level.number() <= 2 => {
+                self.calculation_and_number(equal)
+            }
+            ComparisonKind::Calculations => self.two_calculations(equal),
         };
         let (left, right) = match answer {
             Ordering::Less => (low, high),
@@ -166,27 +238,39 @@ impl ComparisonGenerator {
         Comparison { left, right }
     }
 
-    /// Two whole numbers up to `WHOLE_MAX`, the second one greater unless
-    /// `equal`.
-    fn whole_numbers(&mut self, equal: bool) -> (Side, Side) {
-        let low = self.rng.u32(1..WHOLE_MAX);
+    /// Two whole numbers, the second one greater unless `equal`.
+    fn whole_numbers(&mut self, equal: bool) -> (Decimal, Decimal) {
+        let max = whole_max(self.level);
+        let low = self.rng.u32(1..max);
         let high = if equal {
             low
         } else {
-            self.rng.u32(low + 1..=(low + 20).min(WHOLE_MAX))
+            self.rng.u32(low + 1..=(low + max / 5).min(max))
         };
-        (
-            Side::Number(Decimal::new(low.into(), 0)),
-            Side::Number(Decimal::new(high.into(), 0)),
-        )
+        let pair = (Decimal::new(low.into(), 0), Decimal::new(high.into(), 0));
+        self.with_signs(pair, equal)
     }
 
-    /// Two numbers from 0 to `max_whole` with up to `max_places` decimals,
-    /// the second one greater unless `equal`. Equal numbers are written with
-    /// a different number of places, as in 8.3 and 8.30.
-    fn decimals(&mut self, equal: bool, max_places: u32, max_whole: i64) -> (Side, Side) {
+    /// Makes most pairs negative at the levels with negative numbers: both
+    /// numbers, so −54 is less than −45, or only the smaller one.
+    fn with_signs(&mut self, (low, high): (Decimal, Decimal), equal: bool) -> (Decimal, Decimal) {
+        if !has_negatives(self.level) {
+            return (low, high);
+        }
+        match self.rng.u8(0..10) {
+            0..6 => (high.negated(), low.negated()),
+            6..8 if !equal && low.thousandths > 0 => (low.negated(), high),
+            _ => (low, high),
+        }
+    }
+
+    /// Two decimals, the second one greater unless `equal`. Equal numbers
+    /// are written with a different number of places, as in 8.3 and 8.30.
+    fn decimals(&mut self, equal: bool) -> (Decimal, Decimal) {
+        let max_places = DECIMAL_PLACES[self.level.number() as usize - 1];
+        let max_whole = if self.level.number() <= 2 { 9 } else { 20 };
         let whole = self.rng.i64(0..=max_whole);
-        let (low, high) = if equal {
+        let pair = if equal {
             let short = self.rng.u32(0..max_places);
             let long = self.rng.u32(short + 1..=max_places);
             let digits = whole * 10i64.pow(short) + self.rng.i64(0..10i64.pow(short));
@@ -194,6 +278,9 @@ impl ComparisonGenerator {
                 Decimal::new(digits, short),
                 Decimal::new(digits * 10i64.pow(long - short), long),
             )
+        } else if max_places == 1 {
+            // With only tenths there are no place value traps.
+            self.close_decimals(whole, max_places)
         } else {
             match self.rng.u8(0..3) {
                 0 => self.fewer_places_but_greater(whole, max_places),
@@ -201,7 +288,7 @@ impl ComparisonGenerator {
                 _ => self.close_decimals(whole, max_places),
             }
         };
-        (Side::Number(low), Side::Number(high))
+        self.with_signs(pair, equal)
     }
 
     /// A pair like 8.25 and 8.3, where the greater number has fewer places.
@@ -256,21 +343,6 @@ impl ComparisonGenerator {
         }
     }
 
-    /// Decimals with up to three places from 0 to 20, negative about half
-    /// of the time.
-    fn signed_decimals(&mut self, equal: bool) -> (Side, Side) {
-        let (Side::Number(low), Side::Number(high)) = self.decimals(equal, 3, 20) else {
-            unreachable!("decimals() returns numbers");
-        };
-        let (low, high) = match self.rng.u8(0..10) {
-            // Both negative: −8.3 is less than −8.25.
-            0..4 => (high.negated(), low.negated()),
-            4 if !equal && low.thousandths > 0 => (low.negated(), high),
-            _ => (low, high),
-        };
-        (Side::Number(low), Side::Number(high))
-    }
-
     /// A calculation and a number close to its result.
     fn calculation_and_number(&mut self, equal: bool) -> (Side, Side) {
         let calculation = self.calculations.next_question();
@@ -319,7 +391,7 @@ impl ComparisonGenerator {
 
     /// A random calculation whose result is `target`.
     fn calculation_for(&mut self, target: u32) -> Question {
-        let max = Level::new(3).max_operand(Operation::Multiply);
+        let max = calculation_level(self.level).max_operand(Operation::Multiply);
         let factors: Vec<u32> = (2..=target / 2)
             .filter(|f| target.is_multiple_of(*f) && target / f >= 2)
             .collect();
@@ -361,16 +433,16 @@ impl ComparisonGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::level::LEVEL_COUNT;
 
     const SAMPLES: usize = 3000;
 
-    fn generator(level: u32) -> ComparisonGenerator {
-        ComparisonGenerator::with_rng(Level::new(level), fastrand::Rng::with_seed(42))
+    fn only(kind: ComparisonKind) -> ComparisonKinds {
+        ComparisonKinds::from_id_string("").with(kind, true)
     }
 
-    fn samples(level: u32) -> Vec<Comparison> {
-        let mut gen_ = generator(level);
+    fn samples(kinds: ComparisonKinds, level: u32) -> Vec<Comparison> {
+        let mut gen_ =
+            ComparisonGenerator::with_rng(kinds, Level::new(level), fastrand::Rng::with_seed(42));
         (0..SAMPLES).map(|_| gen_.next_comparison()).collect()
     }
 
@@ -379,6 +451,31 @@ mod tests {
             (Side::Number(a), Side::Number(b)) => [a, b],
             _ => panic!("expected two numbers: {c:?}"),
         }
+    }
+
+    /// The kind a comparison was made for. Whole numbers never have places,
+    /// decimals always have them on at least one side.
+    fn kind_of(c: &Comparison) -> ComparisonKind {
+        match (c.left, c.right) {
+            (Side::Number(a), Side::Number(b)) if a.places == 0 && b.places == 0 => {
+                ComparisonKind::WholeNumbers
+            }
+            (Side::Number(_), Side::Number(_)) => ComparisonKind::Decimals,
+            _ => ComparisonKind::Calculations,
+        }
+    }
+
+    fn check_calculation(q: &Question) {
+        let result = match q.op {
+            Operation::Add => q.a + q.b,
+            Operation::Subtract => q.a - q.b,
+            Operation::Multiply => q.a * q.b,
+            Operation::Divide => {
+                assert_eq!(q.a % q.b, 0, "{q:?}");
+                q.a / q.b
+            }
+        };
+        assert_eq!(q.answer, result, "{q:?}");
     }
 
     #[test]
@@ -429,111 +526,137 @@ mod tests {
 
     #[test]
     fn every_answer_comes_up_about_a_third_of_the_time() {
+        for &kind in ComparisonKind::ALL {
+            for level in 1..=LEVEL_COUNT {
+                let comparisons = samples(only(kind), level);
+                for answer in [Ordering::Less, Ordering::Equal, Ordering::Greater] {
+                    let count = comparisons.iter().filter(|c| c.answer() == answer).count();
+                    let share = count as f64 / SAMPLES as f64;
+                    assert!(
+                        (0.28..0.39).contains(&share),
+                        "{kind:?} level {level} {answer:?}: {share}"
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn whole_numbers_stay_in_range() {
         for level in 1..=LEVEL_COUNT {
-            for answer in [Ordering::Less, Ordering::Equal, Ordering::Greater] {
-                let count = samples(level)
-                    .iter()
-                    .filter(|c| c.answer() == answer)
-                    .count();
-                let share = count as f64 / SAMPLES as f64;
-                assert!(
-                    (0.28..0.39).contains(&share),
-                    "level {level} {answer:?}: {share}"
-                );
+            let max = i64::from(whole_max(Level::new(level))) * SCALE;
+            let mut negative = false;
+            for c in samples(only(ComparisonKind::WholeNumbers), level) {
+                for n in numbers(&c) {
+                    assert_eq!(n.places, 0, "{c:?}");
+                    assert!(n.thousandths.abs() <= max && n.thousandths != 0, "{c:?}");
+                    negative |= n.thousandths < 0;
+                }
             }
+            assert_eq!(negative, level >= 4, "level {level}");
         }
     }
 
     #[test]
-    fn level_1_compares_whole_numbers() {
-        for c in samples(1) {
-            for n in numbers(&c) {
-                assert_eq!(n.places, 0, "{c:?}");
-                assert!(
-                    (SCALE..=i64::from(WHOLE_MAX) * SCALE).contains(&n.thousandths),
-                    "{c:?}"
-                );
-            }
-        }
-    }
-
-    #[test]
-    fn levels_2_and_3_compare_decimals() {
-        for (level, max_places) in [(2, 2), (3, 3)] {
-            let comparisons = samples(level);
+    fn decimals_stay_in_range() {
+        for (level, max_places, max_whole) in
+            [(1, 1, 9), (2, 2, 9), (3, 3, 20), (4, 2, 20), (5, 3, 20)]
+        {
+            let comparisons = samples(only(ComparisonKind::Decimals), level);
             let mut negative = false;
             for c in &comparisons {
                 let [a, b] = numbers(c);
                 for n in [a, b] {
                     assert!(n.places <= max_places, "{c:?}");
+                    assert!(n.thousandths.abs() < (max_whole + 1) * SCALE, "{c:?}");
                     // The places shown are exact.
                     assert_eq!(n.thousandths % 10i64.pow(MAX_PLACES - n.places), 0);
                     negative |= n.thousandths < 0;
                 }
+                assert!(a.places > 0 || b.places > 0, "{c:?}");
                 // Equal numbers are written differently.
                 if c.answer() == Ordering::Equal {
                     assert_ne!(a.places, b.places, "{c:?}");
                 }
             }
-            assert_eq!(negative, level == 3, "level {level}");
+            assert_eq!(negative, level >= 4, "level {level}");
 
-            // Some questions have the greater number with fewer places.
-            assert!(comparisons.iter().any(|c| {
+            // From level 2, some questions have the greater number with
+            // fewer places.
+            let trap = comparisons.iter().any(|c| {
                 let [a, b] = numbers(c);
                 let (low, high) = if a.thousandths < b.thousandths {
                     (a, b)
                 } else {
                     (b, a)
                 };
-                low.thousandths > 0 && high.places < low.places
-            }));
+                c.answer() != Ordering::Equal && low.thousandths > 0 && high.places < low.places
+            });
+            assert_eq!(trap, level >= 2, "level {level}");
         }
     }
 
     #[test]
-    fn level_4_compares_a_calculation_and_a_number() {
-        for c in samples(4) {
-            match (c.left, c.right) {
-                (Side::Calculation(_), Side::Number(n))
-                | (Side::Number(n), Side::Calculation(_)) => {
-                    assert_eq!(n.places, 0, "{c:?}");
-                    assert!(n.thousandths >= 0, "{c:?}");
+    fn calculations_follow_the_level() {
+        for level in 1..=LEVEL_COUNT {
+            let max = calculation_level(Level::new(level)).max_operand(Operation::Add);
+            for c in samples(only(ComparisonKind::Calculations), level) {
+                match (c.left, c.right) {
+                    (Side::Calculation(q), Side::Number(n))
+                    | (Side::Number(n), Side::Calculation(q)) => {
+                        assert!(level <= 2, "level {level}: {c:?}");
+                        assert_eq!(n.places, 0, "{c:?}");
+                        assert!(n.thousandths >= 0, "{c:?}");
+                        check_calculation(&q);
+                        if level == 1 {
+                            assert!(matches!(q.op, Operation::Add | Operation::Subtract));
+                            assert!(q.a <= max && q.b <= max, "{q:?}");
+                        }
+                    }
+                    (Side::Calculation(a), Side::Calculation(b)) => {
+                        assert!(level >= 3, "level {level}: {c:?}");
+                        assert_ne!(a, b);
+                        check_calculation(&a);
+                        check_calculation(&b);
+                    }
+                    _ => panic!("expected a calculation: {c:?}"),
                 }
-                _ => panic!("expected a calculation and a number: {c:?}"),
             }
         }
     }
 
     #[test]
-    fn level_5_compares_two_correct_calculations() {
-        for c in samples(5) {
-            let (Side::Calculation(a), Side::Calculation(b)) = (c.left, c.right) else {
-                panic!("expected two calculations: {c:?}");
-            };
-            assert_ne!(a, b);
-            for q in [a, b] {
-                let result = match q.op {
-                    Operation::Add => q.a + q.b,
-                    Operation::Subtract => q.a - q.b,
-                    Operation::Multiply => q.a * q.b,
-                    Operation::Divide => {
-                        assert_eq!(q.a % q.b, 0, "{q:?}");
-                        q.a / q.b
-                    }
-                };
-                assert_eq!(q.answer, result, "{q:?}");
+    fn only_and_all_of_the_selected_kinds_come_up() {
+        let all = ComparisonKinds::ALL;
+        let some = only(ComparisonKind::WholeNumbers).with(ComparisonKind::Calculations, true);
+        let empty = ComparisonKinds::from_id_string("");
+        for (set, expected) in [(all, all), (some, some), (empty, all)] {
+            for level in 1..=LEVEL_COUNT {
+                let seen = samples(set, level)
+                    .iter()
+                    .fold(ComparisonKinds::from_id_string(""), |seen, c| {
+                        seen.with(kind_of(c), true)
+                    });
+                assert_eq!(seen, expected, "level {level}");
             }
         }
     }
 
     #[test]
     fn the_same_comparison_never_comes_twice_in_a_row() {
-        for level in 1..=LEVEL_COUNT {
-            let comparisons = samples(level);
-            assert!(
-                comparisons.windows(2).all(|w| w[0] != w[1]),
-                "level {level}"
-            );
+        for &kind in ComparisonKind::ALL {
+            for level in 1..=LEVEL_COUNT {
+                let comparisons = samples(only(kind), level);
+                assert!(
+                    comparisons.windows(2).all(|w| w[0] != w[1]),
+                    "{kind:?} level {level}"
+                );
+            }
         }
+    }
+
+    #[test]
+    fn kinds_use_their_letters() {
+        assert_eq!(ComparisonKinds::ALL.to_id_string(), "wdc");
     }
 }

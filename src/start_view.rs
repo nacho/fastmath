@@ -5,6 +5,7 @@ use libadwaita::prelude::*;
 use libadwaita::subclass::prelude::*;
 use std::sync::OnceLock;
 
+use crate::comparison::{ComparisonKind, ComparisonKinds};
 use crate::config;
 use crate::labels;
 use crate::level::{LEVEL_COUNT, Level};
@@ -33,6 +34,18 @@ mod imp {
         pub divide_row: TemplateChild<adw::SwitchRow>,
         #[template_child]
         pub all_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub comparisons_group: TemplateChild<adw::PreferencesGroup>,
+        #[template_child]
+        pub whole_numbers_row: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub decimals_row: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub decimals_symbol: TemplateChild<gtk::Label>,
+        #[template_child]
+        pub calculations_row: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub all_comparisons_button: TemplateChild<gtk::Button>,
         #[template_child]
         pub level_row: TemplateChild<adw::ComboRow>,
         #[template_child]
@@ -94,21 +107,36 @@ impl StartView {
         ]
     }
 
+    fn comparison_rows(&self) -> [(ComparisonKind, &adw::SwitchRow); 3] {
+        let imp = self.imp();
+        [
+            (ComparisonKind::WholeNumbers, &*imp.whole_numbers_row),
+            (ComparisonKind::Decimals, &*imp.decimals_row),
+            (ComparisonKind::Calculations, &*imp.calculations_row),
+        ]
+    }
+
     fn setup(&self) {
         let imp = self.imp();
         let settings = gio::Settings::new(config::APPLICATION_ID);
         let _ = imp.settings.set(settings.clone());
 
         let ops = OperationSet::from_id_string(&settings.string("operations"));
-        for (op, row) in self.operation_rows() {
-            row.set_active(ops.contains(op));
+        let operation_rows = self
+            .operation_rows()
+            .map(|(op, row)| (ops.contains(op), row));
+        let kinds = ComparisonKinds::from_id_string(&settings.string("comparisons"));
+        let comparison_rows = self
+            .comparison_rows()
+            .map(|(kind, row)| (kinds.contains(kind), row));
+        for (active, row) in operation_rows.into_iter().chain(comparison_rows) {
+            row.set_active(active);
             row.connect_active_notify(glib::clone!(
                 #[weak(rename_to = this)]
                 self,
-                move |_| this.operations_changed()
+                move |_| this.choices_changed()
             ));
         }
-        self.operations_changed();
 
         imp.all_button.connect_clicked(glib::clone!(
             #[weak(rename_to = this)]
@@ -119,12 +147,25 @@ impl StartView {
                 }
             }
         ));
+        imp.all_comparisons_button.connect_clicked(glib::clone!(
+            #[weak(rename_to = this)]
+            self,
+            move |_| {
+                for (_, row) in this.comparison_rows() {
+                    row.set_active(true);
+                }
+            }
+        ));
+
+        imp.decimals_symbol
+            .set_label(&format!("0{}5", labels::decimal_separator()));
 
         imp.level_row.connect_selected_notify(glib::clone!(
             #[weak(rename_to = this)]
             self,
             move |row| {
                 let _ = this.settings().set_uint("level", row.selected() + 1);
+                this.update_comparison_descriptions();
             }
         ));
 
@@ -158,6 +199,7 @@ impl StartView {
         let imp = self.imp();
         let mode = self.mode();
         imp.operations_group.set_visible(mode == Mode::Arithmetic);
+        imp.comparisons_group.set_visible(mode == Mode::Comparison);
 
         // Changing the model selects the first level, so keep the saved one.
         let level = Level::new(self.settings().uint("level"));
@@ -169,7 +211,15 @@ impl StartView {
             .set_model(Some(&gtk::StringList::new(&levels)));
         imp.level_row.set_selected(level.number() - 1);
 
-        self.operations_changed();
+        self.choices_changed();
+    }
+
+    /// Describes what each kind of comparison asks at the selected level.
+    fn update_comparison_descriptions(&self) {
+        let level = Level::new(self.imp().level_row.selected() + 1);
+        for (kind, row) in self.comparison_rows() {
+            row.set_subtitle(&labels::comparison_kind_description(kind, level));
+        }
     }
 
     /// The operations currently selected.
@@ -181,18 +231,32 @@ impl StartView {
             })
     }
 
-    /// Saves the selected operations. An arithmetic round needs at least
-    /// one.
-    fn operations_changed(&self) {
+    /// The comparison kinds currently selected.
+    fn comparison_kinds(&self) -> ComparisonKinds {
+        self.comparison_rows()
+            .into_iter()
+            .fold(ComparisonKinds::from_id_string(""), |set, (kind, row)| {
+                set.with(kind, row.is_active())
+            })
+    }
+
+    /// Saves the selected operations and comparisons. A round needs at
+    /// least one of those of its mode.
+    fn choices_changed(&self) {
+        let settings = self.settings();
         let ops = self.operations();
         if !ops.is_empty() {
-            let _ = self
-                .settings()
-                .set_string("operations", &ops.to_id_string());
+            let _ = settings.set_string("operations", &ops.to_id_string());
         }
-        self.imp()
-            .start_button
-            .set_sensitive(self.mode() == Mode::Comparison || !ops.is_empty());
+        let kinds = self.comparison_kinds();
+        if !kinds.is_empty() {
+            let _ = settings.set_string("comparisons", &kinds.to_id_string());
+        }
+        let can_start = match self.mode() {
+            Mode::Arithmetic => !ops.is_empty(),
+            Mode::Comparison => !kinds.is_empty(),
+        };
+        self.imp().start_button.set_sensitive(can_start);
     }
 
     /// What the player has chosen to play.
@@ -201,6 +265,7 @@ impl StartView {
         GameConfig {
             mode: self.mode(),
             ops: self.operations(),
+            kinds: self.comparison_kinds(),
             level: Level::new(settings.uint("level")),
             duration_secs: settings.uint("duration-secs"),
         }
