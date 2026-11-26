@@ -43,6 +43,17 @@
     </child>
     <child>
       <object class="AdwShortcutsSection">
+        <property name="title" translatable="yes">Fractions</property>
+        <child>
+          <object class="AdwShortcutsItem">
+            <property name="title" translatable="yes">Move to the Denominator</property>
+            <property name="accelerator">slash</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwShortcutsSection">
         <property name="title" translatable="yes">General</property>
         <child>
           <object class="AdwShortcutsItem">

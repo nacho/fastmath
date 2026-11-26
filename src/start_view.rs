@@ -258,6 +258,7 @@ impl StartView {
         let can_start = match self.mode() {
             Mode::Arithmetic => !ops.is_empty(),
             Mode::Comparison => !kinds.is_empty(),
+            Mode::Fractions => true,
         };
         self.imp().start_button.set_sensitive(can_start);
     }

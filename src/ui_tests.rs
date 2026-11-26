@@ -19,8 +19,9 @@ use std::time::{Duration, Instant};
 
 use crate::comparison::{ComparisonKind, ComparisonKinds};
 use crate::config;
-use crate::fraction::Fraction;
+use crate::fraction::{Fraction, Picture, Shape};
 use crate::fraction_label::FractionLabel;
+use crate::fraction_picture::FractionPicture;
 use crate::game_view::GameView;
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
@@ -150,6 +151,18 @@ fn start_view_keeps_the_choices(settings: &gio::Settings) {
     assert_eq!(settings.string("comparisons"), "wdf");
     imp.all_comparisons_button
         .emit_by_name::<()>("clicked", &[]);
+
+    // Fractions need no choices.
+    imp.mode_group.set_active_name(Some("fractions"));
+    assert_eq!(view.game_config().mode, Mode::Fractions);
+    assert!(!imp.operations_group.get_visible());
+    assert!(!imp.comparisons_group.get_visible());
+    imp.add_row.set_active(false);
+    imp.subtract_row.set_active(false);
+    imp.multiply_row.set_active(false);
+    imp.divide_row.set_active(false);
+    assert!(imp.start_button.is_sensitive());
+    assert_eq!(imp.level_row.selected(), 3);
 
     imp.mode_group.set_active_name(Some("arithmetic"));
     assert!(imp.operations_group.get_visible());
@@ -332,6 +345,108 @@ fn results_keep_a_leaderboard() {
     assert!(again.imp().save_group.is_visible());
 }
 
+fn a_fractions_round_is_answered_in_the_entries() {
+    let config = GameConfig {
+        mode: Mode::Fractions,
+        level: Level::new(2),
+        ..config()
+    };
+    let view = GameView::new(&config);
+    // Focus only moves inside a window. It is never shown.
+    let navigation = adw::NavigationView::new();
+    navigation.push(&view);
+    let window = gtk::Window::new();
+    window.set_child(Some(&navigation));
+    let finished = watch_finished(&view);
+    let imp = view.imp();
+    assert!(imp.fraction_box.get_visible());
+    assert!(!imp.answer_entry.get_visible() && !imp.compare_box.get_visible());
+    view.start_clock();
+
+    let has_focus = |entry: &gtk::Entry| {
+        GtkWindowExt::focus(&window)
+            .is_some_and(|w| w.is_ancestor(entry) || w == *entry.upcast_ref::<gtk::Widget>())
+    };
+    let parts = question_parts(&view);
+    assert_eq!(parts.len(), 2);
+    assert!(parts[0].is::<FractionPicture>());
+    assert!(parts[1].is::<gtk::Label>());
+
+    // "/" moves on to the denominator, taking the digits after it along.
+    imp.numerator_entry.grab_focus();
+    imp.numerator_entry.set_text("1a/");
+    assert_eq!(imp.numerator_entry.text(), "1");
+    assert!(has_focus(&imp.denominator_entry));
+    imp.numerator_entry.set_text("3/4");
+    assert_eq!(imp.numerator_entry.text(), "3");
+    assert_eq!(imp.denominator_entry.text(), "4");
+
+    // Enter in the numerator moves on to an empty denominator.
+    imp.denominator_entry.set_text("");
+    imp.numerator_entry.emit_by_name::<()>("activate", &[]);
+    assert!(has_focus(&imp.denominator_entry));
+    assert_eq!(imp.round.borrow().as_ref().unwrap().answered(), 0);
+
+    let answer = |n: u32, d: u32| {
+        imp.numerator_entry.set_text(&n.to_string());
+        imp.denominator_entry.set_text(&d.to_string());
+        imp.denominator_entry.emit_by_name::<()>("activate", &[]);
+    };
+    let Answer::Fraction(n, d) = current_answer(&view) else {
+        panic!("not a fraction question");
+    };
+    answer(n + d, d);
+    assert!(imp.numerator_entry.has_css_class("error"));
+    assert!(imp.denominator_entry.has_css_class("error"));
+    assert_eq!(imp.numerator_entry.text(), "");
+    assert!(has_focus(&imp.numerator_entry));
+    assert_eq!(imp.counter_label.text(), "2 / 60");
+
+    for i in 1..QUESTIONS_PER_ROUND {
+        assert_eq!(finished.get(), 0);
+        let Answer::Fraction(n, d) = current_answer(&view) else {
+            panic!("not a fraction question");
+        };
+        // Level 2 accepts equivalent fractions.
+        let k = if i % 2 == 0 { 1 } else { 2 };
+        answer(k * n, k * d);
+    }
+
+    assert_eq!(finished.get(), 1);
+    let result = view.summary().result;
+    assert_eq!(result.wrong, 1);
+    assert_eq!(result.correct, QUESTIONS_PER_ROUND - 1);
+    window.destroy();
+}
+
+fn fraction_pictures_describe_themselves() {
+    let picture = FractionPicture::new(&Picture {
+        shape: Shape::Pizza,
+        wholes: 1,
+        pieces: 8,
+        shaded: 3,
+    });
+    assert_eq!(
+        picture.description(),
+        "A pizza in 8 slices, 3 of them eaten"
+    );
+    let (width, ..) = picture.measure(gtk::Orientation::Horizontal, -1);
+    assert!(width > 0 && width <= 360);
+
+    let two = FractionPicture::new(&Picture {
+        shape: Shape::Pizza,
+        wholes: 2,
+        pieces: 4,
+        shaded: 7,
+    });
+    assert_eq!(
+        two.description(),
+        "Two pizzas in 4 slices each, 7 slices eaten"
+    );
+    let (width, ..) = two.measure(gtk::Orientation::Horizontal, -1);
+    assert!(width <= 360, "{width}");
+}
+
 fn fraction_labels_show_and_describe_the_fraction() {
     let label = FractionLabel::new(&Fraction::new(3, 4));
     let imp = label.imp();
@@ -380,6 +495,8 @@ fn ui_smoke() {
     a_comparison_round_is_answered_with_buttons(ComparisonKinds::from_id_string("f"), true);
     a_round_ends_when_the_time_is_up();
     results_keep_a_leaderboard();
+    a_fractions_round_is_answered_in_the_entries();
+    fraction_pictures_describe_themselves();
     fraction_labels_show_and_describe_the_fraction();
     the_shortcuts_dialog_loads();
 

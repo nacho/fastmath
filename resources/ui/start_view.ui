@@ -56,6 +56,13 @@
                         <property name="use-underline">true</property>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwToggle">
+                        <property name="name">fractions</property>
+                        <property name="label" translatable="yes">_Fractions</property>
+                        <property name="use-underline">true</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

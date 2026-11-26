@@ -12,6 +12,7 @@ use std::time::{Duration, Instant};
 use crate::G_LOG_DOMAIN;
 use crate::comparison::Part;
 use crate::fraction_label::FractionLabel;
+use crate::fraction_picture::FractionPicture;
 use crate::labels;
 use crate::round::{Answer, AnswerResult, GameConfig, Mode, Prompt, Round, RoundResult};
 use crate::sound_player::SoundPlayer;
@@ -50,6 +51,12 @@ mod imp {
         pub answer_entry: TemplateChild<gtk::Entry>,
         #[template_child]
         pub compare_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub fraction_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub numerator_entry: TemplateChild<gtk::Entry>,
+        #[template_child]
+        pub denominator_entry: TemplateChild<gtk::Entry>,
         #[template_child]
         pub less_button: TemplateChild<gtk::Button>,
         #[template_child]
@@ -124,22 +131,56 @@ mod imp {
 
             let config = view.game_config();
             *self.round.borrow_mut() = Some(Round::new(&config));
-            if config.mode == Mode::Comparison {
-                self.answer_entry.set_visible(false);
-                self.compare_box.set_visible(true);
+            self.answer_entry
+                .set_visible(config.mode == Mode::Arithmetic);
+            self.compare_box
+                .set_visible(config.mode == Mode::Comparison);
+            self.fraction_box
+                .set_visible(config.mode == Mode::Fractions);
+            if config.mode == Mode::Fractions {
+                self.question_box
+                    .set_orientation(gtk::Orientation::Vertical);
             }
             view.update_clock(Duration::ZERO);
             view.show_question();
 
-            // Only digits can be typed.
-            self.answer_entry.connect_changed(|entry| {
-                let text = entry.text();
-                let digits: String = text.chars().filter(char::is_ascii_digit).collect();
-                if digits != text.as_str() {
-                    entry.set_text(&digits);
-                    entry.set_position(-1);
-                }
-            });
+            // Only digits can be typed. A "/" in the numerator moves on to
+            // the denominator, taking any digits after it along.
+            for entry in [
+                &*self.answer_entry,
+                &*self.numerator_entry,
+                &*self.denominator_entry,
+            ] {
+                entry.connect_changed(glib::clone!(
+                    #[weak]
+                    view,
+                    move |entry| {
+                        let text = entry.text();
+                        let imp = view.imp();
+                        let (before, after) = match text.split_once('/') {
+                            Some((before, after)) if entry == &*imp.numerator_entry => {
+                                (before, Some(after))
+                            }
+                            _ => (text.as_str(), None),
+                        };
+                        let digits: String = before.chars().filter(char::is_ascii_digit).collect();
+                        if digits != text.as_str() {
+                            entry.set_text(&digits);
+                            entry.set_position(-1);
+                        }
+                        if let Some(after) = after {
+                            let denominator = &imp.denominator_entry;
+                            let digits: String =
+                                after.chars().filter(char::is_ascii_digit).collect();
+                            if !digits.is_empty() {
+                                denominator.set_text(&digits);
+                            }
+                            denominator.grab_focus();
+                            denominator.set_position(-1);
+                        }
+                    }
+                ));
+            }
             self.answer_entry.connect_activate(glib::clone!(
                 #[weak]
                 view,
@@ -148,6 +189,24 @@ mod imp {
                         view.submit(Answer::Number(answer));
                     }
                 }
+            ));
+            // Enter in the numerator moves on to an empty denominator.
+            self.numerator_entry.connect_activate(glib::clone!(
+                #[weak]
+                view,
+                move |_| {
+                    let denominator = &view.imp().denominator_entry;
+                    if denominator.text().is_empty() {
+                        denominator.grab_focus();
+                    } else {
+                        view.submit_fraction();
+                    }
+                }
+            ));
+            self.denominator_entry.connect_activate(glib::clone!(
+                #[weak]
+                view,
+                move |_| view.submit_fraction()
             ));
         }
 
@@ -288,6 +347,15 @@ impl GameView {
                         label.upcast()
                     }
                     Part::Fraction(fraction) => FractionLabel::new(&fraction).upcast(),
+                    Part::Picture(question) => {
+                        imp.question_box
+                            .append(&FractionPicture::new(&question.picture));
+                        let label = gtk::Label::new(Some(&labels::fraction_question(&question)));
+                        label.set_wrap(true);
+                        label.set_justify(gtk::Justification::Center);
+                        label.add_css_class("title-2");
+                        label.upcast()
+                    }
                 };
                 imp.question_box.append(&widget);
             }
@@ -297,14 +365,25 @@ impl GameView {
         }
     }
 
-    /// Gives the keyboard focus to the answer entry, or to the middle button
-    /// of a comparison so that the keys reach the page.
+    /// Gives the keyboard focus to the answer entry, the numerator, or the
+    /// middle button of a comparison so that the keys reach the page.
     fn focus_answer(&self) {
         let imp = self.imp();
-        if self.game_config().mode == Mode::Comparison {
-            imp.equal_button.grab_focus();
-        } else {
-            imp.answer_entry.grab_focus();
+        match self.game_config().mode {
+            Mode::Arithmetic => imp.answer_entry.grab_focus(),
+            Mode::Comparison => imp.equal_button.grab_focus(),
+            Mode::Fractions => imp.numerator_entry.grab_focus(),
+        };
+    }
+
+    /// Submits the fraction in the entries, once both have a number.
+    fn submit_fraction(&self) {
+        let imp = self.imp();
+        if let (Ok(n), Ok(d)) = (
+            imp.numerator_entry.text().parse::<u32>(),
+            imp.denominator_entry.text().parse::<u32>(),
+        ) {
+            self.submit(Answer::Fraction(n, d));
         }
     }
 
@@ -328,23 +407,32 @@ impl GameView {
         };
 
         // Show the result on what the player used to answer.
-        let widget: gtk::Widget = match answer {
+        let widgets: Vec<gtk::Widget> = match answer {
             Answer::Number(_) => {
                 imp.answer_entry.set_text("");
-                imp.answer_entry.clone().upcast()
+                vec![imp.answer_entry.clone().upcast()]
             }
-            Answer::Order(Ordering::Less) => imp.less_button.clone().upcast(),
-            Answer::Order(Ordering::Equal) => imp.equal_button.clone().upcast(),
-            Answer::Order(Ordering::Greater) => imp.greater_button.clone().upcast(),
+            Answer::Order(Ordering::Less) => vec![imp.less_button.clone().upcast()],
+            Answer::Order(Ordering::Equal) => vec![imp.equal_button.clone().upcast()],
+            Answer::Order(Ordering::Greater) => vec![imp.greater_button.clone().upcast()],
+            Answer::Fraction(..) => {
+                imp.numerator_entry.set_text("");
+                imp.denominator_entry.set_text("");
+                imp.numerator_entry.grab_focus();
+                vec![
+                    imp.numerator_entry.clone().upcast(),
+                    imp.denominator_entry.clone().upcast(),
+                ]
+            }
         };
         match result {
             AnswerResult::Correct => {
                 imp.sound_player.play_correct();
-                self.flash(&widget, "success");
+                self.flash(widgets, "success");
             }
             AnswerResult::Wrong => {
                 imp.sound_player.play_wrong();
-                self.flash(&widget, "error");
+                self.flash(widgets, "error");
             }
         }
 
@@ -355,35 +443,39 @@ impl GameView {
         }
     }
 
-    /// Highlights `widget`, the entry or a button, for a moment with a
+    /// Highlights `widgets`, the entries or a button, for a moment with a
     /// style class.
-    fn flash(&self, widget: &gtk::Widget, class: &'static str) {
+    fn flash(&self, widgets: Vec<gtk::Widget>, class: &'static str) {
         let imp = self.imp();
         if let Some(source) = imp.flash.take() {
             source.remove();
         }
-        let widgets: [&gtk::Widget; 4] = [
+        let all: [&gtk::Widget; 6] = [
             imp.answer_entry.upcast_ref(),
             imp.less_button.upcast_ref(),
             imp.equal_button.upcast_ref(),
             imp.greater_button.upcast_ref(),
+            imp.numerator_entry.upcast_ref(),
+            imp.denominator_entry.upcast_ref(),
         ];
-        for w in widgets {
+        for w in all {
             w.remove_css_class("success");
             w.remove_css_class("error");
         }
-        widget.add_css_class(class);
+        for w in &widgets {
+            w.add_css_class(class);
+        }
 
         let source = glib::timeout_add_local_once(
             FLASH,
             glib::clone!(
                 #[weak(rename_to = view)]
                 self,
-                #[weak]
-                widget,
                 move || {
                     view.imp().flash.take();
-                    widget.remove_css_class(class);
+                    for w in &widgets {
+                        w.remove_css_class(class);
+                    }
                 }
             ),
         );

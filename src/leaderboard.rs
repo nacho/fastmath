@@ -36,10 +36,12 @@ pub struct Leaderboard {
 impl Leaderboard {
     fn file_path(config: &GameConfig) -> PathBuf {
         // Operations are stored as the letters a, s, m and d, so the "c-"
-        // prefix of comparisons cannot clash with them.
+        // prefix of comparisons and the "f" of fractions cannot clash with
+        // them.
         let questions = match config.mode {
             Mode::Arithmetic => config.ops.to_id_string(),
             Mode::Comparison => format!("c-{}", config.kinds.to_id_string()),
+            Mode::Fractions => "f".to_string(),
         };
         glib::user_data_dir().join("fastmath").join(format!(
             "{}-{}-{}.json",
@@ -168,6 +170,12 @@ mod tests {
             ..config
         };
         assert_eq!(name(&comparison), "c-wfc-2-120.json");
+
+        let fractions = GameConfig {
+            mode: Mode::Fractions,
+            ..config
+        };
+        assert_eq!(name(&fractions), "f-2-120.json");
     }
 
     #[test]

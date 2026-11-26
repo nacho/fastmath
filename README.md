@@ -7,9 +7,9 @@ A mental arithmetic game for GNOME. Answer as many questions as you can before t
 
 ## How to Play
 
-1. Pick a mode. In **Arithmetic**, choose the operations to practice: addition, subtraction, multiplication and division. Select several to mix them in the same round. In **Comparison**, choose what to compare (whole numbers, decimals, fractions and calculations, alone or mixed) and say whether the left side is less than, equal to or greater than the right side.
+1. Pick a mode. In **Arithmetic**, choose the operations to practice: addition, subtraction, multiplication and division. Select several to mix them in the same round. In **Comparison**, choose what to compare (whole numbers, decimals, fractions and calculations, alone or mixed) and say whether the left side is less than, equal to or greater than the right side. In **Fractions**, say which fraction of a pizza was eaten or is left.
 2. Choose a level and the time limit (two minutes by default).
-3. Type each answer and press Enter, or in comparisons press the <, = or > button or key. A round has up to 60 questions and ends when you answer them all or the time is up.
+3. Type each answer and press Enter, or in comparisons press the <, = or > button or key. In fractions, type the numerator, press / or Tab, type the denominator and press Enter. A round has up to 60 questions and ends when you answer them all or the time is up.
 4. See how many answers you got right and how fast you were. Good scores go into a top-10 leaderboard for each combination of operations (or of comparisons), level and time limit.
 
 A wrong answer moves on to the next question and costs nothing. Press Escape to abandon a round.
@@ -39,6 +39,18 @@ In comparison mode:
 Fractions are shown with the numerator over the denominator, with denominators up to 12. With both Decimals and Fractions selected, from level 3 a third of the fraction questions compare a fraction with a decimal: 3/5 ? 0.06, 1/3 ? 0.33. The calculations use the operands of arithmetic levels 1, 2, 2, 3 and 4.
 
 Each answer comes up about a third of the time. Equal decimals are written differently (8.3 and 8.30), and many unequal ones test place value: 8.3 is greater than 8.25, and 3.04 is less than 3.4.
+
+In fractions mode:
+
+| Level | Questions                                                                |
+|-------|--------------------------------------------------------------------------|
+| 1     | a pizza in halves, thirds or quarters: how much was eaten?               |
+| 2     | up to twelfths                                                           |
+| 3     | how much was eaten, or how much is left?                                 |
+| 4     | only the simplest form counts: 4/8 must be answered 1/2                  |
+| 5     | two pizzas with more than one eaten, in simplest form: 7/4               |
+
+Up to level 3, equivalent fractions are also right: 2/4 for a half.
 
 ## Building
 

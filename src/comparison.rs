@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::choice::{Choice, ChoiceSet};
-use crate::fraction::Fraction;
+use crate::fraction::{Fraction, FractionQuestion};
 use crate::generator::{Generator, Question};
 use crate::level::{LEVEL_COUNT, Level};
 use crate::operation::{Operation, OperationSet};
@@ -60,12 +60,14 @@ impl Decimal {
     }
 }
 
-/// A piece of a question as shown to the player: text, or a fraction to
-/// show with the numerator over the denominator.
+/// A piece of a question as shown to the player: text, a fraction to show
+/// with the numerator over the denominator, or the picture of a fractions
+/// question.
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Part {
     Text(String),
     Fraction(Fraction),
+    Picture(FractionQuestion),
 }
 
 /// One side of a comparison: a number, a fraction or a calculation.
@@ -103,7 +105,7 @@ impl Side {
             Side::Fraction(f) => f.text(),
             _ => match self.part(separator) {
                 Part::Text(text) => text,
-                Part::Fraction(_) => unreachable!(),
+                Part::Fraction(_) | Part::Picture(_) => unreachable!(),
             },
         }
     }

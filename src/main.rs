@@ -12,6 +12,7 @@ mod choice;
 mod comparison;
 mod fraction;
 mod fraction_label;
+mod fraction_picture;
 mod game_view;
 mod generator;
 mod labels;

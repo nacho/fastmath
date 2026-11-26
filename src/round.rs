@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 use std::time::Duration;
 
 use crate::comparison::{Comparison, ComparisonGenerator, ComparisonKinds, Part};
+use crate::fraction::{FractionGenerator, FractionQuestion};
 use crate::generator::{Generator, Question};
 use crate::level::Level;
 use crate::operation::OperationSet;
@@ -16,6 +17,8 @@ pub enum Mode {
     Arithmetic,
     /// Whether a number is less than, equal to or greater than another.
     Comparison,
+    /// Which fraction of a picture was eaten or is left.
+    Fractions,
 }
 
 impl Mode {
@@ -24,16 +27,16 @@ impl Mode {
         match self {
             Mode::Arithmetic => "arithmetic",
             Mode::Comparison => "comparison",
+            Mode::Fractions => "fractions",
         }
     }
 
     /// Parses the output of `id`. Anything else is arithmetic.
     pub fn from_id(id: &str) -> Self {
-        if id == Mode::Comparison.id() {
-            Mode::Comparison
-        } else {
-            Mode::Arithmetic
-        }
+        [Mode::Comparison, Mode::Fractions]
+            .into_iter()
+            .find(|mode| mode.id() == id)
+            .unwrap_or(Mode::Arithmetic)
     }
 }
 
@@ -55,6 +58,8 @@ pub struct GameConfig {
 pub enum Answer {
     Number(u32),
     Order(Ordering),
+    /// A numerator and a denominator.
+    Fraction(u32, u32),
 }
 
 /// A question of either mode.
@@ -62,13 +67,28 @@ pub enum Answer {
 pub enum Prompt {
     Arithmetic(Question),
     Comparison(Comparison),
+    Fraction(FractionQuestion),
 }
 
 impl Prompt {
+    /// The answer, in its simplest form for fractions.
     pub fn answer(&self) -> Answer {
         match self {
             Prompt::Arithmetic(q) => Answer::Number(q.answer),
             Prompt::Comparison(c) => Answer::Order(c.answer()),
+            Prompt::Fraction(q) => {
+                let answer = q.answer();
+                Answer::Fraction(answer.numerator, answer.denominator)
+            }
+        }
+    }
+
+    /// Whether `answer` is right. Fractions accept equivalent answers
+    /// unless the question asks for the simplest form.
+    pub fn is_correct(&self, answer: Answer) -> bool {
+        match (self, answer) {
+            (Prompt::Fraction(q), Answer::Fraction(n, d)) => q.is_correct(n, d),
+            _ => answer == self.answer(),
         }
     }
 
@@ -78,6 +98,7 @@ impl Prompt {
         match self {
             Prompt::Arithmetic(q) => vec![Part::Text(q.text())],
             Prompt::Comparison(c) => c.parts(separator).into(),
+            Prompt::Fraction(q) => vec![Part::Picture(*q)],
         }
     }
 }
@@ -86,6 +107,7 @@ impl Prompt {
 pub enum Questions {
     Arithmetic(Generator),
     Comparison(ComparisonGenerator),
+    Fractions(FractionGenerator),
 }
 
 impl Questions {
@@ -95,6 +117,7 @@ impl Questions {
             Mode::Comparison => {
                 Questions::Comparison(ComparisonGenerator::new(config.kinds, config.level))
             }
+            Mode::Fractions => Questions::Fractions(FractionGenerator::new(config.level)),
         }
     }
 
@@ -102,6 +125,7 @@ impl Questions {
         match self {
             Questions::Arithmetic(g) => Prompt::Arithmetic(g.next_question()),
             Questions::Comparison(g) => Prompt::Comparison(g.next_comparison()),
+            Questions::Fractions(g) => Prompt::Fraction(g.next_question()),
         }
     }
 }
@@ -179,7 +203,7 @@ impl Round {
         self.answer_time += elapsed.saturating_sub(self.last_answer_at);
         self.last_answer_at = elapsed;
 
-        let result = if answer == question.answer() {
+        let result = if question.is_correct(answer) {
             self.correct += 1;
             AnswerResult::Correct
         } else {
@@ -229,6 +253,7 @@ mod tests {
             Answer::Number(n) => Answer::Number(n + 1),
             Answer::Order(Ordering::Equal) => Answer::Order(Ordering::Less),
             Answer::Order(order) => Answer::Order(order.reverse()),
+            Answer::Fraction(n, d) => Answer::Fraction(n + d, d),
         }
     }
 
@@ -326,8 +351,23 @@ mod tests {
     }
 
     #[test]
+    fn fraction_rounds_accept_equivalent_answers() {
+        let generator = FractionGenerator::with_rng(Level::new(2), fastrand::Rng::with_seed(7));
+        let mut round = Round::with_questions(Questions::Fractions(generator), 3);
+        let Answer::Fraction(n, d) = correct(&round) else {
+            panic!("not a fraction question");
+        };
+        // Twice the numerator and the denominator is the same fraction.
+        round.submit(Answer::Fraction(2 * n, 2 * d), secs(1));
+        round.submit(Answer::Fraction(1, 0), secs(2));
+        round.submit(wrong(&round), secs(3));
+        let result = round.result();
+        assert_eq!((result.correct, result.wrong), (1, 2));
+    }
+
+    #[test]
     fn mode_id_round_trips() {
-        for mode in [Mode::Arithmetic, Mode::Comparison] {
+        for mode in [Mode::Arithmetic, Mode::Comparison, Mode::Fractions] {
             assert_eq!(Mode::from_id(mode.id()), mode);
         }
         assert_eq!(Mode::from_id("nonsense"), Mode::Arithmetic);

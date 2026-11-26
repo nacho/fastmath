@@ -79,6 +79,53 @@
                   </object>
                 </child>
                 <child>
+                  <object class="GtkBox" id="fraction_box">
+                    <property name="visible">false</property>
+                    <property name="orientation">vertical</property>
+                    <property name="halign">center</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkEntry" id="numerator_entry">
+                        <property name="width-chars">3</property>
+                        <property name="max-length">3</property>
+                        <property name="xalign">0.5</property>
+                        <property name="input-purpose">digits</property>
+                        <property name="enable-emoji-completion">false</property>
+                        <accessibility>
+                          <property name="label" translatable="yes">Numerator</property>
+                        </accessibility>
+                        <style>
+                          <class name="answer-entry"/>
+                          <class name="numeric"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparator">
+                        <style>
+                          <class name="fraction-bar"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="denominator_entry">
+                        <property name="width-chars">3</property>
+                        <property name="max-length">3</property>
+                        <property name="xalign">0.5</property>
+                        <property name="input-purpose">digits</property>
+                        <property name="enable-emoji-completion">false</property>
+                        <accessibility>
+                          <property name="label" translatable="yes">Denominator</property>
+                        </accessibility>
+                        <style>
+                          <class name="answer-entry"/>
+                          <class name="numeric"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox" id="compare_box">
                     <property name="visible">false</property>
                     <property name="halign">center</property>

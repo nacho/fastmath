@@ -2,6 +2,7 @@ use gettextrs::{gettext, pgettext};
 use i18n_format::i18n_fmt;
 
 use crate::comparison::{self, ComparisonKind, ComparisonKinds};
+use crate::fraction::{Ask, FractionQuestion, Shape};
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
 use crate::round::{GameConfig, Mode};
@@ -58,10 +59,47 @@ pub fn level_name(level: Level) -> String {
 /// "Level 2: sums up to 20, tables up to 10". Comparison levels depend on
 /// the kind, see `comparison_kind_description`.
 pub fn level_description(mode: Mode, level: Level) -> String {
-    if mode == Mode::Comparison {
-        return level_name(level);
-    }
     let number = level.number();
+    match mode {
+        Mode::Arithmetic => (),
+        Mode::Comparison => return level_name(level),
+        Mode::Fractions => {
+            return match number {
+                1 => i18n_fmt! {
+                    // Translators: This describes a difficulty level of the
+                    // fractions mode. {} is the level number, for example
+                    // "Level 1: halves, thirds and quarters".
+                    i18n_fmt("Level {}: halves, thirds and quarters", number)
+                },
+                2 => i18n_fmt! {
+                    // Translators: This describes a difficulty level of the
+                    // fractions mode, with fractions like 5/12. {} is the
+                    // level number, for example "Level 2: up to twelfths".
+                    i18n_fmt("Level {}: up to twelfths", number)
+                },
+                3 => i18n_fmt! {
+                    // Translators: This describes a difficulty level of the
+                    // fractions mode, asking which fraction was eaten or is
+                    // left. {} is the level number, for example "Level 3:
+                    // eaten and left".
+                    i18n_fmt("Level {}: eaten and left", number)
+                },
+                4 => i18n_fmt! {
+                    // Translators: This describes a difficulty level of the
+                    // fractions mode, where 4/8 must be answered as 1/2. {}
+                    // is the level number, for example "Level 4: simplest
+                    // form".
+                    i18n_fmt("Level {}: simplest form", number)
+                },
+                _ => i18n_fmt! {
+                    // Translators: This describes a difficulty level of the
+                    // fractions mode, with answers like 7/4. {} is the level
+                    // number, for example "Level 5: more than a whole".
+                    i18n_fmt("Level {}: more than a whole", number)
+                },
+            };
+        }
+    }
     let sums = level.max_operand(Operation::Add);
     let tables = level.max_operand(Operation::Multiply);
     i18n_fmt! {
@@ -147,6 +185,14 @@ pub fn comparison_kind_description(kind: ComparisonKind, level: Level) -> String
     }
 }
 
+/// The question of a picture, for example "How much was eaten?".
+pub fn fraction_question(question: &FractionQuestion) -> String {
+    match (question.picture.shape, question.ask) {
+        (Shape::Pizza, Ask::Eaten) => gettext("How much was eaten?"),
+        (Shape::Pizza, Ask::Left) => gettext("How much is left?"),
+    }
+}
+
 pub fn decimal_separator() -> String {
     // Translators: The decimal separator, as in 8.25. Translate it as ","
     // if your language writes 8,25.
@@ -164,6 +210,7 @@ pub fn config_summary(config: &GameConfig) -> String {
     let questions = match config.mode {
         Mode::Arithmetic => operations_summary(config.ops),
         Mode::Comparison => comparison_kinds_summary(config.kinds),
+        Mode::Fractions => gettext("Fractions"),
     };
     format!(
         "{} · {} · {}",

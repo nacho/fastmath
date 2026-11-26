@@ -1,9 +1,10 @@
 # AGENTS.md — Fast Math
 
 Fast Math is a mental arithmetic game for GNOME. The player picks a mode,
-arithmetic (addition, subtraction, multiplication, division, in any mix) or
-comparison (less than, equal to or greater than), a level and a time limit,
-then answers up to 60 questions. The app ID is `io.github.nacho.fastmath`.
+arithmetic (addition, subtraction, multiplication, division, in any mix),
+comparison (less than, equal to or greater than) or fractions (which
+fraction of a picture was eaten or is left), a level and a time limit, then
+answers up to 60 questions. The app ID is `io.github.nacho.fastmath`.
 
 It is written in Rust (edition 2024) with GTK 4.20 and libadwaita 1.8 (the
 `v4_20` and `v1_8` features). Meson builds it for production and Cargo for
@@ -19,7 +20,8 @@ src/
                         # `app.sound-effects` GSettings action), CSS, About, shortcuts dialog
   window.rs             # FastmathWindow: AdwNavigationView flow, window state
   start_view.rs         # Mode, operation or comparison switches, level, time limit, Start
-  game_view.rs          # The round: question, entry or < = > buttons, clock, sounds,
+  game_view.rs          # The round: question, entry, < = > buttons or numerator and
+                        # denominator entries, clock, sounds,
                         # abandon dialog
   results_view.rs       # Score, leaderboard, name entry, Play Again / Back
   sound_player.rs       # gtk::MediaFile wrapper, copied from Mundi
@@ -31,8 +33,10 @@ src/
   generator.rs          # Game logic: question generator
   comparison.rs         # Game logic: Decimal, Comparison, ComparisonKind, Part and the
                         # comparison generator
-  fraction.rs           # Game logic: Fraction (with an optional whole part)
+  fraction.rs           # Game logic: Fraction, Picture, FractionQuestion and the
+                        # fractions mode generator
   fraction_label.rs     # FastmathFractionLabel: a stacked fraction
+  fraction_picture.rs   # FastmathFractionPicture: draws a Picture with GSK paths
   round.rs              # Game logic: Mode, Prompt/Answer, round state machine,
                         # GameConfig, RoundResult
   leaderboard.rs        # Game logic: top-10 JSON store
@@ -79,11 +83,22 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   `GameView` turns them into labels and `FastmathFractionLabel` widgets in
   `question_box`. The decimal separator is a
   translatable string (context "decimal separator").
+- Fractions mode: `Prompt::Fraction` holds a `FractionQuestion` (a
+  `Picture` plus `Ask::Eaten` or `Ask::Left`) and takes
+  `Answer::Fraction(n, d)`. `Round::submit` uses `Prompt::is_correct`, which
+  accepts equivalent fractions unless `simplest_only` (levels 4 and 5) and
+  rejects a denominator of 0. `Prompt::parts()` returns `Part::Picture`,
+  which `GameView` shows as a `FastmathFractionPicture` above the question
+  text. A "/" typed in the numerator moves to the denominator (with any
+  digits after it), Enter in the numerator moves to an empty denominator.
+  `FastmathFractionPicture` draws with `GtkSnapshot` and `gsk::PathBuilder`
+  in GNOME palette colours, redraws when the dark style changes, and sets
+  a translatable accessible label.
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
-  comparisons), ranked by correct answers and then by a lower average time
+  comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time
   per answer.
-- GSettings: `mode` (`arithmetic` or `comparison`), `operations` (letters
+- GSettings: `mode` (`arithmetic`, `comparison` or `fractions`), `operations` (letters
   `a`, `s`, `m`, `d`), `comparisons` (letters `w`, `d`, `f`, `c`), `level`,
   `duration-secs`, `sound-effects`, `player-name`, and the
   `.state.window` child for the window size.

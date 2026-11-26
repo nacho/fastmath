@@ -7,6 +7,7 @@ resources/ui/start_view.ui
 resources/ui/window.ui
 src/application.rs
 src/fraction_label.rs
+src/fraction_picture.rs
 src/game_view.rs
 src/labels.rs
 src/results_view.rs
