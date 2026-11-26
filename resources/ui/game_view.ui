@@ -54,13 +54,11 @@
                   <object class="GtkProgressBar" id="progress_bar"/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="question_label">
+                  <object class="GtkBox" id="question_box">
+                    <property name="halign">center</property>
+                    <property name="spacing">18</property>
                     <property name="margin-top">24</property>
                     <property name="margin-bottom">12</property>
-                    <style>
-                      <class name="question"/>
-                      <class name="numeric"/>
-                    </style>
                   </object>
                 </child>
                 <child>

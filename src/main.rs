@@ -10,6 +10,8 @@ mod config {
 mod application;
 mod choice;
 mod comparison;
+mod fraction;
+mod fraction_label;
 mod game_view;
 mod generator;
 mod labels;

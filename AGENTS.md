@@ -29,8 +29,10 @@ src/
   operation.rs          # Game logic: Operation, OperationSet (ChoiceSet of "asmd")
   level.rs              # Game logic: Level 1..5 and the operand ranges
   generator.rs          # Game logic: question generator
-  comparison.rs         # Game logic: Decimal, Comparison, ComparisonKind and the
+  comparison.rs         # Game logic: Decimal, Comparison, ComparisonKind, Part and the
                         # comparison generator
+  fraction.rs           # Game logic: Fraction (with an optional whole part)
+  fraction_label.rs     # FastmathFractionLabel: a stacked fraction
   round.rs              # Game logic: Mode, Prompt/Answer, round state machine,
                         # GameConfig, RoundResult
   leaderboard.rs        # Game logic: top-10 JSON store
@@ -53,10 +55,12 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   game clock starts when the page is shown, so the page transition does not
   cost time, and stops while the abandon dialog is open.
 - The game logic (`choice.rs`, `operation.rs`, `level.rs`, `generator.rs`,
-  `comparison.rs`, `round.rs` and `leaderboard.rs`) does not use GTK. It uses GLib in two places:
-  `leaderboard.rs` for the data directory and logging, and `round.rs`, where
-  `GameConfig` is a boxed type so `GameView` can take it as a construct
-  property. Keep the question generation and scoring there and unit tested.
+  `comparison.rs`, `fraction.rs`, `round.rs` and `leaderboard.rs`) does not
+  use GTK. It uses GLib in `leaderboard.rs` for the data directory and
+  logging, and in `round.rs` and `fraction.rs`, where `GameConfig` and
+  `Fraction` are boxed types so widgets can take them as construct
+  properties. Keep the question generation and scoring there and unit
+  tested.
 - Questions: addition and subtraction operands are 1..=max, factors and
   divisors are 2..=max. Division picks the divisor and the quotient and
   multiplies them, so it is always exact. The same question never comes twice
@@ -64,18 +68,22 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
 - Comparisons: `Round` holds a `Prompt` (an arithmetic `Question` or a
   `Comparison`) and takes an `Answer` (a number or an `Ordering`). The
   generator picks a selected `ComparisonKind` (whole numbers, decimals,
-  calculations) and then the answer, so each answer comes up a third of the
+  fractions, calculations) and then the answer, so each answer comes up a third of the
   time. The level sets the difficulty of each kind (see the table in
   `comparison.rs` and the README); `labels::comparison_kind_description`
   shows it as the subtitle of each switch row. `Decimal` stores thousandths
-  plus the places shown, so 8.3 and 8.30 are equal but written differently. The decimal separator is a
+  plus the places shown, so 8.3 and 8.30 are equal but written differently.
+  Sides are compared exactly as fractions (cross-multiplying), so 1/3 and
+  0.33 differ. `Prompt::parts()` returns text and `Fraction` parts;
+  `GameView` turns them into labels and `FastmathFractionLabel` widgets in
+  `question_box`. The decimal separator is a
   translatable string (context "decimal separator").
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
-  operations/level/duration (`asmd-2-120.json`, or `c-wdc-2-120.json` for
+  operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons), ranked by correct answers and then by a lower average time
   per answer.
 - GSettings: `mode` (`arithmetic` or `comparison`), `operations` (letters
-  `a`, `s`, `m`, `d`), `comparisons` (letters `w`, `d`, `c`), `level`,
+  `a`, `s`, `m`, `d`), `comparisons` (letters `w`, `d`, `f`, `c`), `level`,
   `duration-secs`, `sound-effects`, `player-name`, and the
   `.state.window` child for the window size.
 

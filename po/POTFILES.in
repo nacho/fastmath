@@ -6,6 +6,7 @@ resources/ui/shortcuts_dialog.ui
 resources/ui/start_view.ui
 resources/ui/window.ui
 src/application.rs
+src/fraction_label.rs
 src/game_view.rs
 src/labels.rs
 src/results_view.rs

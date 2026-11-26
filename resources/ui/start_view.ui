@@ -169,6 +169,19 @@
                   </object>
                 </child>
                 <child>
+                  <object class="AdwSwitchRow" id="fractions_row">
+                    <property name="title" translatable="yes">Fractions</property>
+                    <child type="prefix">
+                      <object class="GtkLabel">
+                        <property name="label">½</property>
+                        <style>
+                          <class name="operation-symbol"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="AdwSwitchRow" id="calculations_row">
                     <property name="title" translatable="yes">Calculations</property>
                     <child type="prefix">

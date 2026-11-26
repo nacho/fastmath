@@ -19,6 +19,8 @@ use std::time::{Duration, Instant};
 
 use crate::comparison::{ComparisonKind, ComparisonKinds};
 use crate::config;
+use crate::fraction::Fraction;
+use crate::fraction_label::FractionLabel;
 use crate::game_view::GameView;
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
@@ -133,6 +135,7 @@ fn start_view_keeps_the_choices(settings: &gio::Settings) {
     assert_ne!(imp.decimals_row.subtitle().unwrap(), level_4);
     imp.level_row.set_selected(3);
     imp.whole_numbers_row.set_active(false);
+    imp.fractions_row.set_active(false);
     imp.calculations_row.set_active(false);
     assert_eq!(settings.string("comparisons"), "d");
     imp.decimals_row.set_active(false);
@@ -144,7 +147,7 @@ fn start_view_keeps_the_choices(settings: &gio::Settings) {
     imp.calculations_row.set_active(false);
     let kinds = view.game_config().kinds;
     assert!(!kinds.contains(ComparisonKind::Calculations));
-    assert_eq!(settings.string("comparisons"), "wd");
+    assert_eq!(settings.string("comparisons"), "wdf");
     imp.all_comparisons_button
         .emit_by_name::<()>("clicked", &[]);
 
@@ -164,9 +167,18 @@ fn level_subtitle(view: &StartView) -> String {
         .into()
 }
 
-fn a_comparison_round_is_answered_with_buttons() {
+/// The widgets showing the current question.
+fn question_parts(view: &GameView) -> Vec<gtk::Widget> {
+    let question_box = &view.imp().question_box;
+    std::iter::successors(question_box.first_child(), |w| w.next_sibling()).collect()
+}
+
+/// Plays a comparison round of `kinds`, checking that fractions are shown
+/// stacked when `fractions` and as text otherwise.
+fn a_comparison_round_is_answered_with_buttons(kinds: ComparisonKinds, fractions: bool) {
     let config = GameConfig {
         mode: Mode::Comparison,
+        kinds,
         level: Level::new(2),
         ..config()
     };
@@ -180,8 +192,18 @@ fn a_comparison_round_is_answered_with_buttons() {
     let imp = view.imp();
     assert!(!imp.answer_entry.get_visible());
     assert!(imp.compare_box.get_visible());
-    assert!(imp.question_label.text().contains(" ? "));
     view.start_clock();
+
+    let check_parts = || {
+        let parts = question_parts(&view);
+        assert_eq!(parts.len(), 3);
+        let middle = parts[1].downcast_ref::<gtk::Label>().unwrap();
+        assert_eq!(middle.text(), "?");
+        for side in [&parts[0], &parts[2]] {
+            assert_eq!(side.is::<FractionLabel>(), fractions);
+        }
+    };
+    check_parts();
 
     let button = |order| match order {
         Ordering::Less => &imp.less_button,
@@ -205,6 +227,7 @@ fn a_comparison_round_is_answered_with_buttons() {
         let Answer::Order(order) = current_answer(&view) else {
             panic!("not a comparison");
         };
+        check_parts();
         button(order).emit_clicked();
     }
 
@@ -309,6 +332,22 @@ fn results_keep_a_leaderboard() {
     assert!(again.imp().save_group.is_visible());
 }
 
+fn fraction_labels_show_and_describe_the_fraction() {
+    let label = FractionLabel::new(&Fraction::new(3, 4));
+    let imp = label.imp();
+    assert_eq!(imp.numerator_label.text(), "3");
+    assert_eq!(imp.denominator_label.text(), "4");
+    assert!(!imp.whole_label.get_visible());
+
+    let mixed = FractionLabel::new(&Fraction {
+        whole: 1,
+        numerator: 3,
+        denominator: 4,
+    });
+    assert!(mixed.imp().whole_label.get_visible());
+    assert_eq!(mixed.imp().whole_label.text(), "1");
+}
+
 fn the_shortcuts_dialog_loads() {
     adw::ShortcutsDialog::ensure_type();
     adw::ShortcutsSection::ensure_type();
@@ -337,9 +376,11 @@ fn ui_smoke() {
 
     start_view_keeps_the_choices(&settings);
     a_full_round_ends_after_60_answers();
-    a_comparison_round_is_answered_with_buttons();
+    a_comparison_round_is_answered_with_buttons(ComparisonKinds::from_id_string("wd"), false);
+    a_comparison_round_is_answered_with_buttons(ComparisonKinds::from_id_string("f"), true);
     a_round_ends_when_the_time_is_up();
     results_keep_a_leaderboard();
+    fraction_labels_show_and_describe_the_fraction();
     the_shortcuts_dialog_loads();
 
     let _ = std::fs::remove_dir_all(&data_dir);

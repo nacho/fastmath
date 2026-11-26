@@ -29,6 +29,7 @@ pub fn comparison_kind_name(kind: ComparisonKind) -> String {
     match kind {
         ComparisonKind::WholeNumbers => gettext("Whole Numbers"),
         ComparisonKind::Decimals => gettext("Decimals"),
+        ComparisonKind::Fractions => gettext("Fractions"),
         ComparisonKind::Calculations => gettext("Calculations"),
     }
 }
@@ -103,6 +104,13 @@ pub fn comparison_kind_description(kind: ComparisonKind, level: Level) -> String
             3 => gettext("Thousandths"),
             4 => gettext("Negative numbers with hundredths"),
             _ => gettext("Negative numbers with thousandths"),
+        },
+        ComparisonKind::Fractions => match number {
+            1 => gettext("The same denominator"),
+            2 => gettext("The same numerator"),
+            3 => gettext("Equivalent fractions"),
+            4 => gettext("Different denominators"),
+            _ => gettext("Improper fractions and mixed numbers"),
         },
         ComparisonKind::Calculations => {
             let operands = comparison::calculation_level(level);

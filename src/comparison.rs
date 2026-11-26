@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::choice::{Choice, ChoiceSet};
+use crate::fraction::Fraction;
 use crate::generator::{Generator, Question};
 use crate::level::{LEVEL_COUNT, Level};
 use crate::operation::{Operation, OperationSet};
@@ -59,26 +60,51 @@ impl Decimal {
     }
 }
 
-/// One side of a comparison: a number or a calculation.
+/// A piece of a question as shown to the player: text, or a fraction to
+/// show with the numerator over the denominator.
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum Part {
+    Text(String),
+    Fraction(Fraction),
+}
+
+/// One side of a comparison: a number, a fraction or a calculation.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Side {
     Number(Decimal),
+    Fraction(Fraction),
     Calculation(Question),
 }
 
 impl Side {
-    /// The value in thousandths.
-    fn value(&self) -> i64 {
+    /// The exact value as a numerator and a positive denominator.
+    fn value(&self) -> (i128, i128) {
         match self {
-            Side::Number(n) => n.thousandths,
-            Side::Calculation(q) => i64::from(q.answer) * SCALE,
+            Side::Number(n) => (n.thousandths.into(), SCALE.into()),
+            Side::Fraction(f) => {
+                let (n, d) = f.improper();
+                (n.into(), d.into())
+            }
+            Side::Calculation(q) => (q.answer.into(), 1),
         }
     }
 
-    pub fn text(&self, separator: &str) -> String {
+    pub fn part(&self, separator: &str) -> Part {
         match self {
-            Side::Number(n) => n.text(separator),
-            Side::Calculation(q) => q.text(),
+            Side::Number(n) => Part::Text(n.text(separator)),
+            Side::Fraction(f) => Part::Fraction(*f),
+            Side::Calculation(q) => Part::Text(q.text()),
+        }
+    }
+
+    #[cfg(test)]
+    fn text(&self, separator: &str) -> String {
+        match self {
+            Side::Fraction(f) => f.text(),
+            _ => match self.part(separator) {
+                Part::Text(text) => text,
+                Part::Fraction(_) => unreachable!(),
+            },
         }
     }
 }
@@ -93,10 +119,20 @@ pub struct Comparison {
 
 impl Comparison {
     pub fn answer(&self) -> Ordering {
-        self.left.value().cmp(&self.right.value())
+        cmp_sides(&self.left, &self.right)
     }
 
     /// The question as shown to the player, for example `8.3 ? 8.25`.
+    pub fn parts(&self, separator: &str) -> [Part; 3] {
+        [
+            self.left.part(separator),
+            Part::Text("?".to_string()),
+            self.right.part(separator),
+        ]
+    }
+
+    /// The question as text, with fractions written as "3/4".
+    #[cfg(test)]
     pub fn text(&self, separator: &str) -> String {
         format!(
             "{} ? {}",
@@ -111,6 +147,7 @@ impl Comparison {
 pub enum ComparisonKind {
     WholeNumbers,
     Decimals,
+    Fractions,
     Calculations,
 }
 
@@ -118,6 +155,7 @@ impl Choice for ComparisonKind {
     const ALL: &'static [Self] = &[
         ComparisonKind::WholeNumbers,
         ComparisonKind::Decimals,
+        ComparisonKind::Fractions,
         ComparisonKind::Calculations,
     ];
 
@@ -126,12 +164,13 @@ impl Choice for ComparisonKind {
         match self {
             ComparisonKind::WholeNumbers => 'w',
             ComparisonKind::Decimals => 'd',
+            ComparisonKind::Fractions => 'f',
             ComparisonKind::Calculations => 'c',
         }
     }
 }
 
-/// A set of comparison kinds, stored as `"wdc"` letters.
+/// A set of comparison kinds, stored as `"wdfc"` letters.
 pub type ComparisonKinds = ChoiceSet<ComparisonKind>;
 
 /// The largest whole number compared at `level`.
@@ -149,15 +188,31 @@ pub fn calculation_level(level: Level) -> Level {
     Level::new(CALCULATION_LEVEL[level.number() as usize - 1])
 }
 
+/// Compares the values of two sides exactly.
+fn cmp_sides(left: &Side, right: &Side) -> Ordering {
+    let (a, b) = left.value();
+    let (c, d) = right.value();
+    (a * d).cmp(&(c * b))
+}
+
+/// The two fractions, the smaller one first.
+fn order(a: Fraction, b: Fraction) -> (Fraction, Fraction) {
+    if a.cmp_value(&b) == Ordering::Greater {
+        (b, a)
+    } else {
+        (a, b)
+    }
+}
+
 /// Produces random comparisons of the selected kinds for a level:
 ///
-/// | Level | Whole numbers | Decimals                   | Calculations               |
-/// |-------|---------------|----------------------------|----------------------------|
-/// | 1     | up to 20      | tenths                     | a sum or difference and a number |
-/// | 2     | up to 100     | tenths and hundredths      | a calculation and a number |
-/// | 3     | up to 1000    | thousandths                | two calculations           |
-/// | 4     | −100 to 100   | negatives with hundredths  | two calculations           |
-/// | 5     | −1000 to 1000 | negatives with thousandths | two calculations           |
+/// | Level | Whole numbers | Decimals                   | Fractions               | Calculations                     |
+/// |-------|---------------|----------------------------|-------------------------|----------------------------------|
+/// | 1     | up to 20      | tenths                     | same denominator        | a sum or difference and a number |
+/// | 2     | up to 100     | tenths and hundredths      | same numerator          | a calculation and a number       |
+/// | 3     | up to 1000    | thousandths                | equivalent fractions    | two calculations                 |
+/// | 4     | −100 to 100   | negatives with hundredths  | different denominators  | two calculations                 |
+/// | 5     | −1000 to 1000 | negatives with thousandths | improper against mixed  | two calculations                 |
 ///
 /// Calculations use the operands of `calculation_level`. Each answer comes
 /// up about a third of the time. Unequal decimals are often built to catch
@@ -224,6 +279,7 @@ impl ComparisonGenerator {
                 let (low, high) = self.decimals(equal);
                 (Side::Number(low), Side::Number(high))
             }
+            ComparisonKind::Fractions => self.fractions(equal),
             ComparisonKind::Calculations if self.level.number() <= 2 => {
                 self.calculation_and_number(equal)
             }
@@ -289,6 +345,93 @@ impl ComparisonGenerator {
             }
         };
         self.with_signs(pair, equal)
+    }
+
+    /// Two fractions, the second one greater unless `equal`.
+    fn fractions(&mut self, equal: bool) -> (Side, Side) {
+        let rng = &mut self.rng;
+        let (low, high) = match self.level.number() {
+            // The same denominator: 2/5 and 3/5.
+            1 => {
+                let d = rng.u32(3..=10);
+                let n = rng.u32(1..d - 1);
+                let m = if equal { n } else { rng.u32(n + 1..d) };
+                (Fraction::new(n, d), Fraction::new(m, d))
+            }
+            // The same numerator, where the greater denominator gives the
+            // smaller fraction: 1/4 and 1/3.
+            2 => {
+                let n = rng.u32(1..=3);
+                let small = rng.u32(n + 1..12);
+                let large = if equal {
+                    small
+                } else {
+                    rng.u32(small + 1..=12)
+                };
+                (Fraction::new(n, large), Fraction::new(n, small))
+            }
+            // Equivalent fractions, 1/2 and 2/4, or a near miss, 1/2 and 3/4.
+            3 => {
+                let d = rng.u32(2..=6);
+                let n = rng.u32(1..d);
+                let k = rng.u32(2..=(12 / d).min(4));
+                let base = Fraction::new(n, d);
+                let other = if equal {
+                    Fraction::new(k * n, k * d)
+                } else if rng.bool() {
+                    Fraction::new(k * n + 1, k * d)
+                } else {
+                    Fraction::new(k * n - 1, k * d)
+                };
+                order(base, other)
+            }
+            // Different denominators: 2/3 and 3/4. Equal ones are
+            // equivalent fractions.
+            4 => loop {
+                if equal {
+                    let d = rng.u32(2..=6);
+                    let n = rng.u32(1..d);
+                    let k = rng.u32(2..=12 / d);
+                    break (Fraction::new(n, d), Fraction::new(k * n, k * d));
+                }
+                let [a, b] = [(); 2].map(|_| {
+                    let d = rng.u32(2..=12);
+                    Fraction::new(rng.u32(1..d), d)
+                });
+                if a.denominator != b.denominator && a.cmp_value(&b) != Ordering::Equal {
+                    break order(a, b);
+                }
+            },
+            // An improper fraction against a mixed or whole number: 7/4
+            // and 1 3/4.
+            _ => {
+                let d = rng.u32(2..=8);
+                let improper = rng.u32(d + 2..=3 * d);
+                let other = if equal {
+                    improper
+                } else if rng.bool() {
+                    improper - rng.u32(1..=2)
+                } else {
+                    improper + rng.u32(1..=2)
+                };
+                let improper = Side::Fraction(Fraction::new(improper, d));
+                let other = if other % d == 0 {
+                    Side::Number(Decimal::new((other / d).into(), 0))
+                } else {
+                    Side::Fraction(Fraction {
+                        whole: other / d,
+                        numerator: other % d,
+                        denominator: d,
+                    })
+                };
+                return if cmp_sides(&improper, &other) == Ordering::Greater {
+                    (other, improper)
+                } else {
+                    (improper, other)
+                };
+            }
+        };
+        (Side::Fraction(low), Side::Fraction(high))
     }
 
     /// A pair like 8.25 and 8.3, where the greater number has fewer places.
@@ -457,6 +600,7 @@ mod tests {
     /// decimals always have them on at least one side.
     fn kind_of(c: &Comparison) -> ComparisonKind {
         match (c.left, c.right) {
+            (Side::Fraction(_), _) | (_, Side::Fraction(_)) => ComparisonKind::Fractions,
             (Side::Number(a), Side::Number(b)) if a.places == 0 && b.places == 0 => {
                 ComparisonKind::WholeNumbers
             }
@@ -491,6 +635,7 @@ mod tests {
     #[test]
     fn the_answer_compares_the_values() {
         let number = |digits, places| Side::Number(Decimal::new(digits, places));
+        let fraction = |n, d| Side::Fraction(Fraction::new(n, d));
         let calculation = Side::Calculation(Question {
             op: Operation::Multiply,
             a: 7,
@@ -504,6 +649,12 @@ mod tests {
             (number(-83, 1), number(-825, 2), Ordering::Less),
             (calculation, number(54, 0), Ordering::Greater),
             (calculation, number(560, 1), Ordering::Equal),
+            (fraction(1, 3), fraction(1, 4), Ordering::Greater),
+            (fraction(2, 4), fraction(1, 2), Ordering::Equal),
+            (fraction(7, 4), number(175, 2), Ordering::Equal),
+            (fraction(1, 3), number(33, 2), Ordering::Greater),
+            (fraction(8, 4), number(2, 0), Ordering::Equal),
+            (calculation, fraction(112, 2), Ordering::Equal),
         ];
         for (left, right, answer) in cases {
             assert_eq!(Comparison { left, right }.answer(), answer);
@@ -625,6 +776,62 @@ mod tests {
         }
     }
 
+    /// The fractions of a comparison, and any whole number on the other
+    /// side.
+    fn fractions(c: &Comparison) -> (Vec<Fraction>, Option<Decimal>) {
+        let mut fractions = Vec::new();
+        let mut number = None;
+        for side in [c.left, c.right] {
+            match side {
+                Side::Fraction(f) => fractions.push(f),
+                Side::Number(n) => number = Some(n),
+                Side::Calculation(_) => panic!("unexpected calculation: {c:?}"),
+            }
+        }
+        (fractions, number)
+    }
+
+    #[test]
+    fn fractions_follow_the_level() {
+        for level in 1..=LEVEL_COUNT {
+            for c in samples(only(ComparisonKind::Fractions), level) {
+                let (f, number) = fractions(&c);
+                for x in &f {
+                    assert!(x.denominator >= 2 && x.denominator <= 12, "{c:?}");
+                    if level < 5 {
+                        assert!(x.whole == 0 && x.numerator > 0, "{c:?}");
+                        assert!(x.numerator < x.denominator, "{c:?}");
+                    }
+                }
+                if level < 5 {
+                    assert!(number.is_none() && f.len() == 2, "{c:?}");
+                }
+                match level {
+                    1 => assert_eq!(f[0].denominator, f[1].denominator, "{c:?}"),
+                    2 => assert_eq!(f[0].numerator, f[1].numerator, "{c:?}"),
+                    3 | 4 if c.answer() == Ordering::Equal => {
+                        // Equal fractions are written differently.
+                        assert_ne!(f[0], f[1], "{c:?}");
+                    }
+                    4 => assert_ne!(f[0].denominator, f[1].denominator, "{c:?}"),
+                    5 => {
+                        // An improper fraction against a mixed or a whole
+                        // number.
+                        let improper = f.iter().filter(|x| x.whole == 0).count();
+                        assert_eq!(improper, 1, "{c:?}");
+                        assert!(f.iter().all(|x| x.whole > 0 || x.numerator > x.denominator));
+                        if let Some(n) = number {
+                            assert_eq!(n.places, 0, "{c:?}");
+                        } else {
+                            assert_eq!(f.len(), 2, "{c:?}");
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
     #[test]
     fn only_and_all_of_the_selected_kinds_come_up() {
         let all = ComparisonKinds::ALL;
@@ -657,6 +864,6 @@ mod tests {
 
     #[test]
     fn kinds_use_their_letters() {
-        assert_eq!(ComparisonKinds::ALL.to_id_string(), "wdc");
+        assert_eq!(ComparisonKinds::ALL.to_id_string(), "wdfc");
     }
 }

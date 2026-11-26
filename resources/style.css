@@ -39,3 +39,20 @@
     background-color: var(--error-bg-color);
     color: var(--error-fg-color);
 }
+
+.fraction-part {
+    font-size: 2.25rem;
+    font-weight: 800;
+    padding: 0 0.25rem;
+}
+
+.fraction-whole {
+    font-size: 3rem;
+    font-weight: 800;
+}
+
+.fraction-bar {
+    min-height: 3px;
+    background-color: currentColor;
+    margin: 2px 0;
+}

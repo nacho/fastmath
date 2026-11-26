@@ -43,6 +43,8 @@ mod imp {
         #[template_child]
         pub decimals_symbol: TemplateChild<gtk::Label>,
         #[template_child]
+        pub fractions_row: TemplateChild<adw::SwitchRow>,
+        #[template_child]
         pub calculations_row: TemplateChild<adw::SwitchRow>,
         #[template_child]
         pub all_comparisons_button: TemplateChild<gtk::Button>,
@@ -107,11 +109,12 @@ impl StartView {
         ]
     }
 
-    fn comparison_rows(&self) -> [(ComparisonKind, &adw::SwitchRow); 3] {
+    fn comparison_rows(&self) -> [(ComparisonKind, &adw::SwitchRow); 4] {
         let imp = self.imp();
         [
             (ComparisonKind::WholeNumbers, &*imp.whole_numbers_row),
             (ComparisonKind::Decimals, &*imp.decimals_row),
+            (ComparisonKind::Fractions, &*imp.fractions_row),
             (ComparisonKind::Calculations, &*imp.calculations_row),
         ]
     }

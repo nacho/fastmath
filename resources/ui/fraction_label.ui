@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="FastmathFractionLabel" parent="GtkWidget">
+    <property name="valign">center</property>
+    <property name="accessible-role">label</property>
+    <style>
+      <class name="fraction"/>
+    </style>
+    <child>
+      <object class="GtkLabel" id="whole_label">
+        <property name="accessible-role">presentation</property>
+        <property name="visible">false</property>
+        <property name="valign">center</property>
+        <style>
+          <class name="fraction-whole"/>
+          <class name="numeric"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="valign">center</property>
+        <child>
+          <object class="GtkLabel" id="numerator_label">
+            <property name="accessible-role">presentation</property>
+            <style>
+              <class name="fraction-part"/>
+              <class name="numeric"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="accessible-role">presentation</property>
+            <style>
+              <class name="fraction-bar"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="denominator_label">
+            <property name="accessible-role">presentation</property>
+            <style>
+              <class name="fraction-part"/>
+              <class name="numeric"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

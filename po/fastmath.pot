@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 17:22+0100\n"
+"POT-Creation-Date: 2026-11-26 17:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,8 +53,8 @@ msgstr ""
 #: data/io.github.nacho.fastmath.metainfo.xml:31
 msgid ""
 "The comparison mode asks whether a number is less than, equal to or greater "
-"than another. Compare whole numbers, decimals like 8.3 and 8.25, or "
-"calculations, alone or mixed."
+"than another. Compare whole numbers, decimals like 8.3 and 8.25, fractions "
+"like 1/3 and 1/4, or calculations, alone or mixed."
 msgstr ""
 
 #: data/io.github.nacho.fastmath.metainfo.xml:45
@@ -69,21 +69,21 @@ msgstr ""
 msgid "Abandon Round"
 msgstr ""
 
-#: resources/ui/game_view.ui:75
+#: resources/ui/game_view.ui:73
 msgid "Answer"
 msgstr ""
 
-#: resources/ui/game_view.ui:95 resources/ui/game_view.ui:97
+#: resources/ui/game_view.ui:93 resources/ui/game_view.ui:95
 #: resources/ui/shortcuts_dialog.ui:26
 msgid "Less Than"
 msgstr ""
 
-#: resources/ui/game_view.ui:111 resources/ui/game_view.ui:113
+#: resources/ui/game_view.ui:109 resources/ui/game_view.ui:111
 #: resources/ui/shortcuts_dialog.ui:32
 msgid "Equal To"
 msgstr ""
 
-#: resources/ui/game_view.ui:127 resources/ui/game_view.ui:129
+#: resources/ui/game_view.ui:125 resources/ui/game_view.ui:127
 #: resources/ui/shortcuts_dialog.ui:38
 msgid "Greater Than"
 msgstr ""
@@ -132,7 +132,7 @@ msgstr ""
 msgid "_Play Again"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:188
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:201
 msgid "Round"
 msgstr ""
 
@@ -225,22 +225,26 @@ msgid "Decimals"
 msgstr ""
 
 #: resources/ui/start_view.ui:173 src/labels.rs:32
+msgid "Fractions"
+msgstr ""
+
+#: resources/ui/start_view.ui:186 src/labels.rs:33
 msgid "Calculations"
 msgstr ""
 
-#: resources/ui/start_view.ui:191
+#: resources/ui/start_view.ui:204
 msgid "Level"
 msgstr ""
 
-#: resources/ui/start_view.ui:197
+#: resources/ui/start_view.ui:210
 msgid "Time Limit"
 msgstr ""
 
-#: resources/ui/start_view.ui:198
+#: resources/ui/start_view.ui:211
 msgid "In seconds"
 msgstr ""
 
-#: resources/ui/start_view.ui:216
+#: resources/ui/start_view.ui:229
 msgid "_Start"
 msgstr ""
 
@@ -260,19 +264,36 @@ msgstr ""
 msgid "Learn to type"
 msgstr ""
 
-#: src/game_view.rs:403
+#. Translators: How a screen reader reads a mixed number.
+#. The first {} is the whole part, the second {} the
+#. numerator and the third {} the denominator, for example
+#. "1 and 3 over 4" for 1 3/4.
+#: src/fraction_label.rs:66
+#, rust-format
+msgid "{} and {} over {}"
+msgstr ""
+
+#. Translators: How a screen reader reads a fraction. The
+#. first {} is the numerator and the second {} the
+#. denominator, for example "3 over 4" for 3/4.
+#: src/fraction_label.rs:73
+#, rust-format
+msgid "{} over {}"
+msgstr ""
+
+#: src/game_view.rs:421
 msgid "Abandon this round?"
 msgstr ""
 
-#: src/game_view.rs:404
+#: src/game_view.rs:422
 msgid "Your progress in this round will be lost."
 msgstr ""
 
-#: src/game_view.rs:407
+#: src/game_view.rs:425
 msgid "_Keep Playing"
 msgstr ""
 
-#: src/game_view.rs:408
+#: src/game_view.rs:426
 msgid "_Abandon"
 msgstr ""
 
@@ -280,13 +301,13 @@ msgstr ""
 msgid "All operations"
 msgstr ""
 
-#: src/labels.rs:38
+#: src/labels.rs:39
 msgid "All comparisons"
 msgstr ""
 
 #. Translators: {} is the difficulty level number, from 1 to 5, for
 #. example "Level 2".
-#: src/labels.rs:52
+#: src/labels.rs:53
 #, rust-format
 msgid "Level {}"
 msgstr ""
@@ -296,7 +317,7 @@ msgstr ""
 #. used in additions and subtractions, and the third {} is the largest
 #. number used in the multiplication tables and divisions, for
 #. example "Level 2: sums up to 20, tables up to 10".
-#: src/labels.rs:72
+#: src/labels.rs:73
 #, rust-format
 msgid "Level {}: sums up to {}, tables up to {}"
 msgstr ""
@@ -305,7 +326,7 @@ msgstr ""
 #. difficulty level. Both {} are the same number, for example
 #. "Negative numbers, from −100 to 100". The first one comes
 #. after a minus sign.
-#: src/labels.rs:88
+#: src/labels.rs:89
 #, rust-format
 msgid "Negative numbers, from −{} to {}"
 msgstr ""
@@ -313,36 +334,56 @@ msgstr ""
 #. Translators: This describes the whole numbers compared at a
 #. difficulty level. {} is the largest number, for example
 #. "Up to 20".
-#: src/labels.rs:97
+#: src/labels.rs:98
 #, rust-format
 msgid "Up to {}"
 msgstr ""
 
-#: src/labels.rs:101
+#: src/labels.rs:102
 msgid "Tenths"
 msgstr ""
 
-#: src/labels.rs:102
+#: src/labels.rs:103
 msgid "Tenths and hundredths"
 msgstr ""
 
-#: src/labels.rs:103
+#: src/labels.rs:104
 msgid "Thousandths"
 msgstr ""
 
-#: src/labels.rs:104
+#: src/labels.rs:105
 msgid "Negative numbers with hundredths"
 msgstr ""
 
-#: src/labels.rs:105
+#: src/labels.rs:106
 msgid "Negative numbers with thousandths"
+msgstr ""
+
+#: src/labels.rs:109
+msgid "The same denominator"
+msgstr ""
+
+#: src/labels.rs:110
+msgid "The same numerator"
+msgstr ""
+
+#: src/labels.rs:111
+msgid "Equivalent fractions"
+msgstr ""
+
+#: src/labels.rs:112
+msgid "Different denominators"
+msgstr ""
+
+#: src/labels.rs:113
+msgid "Improper fractions and mixed numbers"
 msgstr ""
 
 #. Translators: This describes the calculations compared
 #. at a difficulty level, for example "7 + 2 ? 8". {} is
 #. the largest number added or subtracted, for example
 #. "A sum or a difference and a number, up to 10".
-#: src/labels.rs:117
+#: src/labels.rs:125
 #, rust-format
 msgid "A sum or a difference and a number, up to {}"
 msgstr ""
@@ -353,7 +394,7 @@ msgstr ""
 #. the second {} the largest multiplication table, for
 #. example "A calculation and a number, sums up to 20,
 #. tables up to 10".
-#: src/labels.rs:126
+#: src/labels.rs:134
 #, rust-format
 msgid "A calculation and a number, sums up to {}, tables up to {}"
 msgstr ""
@@ -364,21 +405,21 @@ msgstr ""
 #. and the second {} the largest multiplication table, for
 #. example "Two calculations, sums up to 50, tables up to
 #. 12".
-#: src/labels.rs:135
+#: src/labels.rs:143
 #, rust-format
 msgid "Two calculations, sums up to {}, tables up to {}"
 msgstr ""
 
 #. Translators: The decimal separator, as in 8.25. Translate it as ","
 #. if your language writes 8,25.
-#: src/labels.rs:145
+#: src/labels.rs:153
 msgctxt "decimal separator"
 msgid "."
 msgstr ""
 
 #. Translators: {} is a number of seconds with one decimal and "s" is
 #. the abbreviation of seconds, for example "2.5 s".
-#: src/labels.rs:174
+#: src/labels.rs:182
 #, rust-format
 msgid "{} s"
 msgstr ""

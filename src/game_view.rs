@@ -10,8 +10,10 @@ use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 
 use crate::G_LOG_DOMAIN;
+use crate::comparison::Part;
+use crate::fraction_label::FractionLabel;
 use crate::labels;
-use crate::round::{Answer, AnswerResult, GameConfig, Mode, Round, RoundResult};
+use crate::round::{Answer, AnswerResult, GameConfig, Mode, Prompt, Round, RoundResult};
 use crate::sound_player::SoundPlayer;
 
 /// How often the clock and the progress bar are refreshed.
@@ -43,7 +45,7 @@ mod imp {
         #[template_child]
         pub progress_bar: TemplateChild<gtk::ProgressBar>,
         #[template_child]
-        pub question_label: TemplateChild<gtk::Label>,
+        pub question_box: TemplateChild<gtk::Box>,
         #[template_child]
         pub answer_entry: TemplateChild<gtk::Entry>,
         #[template_child]
@@ -125,7 +127,6 @@ mod imp {
             if config.mode == Mode::Comparison {
                 self.answer_entry.set_visible(false);
                 self.compare_box.set_visible(true);
-                self.question_label.add_css_class("comparison");
             }
             view.update_clock(Duration::ZERO);
             view.show_question();
@@ -271,8 +272,25 @@ impl GameView {
             return;
         };
         if let Some(question) = round.current() {
-            imp.question_label
-                .set_text(&question.text(&labels::decimal_separator()));
+            while let Some(child) = imp.question_box.first_child() {
+                imp.question_box.remove(&child);
+            }
+            let comparison = matches!(question, Prompt::Comparison(_));
+            for part in question.parts(&labels::decimal_separator()) {
+                let widget: gtk::Widget = match part {
+                    Part::Text(text) => {
+                        let label = gtk::Label::new(Some(&text));
+                        label.add_css_class("question");
+                        label.add_css_class("numeric");
+                        if comparison {
+                            label.add_css_class("comparison");
+                        }
+                        label.upcast()
+                    }
+                    Part::Fraction(fraction) => FractionLabel::new(&fraction).upcast(),
+                };
+                imp.question_box.append(&widget);
+            }
             let number = round.answered() + 1;
             imp.counter_label
                 .set_text(&format!("{} / {}", number, round.limit()));

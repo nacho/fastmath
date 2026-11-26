@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::time::Duration;
 
-use crate::comparison::{Comparison, ComparisonGenerator, ComparisonKinds};
+use crate::comparison::{Comparison, ComparisonGenerator, ComparisonKinds, Part};
 use crate::generator::{Generator, Question};
 use crate::level::Level;
 use crate::operation::OperationSet;
@@ -74,10 +74,10 @@ impl Prompt {
 
     /// The question as shown to the player, with `separator` between the
     /// whole part and the decimals of a number.
-    pub fn text(&self, separator: &str) -> String {
+    pub fn parts(&self, separator: &str) -> Vec<Part> {
         match self {
-            Prompt::Arithmetic(q) => q.text(),
-            Prompt::Comparison(c) => c.text(separator),
+            Prompt::Arithmetic(q) => vec![Part::Text(q.text())],
+            Prompt::Comparison(c) => c.parts(separator).into(),
         }
     }
 }

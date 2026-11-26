@@ -167,7 +167,7 @@ mod tests {
             kinds: ComparisonKinds::ALL.with(ComparisonKind::Decimals, false),
             ..config
         };
-        assert_eq!(name(&comparison), "c-wc-2-120.json");
+        assert_eq!(name(&comparison), "c-wfc-2-120.json");
     }
 
     #[test]
