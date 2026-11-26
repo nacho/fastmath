@@ -31,6 +31,11 @@ const YELLOW_5: gdk::RGBA = rgb(0xe5, 0xa5, 0x0a);
 const LIGHT_3: gdk::RGBA = rgb(0xde, 0xdd, 0xda);
 const LIGHT_5: gdk::RGBA = rgb(0x9a, 0x99, 0x96);
 const DARK_2: gdk::RGBA = rgb(0x5e, 0x5c, 0x64);
+const DARK_4: gdk::RGBA = rgb(0x24, 0x1f, 0x31);
+const BLUE_2: gdk::RGBA = rgb(0x62, 0xa0, 0xea);
+const BROWN_3: gdk::RGBA = rgb(0x86, 0x5e, 0x3c);
+const BROWN_5: gdk::RGBA = rgb(0x63, 0x45, 0x2c);
+const WHITE: gdk::RGBA = rgb(0xff, 0xff, 0xff);
 
 mod imp {
     use super::*;
@@ -93,6 +98,23 @@ mod imp {
                 let bounds = graphene::Rect::new(x, 0.0, size, size);
                 match picture.shape {
                     Shape::Pizza => draw_pizza(snapshot, &bounds, &picture, index, dark),
+                    Shape::Bar { rows, cols } => draw_bar(
+                        snapshot,
+                        &bounds,
+                        rows,
+                        cols,
+                        picture.shaded_in(index),
+                        dark,
+                    ),
+                    Shape::Grid { rows, cols } => draw_grid(
+                        snapshot,
+                        &bounds,
+                        rows,
+                        cols,
+                        picture.shaded_in(index),
+                        dark,
+                        &obj.color(),
+                    ),
                 }
             }
         }
@@ -137,6 +159,20 @@ impl FractionPicture {
                 // number of eaten slices, which picks the plural form, for
                 // example "A pizza in 8 slices, 3 of them eaten".
                 i18n_nfmt("A pizza in {} slices, {} of them eaten", "A pizza in {} slices, {} of them eaten", eaten, pieces, eaten)
+            },
+            (Shape::Bar { .. }, _) => i18n_fmt! {
+                // Translators: Describes a picture for screen readers. The
+                // first {} is the number of squares and the second {} the
+                // number of eaten squares, which picks the plural form, for
+                // example "A chocolate bar of 8 squares, 3 of them eaten".
+                i18n_nfmt("A chocolate bar of {} squares, {} of them eaten", "A chocolate bar of {} squares, {} of them eaten", eaten, pieces, eaten)
+            },
+            (Shape::Grid { .. }, _) => i18n_fmt! {
+                // Translators: Describes a picture for screen readers. The
+                // first {} is the number of squares and the second {} the
+                // number of coloured squares, which picks the plural form,
+                // for example "A grid of 8 squares, 3 of them coloured".
+                i18n_nfmt("A grid of {} squares, {} of them coloured", "A grid of {} squares, {} of them coloured", eaten, pieces, eaten)
             },
             (Shape::Pizza, _) => i18n_fmt! {
                 // Translators: Describes a picture for screen readers. The
@@ -202,5 +238,90 @@ fn draw_pizza(
             snapshot.append_fill(&path, gsk::FillRule::Winding, &YELLOW_3);
             snapshot.append_stroke(&path, &solid, &YELLOW_5);
         }
+    }
+}
+
+/// The square cells of a `rows` × `cols` shape, centred in `bounds`, row by
+/// row.
+fn cells(bounds: &graphene::Rect, rows: u32, cols: u32) -> Vec<graphene::Rect> {
+    let side = (bounds.width() - 2.0 * LINE_WIDTH) / rows.max(cols) as f32;
+    let left = bounds.x() + (bounds.width() - side * cols as f32) / 2.0;
+    let top = bounds.y() + (bounds.height() - side * rows as f32) / 2.0;
+    (0..rows)
+        .flat_map(|row| {
+            (0..cols).map(move |col| {
+                graphene::Rect::new(
+                    left + col as f32 * side,
+                    top + row as f32 * side,
+                    side,
+                    side,
+                )
+            })
+        })
+        .collect()
+}
+
+/// A rounded square path inside `cell`, `inset` from its edges.
+fn square(cell: &graphene::Rect, inset: f32, radius: f32) -> gsk::Path {
+    let rect = cell.inset_r(inset, inset);
+    let corner = graphene::Size::new(radius, radius);
+    let rounded = gsk::RoundedRect::new(rect, corner, corner, corner, corner);
+    let builder = gsk::PathBuilder::new();
+    builder.add_rounded_rect(&rounded);
+    builder.to_path()
+}
+
+/// Draws a chocolate bar: brown squares with darker edges, and eaten ones in
+/// grey with a dashed outline.
+fn draw_bar(
+    snapshot: &gtk::Snapshot,
+    bounds: &graphene::Rect,
+    rows: u32,
+    cols: u32,
+    eaten: u32,
+    dark: bool,
+) {
+    let solid = gsk::Stroke::new(LINE_WIDTH);
+    let dashed = gsk::Stroke::new(LINE_WIDTH);
+    dashed.set_dash(&DASH);
+    let (eaten_fill, eaten_line) = if dark {
+        (DARK_2, LIGHT_5)
+    } else {
+        (LIGHT_3, LIGHT_5)
+    };
+    for (index, cell) in cells(bounds, rows, cols).iter().enumerate() {
+        let path = square(cell, LINE_WIDTH, 4.0);
+        if (index as u32) < eaten {
+            snapshot.append_fill(&path, gsk::FillRule::Winding, &eaten_fill);
+            snapshot.append_stroke(&path, &dashed, &eaten_line);
+        } else {
+            snapshot.append_fill(&path, gsk::FillRule::Winding, &BROWN_3);
+            snapshot.append_stroke(&path, &solid, &BROWN_5);
+        }
+    }
+}
+
+/// Draws a grid of squares: blue coloured ones and white ones, or dark ones
+/// in the dark style, outlined in the text colour.
+fn draw_grid(
+    snapshot: &gtk::Snapshot,
+    bounds: &graphene::Rect,
+    rows: u32,
+    cols: u32,
+    coloured: u32,
+    dark: bool,
+    outline: &gdk::RGBA,
+) {
+    let stroke = gsk::Stroke::new(LINE_WIDTH / 1.5);
+    let blank = if dark { DARK_4 } else { WHITE };
+    for (index, cell) in cells(bounds, rows, cols).iter().enumerate() {
+        let path = square(cell, 0.0, 0.0);
+        let fill = if (index as u32) < coloured {
+            BLUE_2
+        } else {
+            blank
+        };
+        snapshot.append_fill(&path, gsk::FillRule::Winding, &fill);
+        snapshot.append_stroke(&path, &stroke, outline);
     }
 }

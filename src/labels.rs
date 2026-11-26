@@ -188,8 +188,10 @@ pub fn comparison_kind_description(kind: ComparisonKind, level: Level) -> String
 /// The question of a picture, for example "How much was eaten?".
 pub fn fraction_question(question: &FractionQuestion) -> String {
     match (question.picture.shape, question.ask) {
-        (Shape::Pizza, Ask::Eaten) => gettext("How much was eaten?"),
-        (Shape::Pizza, Ask::Left) => gettext("How much is left?"),
+        (Shape::Grid { .. }, Ask::Eaten) => gettext("What fraction is coloured?"),
+        (Shape::Grid { .. }, Ask::Left) => gettext("What fraction is not coloured?"),
+        (_, Ask::Eaten) => gettext("How much was eaten?"),
+        (_, Ask::Left) => gettext("How much is left?"),
     }
 }
 

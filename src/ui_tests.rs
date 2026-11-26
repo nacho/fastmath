@@ -445,6 +445,27 @@ fn fraction_pictures_describe_themselves() {
     );
     let (width, ..) = two.measure(gtk::Orientation::Horizontal, -1);
     assert!(width <= 360, "{width}");
+
+    let bar = FractionPicture::new(&Picture {
+        shape: Shape::Bar { rows: 2, cols: 4 },
+        wholes: 1,
+        pieces: 8,
+        shaded: 3,
+    });
+    assert_eq!(
+        bar.description(),
+        "A chocolate bar of 8 squares, 3 of them eaten"
+    );
+    let grid = FractionPicture::new(&Picture {
+        shape: Shape::Grid { rows: 3, cols: 4 },
+        wholes: 1,
+        pieces: 12,
+        shaded: 1,
+    });
+    assert_eq!(
+        grid.description(),
+        "A grid of 12 squares, 1 of them coloured"
+    );
 }
 
 fn fraction_labels_show_and_describe_the_fraction() {

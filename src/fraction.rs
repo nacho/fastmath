@@ -60,14 +60,21 @@ fn gcd(a: u64, b: u64) -> u64 {
     if b == 0 { a } else { gcd(b, a % b) }
 }
 
-/// What a picture shows.
+/// What a picture shows. Bars and grids have `rows` × `cols` squares.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub enum Shape {
     Pizza,
+    Bar { rows: u32, cols: u32 },
+    Grid { rows: u32, cols: u32 },
 }
 
+/// The numbers of pieces a bar or a grid can have: their squares fit in at
+/// most 6 columns.
+const SQUARE_PIECES: [u32; 9] = [2, 3, 4, 5, 6, 8, 9, 10, 12];
+
 /// A picture of `wholes` shapes, each cut into `pieces`. The first `shaded`
-/// pieces are eaten, counting across the shapes.
+/// pieces are eaten, or coloured in a grid, counting across the shapes and
+/// row by row.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, glib::Boxed)]
 #[boxed_type(name = "FastmathPicture", nullable)]
 pub struct Picture {
@@ -126,7 +133,7 @@ impl FractionQuestion {
 /// Produces fraction questions for a level:
 ///
 /// 1. a pizza in halves, thirds or quarters, asking what was eaten,
-/// 2. up to twelfths,
+/// 2. up to twelfths, in pizzas, chocolate bars and grids of squares,
 /// 3. asking what was eaten or what is left,
 /// 4. only the simplest form is accepted,
 /// 5. two pizzas with more than one eaten, in simplest form.
@@ -162,10 +169,28 @@ impl FractionGenerator {
 
     fn make(&mut self) -> FractionQuestion {
         let level = self.level.number();
-        let (wholes, pieces) = match level {
-            1 => (1, self.rng.u32(2..=4)),
-            2..=4 => (1, self.rng.u32(2..=12)),
+        // Pizzas (0), bars (1) or grids (2).
+        let kind = if (2..=4).contains(&level) {
+            self.rng.u8(0..3)
+        } else {
+            0
+        };
+        let (wholes, pieces) = match (level, kind) {
+            (1, _) => (1, self.rng.u32(2..=4)),
+            (2..=4, 0) => (1, self.rng.u32(2..=12)),
+            (2..=4, _) => (1, SQUARE_PIECES[self.rng.usize(..SQUARE_PIECES.len())]),
             _ => (2, self.rng.u32(2..=4)),
+        };
+        let shape = match kind {
+            0 => Shape::Pizza,
+            1 => {
+                let (rows, cols) = self.layout(pieces);
+                Shape::Bar { rows, cols }
+            }
+            _ => {
+                let (rows, cols) = self.layout(pieces);
+                Shape::Grid { rows, cols }
+            }
         };
         let shaded = if level == 5 {
             // More than one whole and less than two.
@@ -191,7 +216,7 @@ impl FractionGenerator {
         };
         FractionQuestion {
             picture: Picture {
-                shape: Shape::Pizza,
+                shape,
                 wholes,
                 pieces,
                 shaded,
@@ -199,6 +224,17 @@ impl FractionGenerator {
             ask,
             simplest_only: level >= 4,
         }
+    }
+
+    /// Rows and columns for `pieces` squares, at most 6 columns and never
+    /// more rows than columns: 12 is 2 × 6 or 3 × 4.
+    fn layout(&mut self, pieces: u32) -> (u32, u32) {
+        let layouts: Vec<(u32, u32)> = (1..=pieces)
+            .filter(|rows| pieces.is_multiple_of(*rows))
+            .map(|rows| (rows, pieces / rows))
+            .filter(|&(rows, cols)| rows <= cols && cols <= 6)
+            .collect();
+        layouts[self.rng.usize(..layouts.len())]
     }
 }
 
@@ -334,6 +370,36 @@ mod tests {
             .filter(|q| q.answer().denominator != q.picture.pieces)
             .count();
         assert!(simplified > SAMPLES / 3, "{simplified}");
+    }
+
+    #[test]
+    fn shapes_follow_the_level() {
+        for level in 1..=5 {
+            let questions = samples(level);
+            let mut seen = [false; 3];
+            for q in &questions {
+                let p = q.picture;
+                let index = match p.shape {
+                    Shape::Pizza => 0,
+                    Shape::Bar { rows, cols } | Shape::Grid { rows, cols } => {
+                        assert_eq!(rows * cols, p.pieces, "{q:?}");
+                        assert!(rows <= cols && cols <= 6, "{q:?}");
+                        if matches!(p.shape, Shape::Bar { .. }) {
+                            1
+                        } else {
+                            2
+                        }
+                    }
+                };
+                seen[index] = true;
+            }
+            let expected = if (2..=4).contains(&level) {
+                [true; 3]
+            } else {
+                [true, false, false]
+            };
+            assert_eq!(seen, expected, "level {level}");
+        }
     }
 
     #[test]

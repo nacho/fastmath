@@ -7,7 +7,7 @@ A mental arithmetic game for GNOME. Answer as many questions as you can before t
 
 ## How to Play
 
-1. Pick a mode. In **Arithmetic**, choose the operations to practice: addition, subtraction, multiplication and division. Select several to mix them in the same round. In **Comparison**, choose what to compare (whole numbers, decimals, fractions and calculations, alone or mixed) and say whether the left side is less than, equal to or greater than the right side. In **Fractions**, say which fraction of a pizza was eaten or is left.
+1. Pick a mode. In **Arithmetic**, choose the operations to practice: addition, subtraction, multiplication and division. Select several to mix them in the same round. In **Comparison**, choose what to compare (whole numbers, decimals, fractions and calculations, alone or mixed) and say whether the left side is less than, equal to or greater than the right side. In **Fractions**, say which fraction of a pizza or a chocolate bar was eaten or is left, or which fraction of a grid of squares is coloured.
 2. Choose a level and the time limit (two minutes by default).
 3. Type each answer and press Enter, or in comparisons press the <, = or > button or key. In fractions, type the numerator, press / or Tab, type the denominator and press Enter. A round has up to 60 questions and ends when you answer them all or the time is up.
 4. See how many answers you got right and how fast you were. Good scores go into a top-10 leaderboard for each combination of operations (or of comparisons), level and time limit.
@@ -45,8 +45,8 @@ In fractions mode:
 | Level | Questions                                                                |
 |-------|--------------------------------------------------------------------------|
 | 1     | a pizza in halves, thirds or quarters: how much was eaten?               |
-| 2     | up to twelfths                                                           |
-| 3     | how much was eaten, or how much is left?                                 |
+| 2     | up to twelfths, with pizzas, chocolate bars and grids of squares         |
+| 3     | how much was eaten, or how much is left? (coloured or not, in grids)     |
 | 4     | only the simplest form counts: 4/8 must be answered 1/2                  |
 | 5     | two pizzas with more than one eaten, in simplest form: 7/4               |
 

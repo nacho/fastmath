@@ -91,8 +91,10 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   which `GameView` shows as a `FastmathFractionPicture` above the question
   text. A "/" typed in the numerator moves to the denominator (with any
   digits after it), Enter in the numerator moves to an empty denominator.
+  `Shape` is a pizza, a chocolate bar or a grid; bars and grids have
+  `rows` × `cols` squares (at most 6 columns) and appear from level 2.
   `FastmathFractionPicture` draws with `GtkSnapshot` and `gsk::PathBuilder`
-  in GNOME palette colours, redraws when the dark style changes, and sets
+  in GNOME palette colours (grid outlines use `widget.color()`), redraws when the dark style changes, and sets
   a translatable accessible label.
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for

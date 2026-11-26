@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 18:07+0100\n"
+"POT-Creation-Date: 2026-11-26 18:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -153,7 +153,7 @@ msgid "Comparison"
 msgstr ""
 
 #: resources/ui/shortcuts_dialog.ui:46 resources/ui/start_view.ui:180
-#: src/labels.rs:33 src/labels.rs:213
+#: src/labels.rs:33 src/labels.rs:215
 msgid "Fractions"
 msgstr ""
 
@@ -302,10 +302,32 @@ msgstr ""
 #. first {} is the number of slices and the second {} the
 #. number of eaten slices, which picks the plural form, for
 #. example "A pizza in 8 slices, 3 of them eaten".
-#: src/fraction_picture.rs:139
+#: src/fraction_picture.rs:161
 #, rust-format
 msgid "A pizza in {} slices, {} of them eaten"
 msgid_plural "A pizza in {} slices, {} of them eaten"
+msgstr[0] ""
+msgstr[1] ""
+
+#. Translators: Describes a picture for screen readers. The
+#. first {} is the number of squares and the second {} the
+#. number of eaten squares, which picks the plural form, for
+#. example "A chocolate bar of 8 squares, 3 of them eaten".
+#: src/fraction_picture.rs:168
+#, rust-format
+msgid "A chocolate bar of {} squares, {} of them eaten"
+msgid_plural "A chocolate bar of {} squares, {} of them eaten"
+msgstr[0] ""
+msgstr[1] ""
+
+#. Translators: Describes a picture for screen readers. The
+#. first {} is the number of squares and the second {} the
+#. number of coloured squares, which picks the plural form,
+#. for example "A grid of 8 squares, 3 of them coloured".
+#: src/fraction_picture.rs:175
+#, rust-format
+msgid "A grid of {} squares, {} of them coloured"
+msgid_plural "A grid of {} squares, {} of them coloured"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -314,7 +336,7 @@ msgstr[1] ""
 #. second {} the number of eaten slices of both pizzas, which
 #. picks the plural form, for example "Two pizzas in 4 slices
 #. each, 7 slices eaten".
-#: src/fraction_picture.rs:147
+#: src/fraction_picture.rs:183
 #, rust-format
 msgid "Two pizzas in {} slices each, {} slice eaten"
 msgid_plural "Two pizzas in {} slices each, {} slices eaten"
@@ -493,23 +515,31 @@ msgid "Two calculations, sums up to {}, tables up to {}"
 msgstr ""
 
 #: src/labels.rs:191
-msgid "How much was eaten?"
+msgid "What fraction is coloured?"
 msgstr ""
 
 #: src/labels.rs:192
+msgid "What fraction is not coloured?"
+msgstr ""
+
+#: src/labels.rs:193
+msgid "How much was eaten?"
+msgstr ""
+
+#: src/labels.rs:194
 msgid "How much is left?"
 msgstr ""
 
 #. Translators: The decimal separator, as in 8.25. Translate it as ","
 #. if your language writes 8,25.
-#: src/labels.rs:199
+#: src/labels.rs:201
 msgctxt "decimal separator"
 msgid "."
 msgstr ""
 
 #. Translators: {} is a number of seconds with one decimal and "s" is
 #. the abbreviation of seconds, for example "2.5 s".
-#: src/labels.rs:229
+#: src/labels.rs:231
 #, rust-format
 msgid "{} s"
 msgstr ""
