@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 18:10+0100\n"
+"POT-Creation-Date: 2026-11-26 18:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -135,15 +135,19 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: resources/ui/results_view.ui:101
+#: resources/ui/results_view.ui:96
+msgid "_Save"
+msgstr ""
+
+#: resources/ui/results_view.ui:111
 msgid "Leaderboard"
 msgstr ""
 
-#: resources/ui/results_view.ui:112
+#: resources/ui/results_view.ui:122
 msgid "_Back"
 msgstr ""
 
-#: resources/ui/results_view.ui:121
+#: resources/ui/results_view.ui:131
 msgid "_Play Again"
 msgstr ""
 
@@ -553,22 +557,22 @@ msgstr ""
 
 #. Translators: {} is the number of questions answered correctly
 #. in the round, for example "12 correct answers".
-#: src/results_view.rs:148
+#: src/results_view.rs:165
 #, rust-format
 msgid "{} correct answer"
 msgid_plural "{} correct answers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/results_view.rs:158
+#: src/results_view.rs:175
 msgid "—"
 msgstr ""
 
-#: src/results_view.rs:224
+#: src/results_view.rs:241
 msgid "No scores yet with these settings"
 msgstr ""
 
-#: src/results_view.rs:226
+#: src/results_view.rs:243
 msgid "Best scores with these settings"
 msgstr ""
 
@@ -576,7 +580,7 @@ msgstr ""
 #. is the number of correct answers, and the second {} is
 #. the average time per answer, already with its unit, for
 #. example "12 correct, 2.5 s per answer".
-#: src/results_view.rs:244
+#: src/results_view.rs:261
 #, rust-format
 msgid "{} correct, {} per answer"
 msgstr ""

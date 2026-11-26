@@ -39,6 +39,8 @@ mod imp {
         #[template_child]
         pub name_row: TemplateChild<adw::EntryRow>,
         #[template_child]
+        pub save_button: TemplateChild<gtk::Button>,
+        #[template_child]
         pub leaderboard_group: TemplateChild<adw::PreferencesGroup>,
         #[template_child]
         pub back_button: TemplateChild<gtk::Button>,
@@ -76,6 +78,26 @@ mod imp {
             *self.leaderboard.borrow_mut() = Leaderboard::load(&view.game_summary().config);
             view.show_summary();
             view.show_leaderboard(None);
+
+            // The button is always shown, so a remembered name can be saved
+            // without editing it, as the apply button of the row needs. It is
+            // connected before offer_to_save() fills in the name.
+            let save_button = self.save_button.get();
+            self.name_row.connect_changed(glib::clone!(
+                #[weak]
+                save_button,
+                move |row| save_button.set_sensitive(!row.text().trim().is_empty())
+            ));
+            self.name_row.connect_entry_activated(glib::clone!(
+                #[weak]
+                view,
+                move |_| view.save_score()
+            ));
+            self.save_button.connect_clicked(glib::clone!(
+                #[weak]
+                view,
+                move |_| view.save_score()
+            ));
             view.offer_to_save();
 
             self.back_button.connect_clicked(glib::clone!(
@@ -87,11 +109,6 @@ mod imp {
                 #[weak]
                 view,
                 move |_| view.emit_by_name::<()>("retry", &[])
-            ));
-            self.name_row.connect_apply(glib::clone!(
-                #[weak]
-                view,
-                move |_| view.save_score()
             ));
         }
 

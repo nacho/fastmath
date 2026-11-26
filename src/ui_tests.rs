@@ -333,16 +333,28 @@ fn results_keep_a_leaderboard() {
     assert!(imp.save_group.is_visible());
     assert!(imp.rows.borrow().is_empty());
 
+    imp.name_row.set_text(" ");
+    assert!(!imp.save_button.is_sensitive());
     imp.name_row.set_text("Ana");
-    imp.name_row.emit_by_name::<()>("apply", &[]);
+    assert!(imp.save_button.is_sensitive());
+    imp.save_button.emit_clicked();
     assert!(!imp.save_group.is_visible());
     assert_eq!(imp.rows.borrow().len(), 1);
     assert_eq!(results.config(), config);
 
     // A second view of the same configuration finds the saved score.
     let again = ResultsView::new(&view.summary());
-    assert_eq!(again.imp().rows.borrow().len(), 1);
-    assert!(again.imp().save_group.is_visible());
+    let imp = again.imp();
+    assert_eq!(imp.rows.borrow().len(), 1);
+    assert!(imp.save_group.is_visible());
+
+    // The remembered name can be saved without editing it, with the button
+    // or with Enter.
+    assert_eq!(imp.name_row.text(), "Ana");
+    assert!(imp.save_button.is_sensitive());
+    imp.name_row.emit_by_name::<()>("entry-activated", &[]);
+    assert!(!imp.save_group.is_visible());
+    assert_eq!(imp.rows.borrow().len(), 2);
 }
 
 fn a_fractions_round_is_answered_in_the_entries() {
