@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 11:11+0100\n"
-"PO-Revision-Date: 2026-11-26 15:19+0100\n"
+"POT-Creation-Date: 2026-11-26 17:28+0100\n"
+"PO-Revision-Date: 2026-11-26 17:30+0100\n"
 "Last-Translator: Ignacio Casal Quinteiro\n"
 "Language-Team: Galician\n"
 "Language: gl\n"
@@ -60,12 +60,12 @@ msgstr ""
 #: data/io.github.nacho.fastmath.metainfo.xml:31
 msgid ""
 "The comparison mode asks whether a number is less than, equal to or greater "
-"than another, from whole numbers to decimals like 8.3 and 8.25, negative "
-"numbers and calculations."
+"than another. Compare whole numbers, decimals like 8.3 and 8.25, fractions "
+"like 1/3 and 1/4, or calculations, alone or mixed."
 msgstr ""
 "O modo de comparación pregunta se un número é menor que, igual a ou maior "
-"que outro, desde números enteiros ata decimais como 8,3 e 8,25, números "
-"negativos e cálculos."
+"que outro. Compara números enteiros, decimais como 8,3 e 8,25, fraccións "
+"como 1/3 e 1/4, ou cálculos, por separado ou mesturados."
 
 #: data/io.github.nacho.fastmath.metainfo.xml:45
 msgid "Choose the operations, the level and the time limit"
@@ -79,21 +79,21 @@ msgstr "Responde a tantas preguntas como poidas antes de que se acabe o tempo"
 msgid "Abandon Round"
 msgstr "Abandonar rolda"
 
-#: resources/ui/game_view.ui:75
+#: resources/ui/game_view.ui:73
 msgid "Answer"
 msgstr "Resposta"
 
-#: resources/ui/game_view.ui:95 resources/ui/game_view.ui:97
+#: resources/ui/game_view.ui:93 resources/ui/game_view.ui:95
 #: resources/ui/shortcuts_dialog.ui:26
 msgid "Less Than"
 msgstr "Menor que"
 
-#: resources/ui/game_view.ui:111 resources/ui/game_view.ui:113
+#: resources/ui/game_view.ui:109 resources/ui/game_view.ui:111
 #: resources/ui/shortcuts_dialog.ui:32
 msgid "Equal To"
 msgstr "Igual a"
 
-#: resources/ui/game_view.ui:127 resources/ui/game_view.ui:129
+#: resources/ui/game_view.ui:125 resources/ui/game_view.ui:127
 #: resources/ui/shortcuts_dialog.ui:38
 msgid "Greater Than"
 msgstr "Maior que"
@@ -142,7 +142,7 @@ msgstr "_Volver"
 msgid "_Play Again"
 msgstr "_Xogar de novo"
 
-#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:133
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:201
 msgid "Round"
 msgstr "Rolda"
 
@@ -150,7 +150,7 @@ msgstr "Rolda"
 msgid "Submit Answer"
 msgstr "Enviar resposta"
 
-#: resources/ui/shortcuts_dialog.ui:23 src/labels.rs:102
+#: resources/ui/shortcuts_dialog.ui:23
 msgid "Comparison"
 msgstr "Comparación"
 
@@ -198,11 +198,11 @@ msgstr "_Comparación"
 msgid "Operations"
 msgstr "Operacións"
 
-#: resources/ui/start_view.ui:66
+#: resources/ui/start_view.ui:66 resources/ui/start_view.ui:134
 msgid "Select several to mix them in the same round"
 msgstr "Selecciona varias para mesturalas na mesma rolda"
 
-#: resources/ui/start_view.ui:69
+#: resources/ui/start_view.ui:69 resources/ui/start_view.ui:137
 msgid "Select _All"
 msgstr "Seleccionar _todas"
 
@@ -222,19 +222,39 @@ msgstr "Multiplicación"
 msgid "Division"
 msgstr "División"
 
-#: resources/ui/start_view.ui:136
+#: resources/ui/start_view.ui:133
+msgid "Comparisons"
+msgstr "Comparacións"
+
+#: resources/ui/start_view.ui:147 src/labels.rs:30
+msgid "Whole Numbers"
+msgstr "Números enteiros"
+
+#: resources/ui/start_view.ui:160 src/labels.rs:31
+msgid "Decimals"
+msgstr "Decimais"
+
+#: resources/ui/start_view.ui:173 src/labels.rs:32
+msgid "Fractions"
+msgstr "Fraccións"
+
+#: resources/ui/start_view.ui:186 src/labels.rs:33
+msgid "Calculations"
+msgstr "Cálculos"
+
+#: resources/ui/start_view.ui:204
 msgid "Level"
 msgstr "Nivel"
 
-#: resources/ui/start_view.ui:142
+#: resources/ui/start_view.ui:210
 msgid "Time Limit"
 msgstr "Límite de tempo"
 
-#: resources/ui/start_view.ui:143
+#: resources/ui/start_view.ui:211
 msgid "In seconds"
 msgstr "En segundos"
 
-#: resources/ui/start_view.ui:161
+#: resources/ui/start_view.ui:229
 msgid "_Start"
 msgstr "_Comezar"
 
@@ -254,19 +274,34 @@ msgstr "Aprende xeografía"
 msgid "Learn to type"
 msgstr "Aprende mecanografía"
 
-#: src/game_view.rs:403
+#. Translators: How a screen reader reads a mixed number.
+#. The first {} is the whole part, the second {} the
+#. numerator and the third {} the denominator, for example
+#. "1 and 3 over 4" for 1 3/4.
+#: src/fraction_label.rs:66
+msgid "{} and {} over {}"
+msgstr "{} e {} sobre {}"
+
+#. Translators: How a screen reader reads a fraction. The
+#. first {} is the numerator and the second {} the
+#. denominator, for example "3 over 4" for 3/4.
+#: src/fraction_label.rs:73
+msgid "{} over {}"
+msgstr "{} sobre {}"
+
+#: src/game_view.rs:421
 msgid "Abandon this round?"
 msgstr "¿Abandonar esta rolda?"
 
-#: src/game_view.rs:404
+#: src/game_view.rs:422
 msgid "Your progress in this round will be lost."
 msgstr "Perderase o teu progreso nesta rolda."
 
-#: src/game_view.rs:407
+#: src/game_view.rs:425
 msgid "_Keep Playing"
 msgstr "_Seguir xogando"
 
-#: src/game_view.rs:408
+#: src/game_view.rs:426
 msgid "_Abandon"
 msgstr "_Abandonar"
 
@@ -274,69 +309,118 @@ msgstr "_Abandonar"
 msgid "All operations"
 msgstr "Todas as operacións"
 
-#. Translators: This describes a difficulty level of the
-#. comparisons. The first {} is the level number and the
-#. second {} the largest number, for example "Level 1: whole
-#. numbers up to 100".
 #: src/labels.rs:39
-msgid "Level {}: whole numbers up to {}"
-msgstr "Nivel {}: números enteiros ata {}"
+msgid "All comparisons"
+msgstr "Todas as comparacións"
 
-#. Translators: This describes a difficulty level of the
-#. comparisons, with numbers like 8.3 and 8.25. {} is the
-#. level number, for example "Level 2: tenths and hundredths".
-#: src/labels.rs:45
-msgid "Level {}: tenths and hundredths"
-msgstr "Nivel {}: décimas e centésimas"
-
-#. Translators: This describes a difficulty level of the
-#. comparisons, with numbers like 2.045 and −2.5. {} is the
-#. level number, for example "Level 3: thousandths and
-#. negative numbers".
-#: src/labels.rs:52
-msgid "Level {}: thousandths and negative numbers"
-msgstr "Nivel {}: milésimas e números negativos"
-
-#. Translators: This describes a difficulty level of the
-#. comparisons, with questions like "7 × 8 ? 54". {} is the
-#. level number, for example "Level 4: a calculation and a
-#. number".
-#: src/labels.rs:59
-msgid "Level {}: a calculation and a number"
-msgstr "Nivel {}: un cálculo e un número"
-
-#. Translators: This describes a difficulty level of the
-#. comparisons, with questions like "6 × 9 ? 50 + 4". {} is
-#. the level number, for example "Level 5: two calculations".
-#: src/labels.rs:65
-msgid "Level {}: two calculations"
-msgstr "Nivel {}: dous cálculos"
+#. Translators: {} is the difficulty level number, from 1 to 5, for
+#. example "Level 2".
+#: src/labels.rs:53
+msgid "Level {}"
+msgstr "Nivel {}"
 
 #. Translators: This describes a difficulty level. The first {} is
 #. the level number, from 1 to 5, the second {} is the largest number
 #. used in additions and subtractions, and the third {} is the largest
 #. number used in the multiplication tables and divisions, for
 #. example "Level 2: sums up to 20, tables up to 10".
-#: src/labels.rs:77
+#: src/labels.rs:73
 msgid "Level {}: sums up to {}, tables up to {}"
 msgstr "Nivel {}: sumas ata {}, táboas ata {}"
 
+#. Translators: This describes the whole numbers compared at a
+#. difficulty level. Both {} are the same number, for example
+#. "Negative numbers, from −100 to 100". The first one comes
+#. after a minus sign.
+#: src/labels.rs:89
+msgid "Negative numbers, from −{} to {}"
+msgstr "Números negativos, de −{} a {}"
+
+#. Translators: This describes the whole numbers compared at a
+#. difficulty level. {} is the largest number, for example
+#. "Up to 20".
+#: src/labels.rs:98
+msgid "Up to {}"
+msgstr "Ata {}"
+
+#: src/labels.rs:102
+msgid "Tenths"
+msgstr "Décimas"
+
+#: src/labels.rs:103
+msgid "Tenths and hundredths"
+msgstr "Décimas e centésimas"
+
+#: src/labels.rs:104
+msgid "Thousandths"
+msgstr "Milésimas"
+
+#: src/labels.rs:105
+msgid "Negative numbers with hundredths"
+msgstr "Números negativos con centésimas"
+
+#: src/labels.rs:106
+msgid "Negative numbers with thousandths"
+msgstr "Números negativos con milésimas"
+
+#: src/labels.rs:109
+msgid "The same denominator"
+msgstr "O mesmo denominador"
+
+#: src/labels.rs:110
+msgid "The same numerator"
+msgstr "O mesmo numerador"
+
+#: src/labels.rs:111
+msgid "Equivalent fractions"
+msgstr "Fraccións equivalentes"
+
+#: src/labels.rs:112
+msgid "Different denominators"
+msgstr "Denominadores distintos"
+
+#: src/labels.rs:113
+msgid "Improper fractions and mixed numbers"
+msgstr "Fraccións impropias e números mixtos"
+
+#. Translators: This describes the calculations compared
+#. at a difficulty level, for example "7 + 2 ? 8". {} is
+#. the largest number added or subtracted, for example
+#. "A sum or a difference and a number, up to 10".
+#: src/labels.rs:125
+msgid "A sum or a difference and a number, up to {}"
+msgstr "Unha suma ou unha resta e un número, ata {}"
+
+#. Translators: This describes the calculations compared
+#. at a difficulty level, for example "7 × 8 ? 54". The
+#. first {} is the largest number added or subtracted and
+#. the second {} the largest multiplication table, for
+#. example "A calculation and a number, sums up to 20,
+#. tables up to 10".
+#: src/labels.rs:134
+msgid "A calculation and a number, sums up to {}, tables up to {}"
+msgstr "Un cálculo e un número, sumas ata {}, táboas ata {}"
+
+#. Translators: This describes the calculations compared
+#. at a difficulty level, for example "6 × 9 ? 50 + 4".
+#. The first {} is the largest number added or subtracted
+#. and the second {} the largest multiplication table, for
+#. example "Two calculations, sums up to 50, tables up to
+#. 12".
+#: src/labels.rs:143
+msgid "Two calculations, sums up to {}, tables up to {}"
+msgstr "Dous cálculos, sumas ata {}, táboas ata {}"
+
 #. Translators: The decimal separator, as in 8.25. Translate it as ","
 #. if your language writes 8,25.
-#: src/labels.rs:84
+#: src/labels.rs:153
 msgctxt "decimal separator"
 msgid "."
 msgstr ","
 
-#. Translators: {} is the difficulty level number, from 1 to 5, for
-#. example "Level 2".
-#: src/labels.rs:98
-msgid "Level {}"
-msgstr "Nivel {}"
-
 #. Translators: {} is a number of seconds with one decimal and "s" is
 #. the abbreviation of seconds, for example "2.5 s".
-#: src/labels.rs:118
+#: src/labels.rs:182
 msgid "{} s"
 msgstr "{} s"
 
