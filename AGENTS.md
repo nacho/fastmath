@@ -74,7 +74,8 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   shows it as the subtitle of each switch row. `Decimal` stores thousandths
   plus the places shown, so 8.3 and 8.30 are equal but written differently.
   Sides are compared exactly as fractions (cross-multiplying), so 1/3 and
-  0.33 differ. `Prompt::parts()` returns text and `Fraction` parts;
+  0.33 differ. With both decimals and fractions selected, from level 3 a
+  third of the fraction questions compare a fraction with a decimal. `Prompt::parts()` returns text and `Fraction` parts;
   `GameView` turns them into labels and `FastmathFractionLabel` widgets in
   `question_box`. The decimal separator is a
   translatable string (context "decimal separator").

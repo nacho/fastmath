@@ -36,7 +36,7 @@ In comparison mode:
 | 4     | negatives: −37 ? −48   | negatives with hundredths: −4.07 ? −4.7 | different denominators: 2/3 ? 3/4 | two calculations, sums up to 100             |
 | 5     | −1000 to 1000          | negatives with thousandths              | improper and mixed: 7/4 ? 1 3/4   | two calculations, sums up to 1000            |
 
-Fractions are shown with the numerator over the denominator, with denominators up to 12. The calculations use the operands of arithmetic levels 1, 2, 2, 3 and 4.
+Fractions are shown with the numerator over the denominator, with denominators up to 12. With both Decimals and Fractions selected, from level 3 a third of the fraction questions compare a fraction with a decimal: 3/5 ? 0.06, 1/3 ? 0.33. The calculations use the operands of arithmetic levels 1, 2, 2, 3 and 4.
 
 Each answer comes up about a third of the time. Equal decimals are written differently (8.3 and 8.30), and many unequal ones test place value: 8.3 is greater than 8.25, and 3.04 is less than 3.4.
 

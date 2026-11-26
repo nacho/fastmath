@@ -279,6 +279,15 @@ impl ComparisonGenerator {
                 let (low, high) = self.decimals(equal);
                 (Side::Number(low), Side::Number(high))
             }
+            // With decimals too, a third of the fraction questions from
+            // level 3 compare a fraction with a decimal.
+            ComparisonKind::Fractions
+                if self.level.number() >= 3
+                    && self.kinds.contains(&ComparisonKind::Decimals)
+                    && self.rng.u8(0..3) == 0 =>
+            {
+                self.fraction_and_decimal(equal)
+            }
             ComparisonKind::Fractions => self.fractions(equal),
             ComparisonKind::Calculations if self.level.number() <= 2 => {
                 self.calculation_and_number(equal)
@@ -345,6 +354,67 @@ impl ComparisonGenerator {
             }
         };
         self.with_signs(pair, equal)
+    }
+
+    /// A fraction and a decimal, the second one greater unless `equal`:
+    /// 3/5 and 0.6, 0.06 or 0.65, or 1/3 and 0.33.
+    fn fraction_and_decimal(&mut self, equal: bool) -> (Side, Side) {
+        // Only these denominators give a decimal with up to three places.
+        const EXACT: [u32; 5] = [2, 4, 5, 8, 10];
+        const REPEATING: [u32; 2] = [3, 6];
+        let d = if equal || self.rng.u8(0..4) != 0 {
+            EXACT[self.rng.usize(..EXACT.len())]
+        } else {
+            REPEATING[self.rng.usize(..REPEATING.len())]
+        };
+        let repeating = REPEATING.contains(&d);
+        // 3/6 is 1/2, which is not a repeating decimal.
+        let n = loop {
+            let n = self.rng.u32(1..d);
+            if !repeating || !(n * 1000).is_multiple_of(d) {
+                break n;
+            }
+        };
+        let fraction = Fraction::new(n, d);
+
+        let decimal = if repeating {
+            // 1/3 is never a decimal: compare it with 0.3, 0.33, 0.4 or 0.34.
+            let places = self.rng.u32(1..=2);
+            let scaled = i64::from(n) * 10i64.pow(places) / i64::from(d);
+            Decimal::new(scaled + i64::from(self.rng.bool()), places)
+        } else {
+            let thousandths = i64::from(n) * SCALE / i64::from(d);
+            let places = (0..=MAX_PLACES)
+                .find(|p| thousandths % 10i64.pow(MAX_PLACES - p) == 0)
+                .expect("exact denominators");
+            let exact = Decimal::new(thousandths / 10i64.pow(MAX_PLACES - places), places);
+            if equal {
+                exact
+            } else if places < MAX_PLACES && self.rng.bool() {
+                // The same digits one place further: 0.6 and 0.06.
+                Decimal::new(
+                    exact.thousandths / 10i64.pow(MAX_PLACES - places),
+                    places + 1,
+                )
+            } else {
+                // Close, with one more place: 0.6 and 0.65 or 0.55.
+                let longer = (places + 1).min(MAX_PLACES);
+                let step = 10i64.pow(MAX_PLACES - longer);
+                let delta = self.rng.i64(1..=9) * step;
+                let value = if thousandths > delta && self.rng.bool() {
+                    thousandths - delta
+                } else {
+                    thousandths + delta
+                };
+                Decimal::new(value / step, longer)
+            }
+        };
+        let (fraction, decimal) = (Side::Fraction(fraction), Side::Number(decimal));
+        if cmp_sides(&fraction, &decimal) == Ordering::Greater {
+            (decimal, fraction)
+        } else {
+            (fraction, decimal)
+        }
     }
 
     /// Two fractions, the second one greater unless `equal`.
@@ -829,6 +899,61 @@ mod tests {
                     _ => {}
                 }
             }
+        }
+    }
+
+    /// Whether a comparison has a proper fraction against a number, as
+    /// fractions against decimals do. Level 5 fractions compare improper
+    /// fractions with whole numbers instead.
+    fn is_fraction_and_decimal(c: &Comparison) -> bool {
+        matches!(
+            (c.left, c.right),
+            (Side::Fraction(f), Side::Number(_)) | (Side::Number(_), Side::Fraction(f))
+                if f.whole == 0 && f.numerator < f.denominator
+        )
+    }
+
+    #[test]
+    fn fractions_meet_decimals_from_level_3() {
+        let both = only(ComparisonKind::Fractions).with(ComparisonKind::Decimals, true);
+        for level in 1..=LEVEL_COUNT {
+            let comparisons = samples(both, level);
+            let fraction_questions = comparisons
+                .iter()
+                .filter(|c| kind_of(c) == ComparisonKind::Fractions)
+                .count();
+            let mixed: Vec<&Comparison> = comparisons
+                .iter()
+                .filter(|c| is_fraction_and_decimal(c))
+                .collect();
+            if level < 3 {
+                assert!(mixed.is_empty(), "level {level}");
+            } else {
+                let share = mixed.len() as f64 / fraction_questions as f64;
+                assert!((0.25..0.42).contains(&share), "level {level}: {share}");
+            }
+            for c in &mixed {
+                let (f, number) = fractions(c);
+                let n = number.unwrap();
+                assert!(n.thousandths > 0 && n.places <= MAX_PLACES, "{c:?}");
+                // Thirds and sixths never equal a decimal.
+                if f[0].denominator % 3 == 0 && f[0].numerator * 2 != f[0].denominator {
+                    assert_ne!(c.answer(), Ordering::Equal, "{c:?}");
+                }
+            }
+            assert!(
+                level < 3 || mixed.iter().any(|c| c.answer() == Ordering::Equal),
+                "level {level}"
+            );
+        }
+
+        // Without decimals, fractions only meet fractions.
+        for level in 3..=4 {
+            assert!(
+                !samples(only(ComparisonKind::Fractions), level)
+                    .iter()
+                    .any(is_fraction_and_decimal)
+            );
         }
     }
 
