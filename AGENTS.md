@@ -25,7 +25,8 @@ src/
   sound_player.rs       # gtk::MediaFile wrapper, copied from Mundi
   labels.rs             # Translatable names and formatting shared by views
   ui_tests.rs           # Ignored tests that need a display
-  operation.rs          # Game logic (no widgets): Operation, OperationSet bitmask <-> "asmd"
+  choice.rs             # Game logic (no widgets): ChoiceSet, a bitmask of choices <-> letters
+  operation.rs          # Game logic: Operation, OperationSet (ChoiceSet of "asmd")
   level.rs              # Game logic: Level 1..5 and the operand ranges
   generator.rs          # Game logic: question generator
   comparison.rs         # Game logic: Decimal, Comparison and the comparison generator
@@ -50,7 +51,7 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   started to `Round::submit`, and calls `finish()` when time runs out. The
   game clock starts when the page is shown, so the page transition does not
   cost time, and stops while the abandon dialog is open.
-- The game logic (`operation.rs`, `level.rs`, `generator.rs`,
+- The game logic (`choice.rs`, `operation.rs`, `level.rs`, `generator.rs`,
   `comparison.rs`, `round.rs` and `leaderboard.rs`) does not use GTK. It uses GLib in two places:
   `leaderboard.rs` for the data directory and logging, and `round.rs`, where
   `GameConfig` is a boxed type so `GameView` can take it as a construct

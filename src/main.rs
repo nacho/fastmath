@@ -8,6 +8,7 @@ mod config {
 }
 
 mod application;
+mod choice;
 mod comparison;
 mod game_view;
 mod generator;
