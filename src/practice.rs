@@ -165,9 +165,13 @@ impl FactHistory {
 
     pub fn forget_at(path: &Path) {
         match fs::remove_file(path) {
-            Ok(()) => glib::debug!("Forgot the practice history"),
+            Ok(()) => {
+                glib::debug!("Forgot the practice history");
+            }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
-            Err(e) => glib::warn!("Could not delete {}: {e}", path.display()),
+            Err(e) => {
+                glib::warn!("Could not delete {}: {e}", path.display());
+            }
         }
     }
 
