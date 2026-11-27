@@ -15,6 +15,11 @@ impl Question {
     pub fn text(&self) -> String {
         format!("{} {} {}", self.a, self.op.symbol(), self.b)
     }
+
+    /// The question with its answer, for example `7 × 8 = 56`.
+    pub fn solution(&self) -> String {
+        format!("{} = {}", self.text(), self.answer)
+    }
 }
 
 /// Produces random questions for a set of operations and a level.
@@ -281,5 +286,6 @@ mod tests {
             answer: 56,
         };
         assert_eq!(q.text(), "7 × 8");
+        assert_eq!(q.solution(), "7 × 8 = 56");
     }
 }

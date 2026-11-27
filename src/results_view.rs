@@ -11,7 +11,7 @@ use crate::config;
 use crate::game_view::GameSummary;
 use crate::labels;
 use crate::leaderboard::{Leaderboard, LeaderboardEntry};
-use crate::round::GameConfig;
+use crate::round::{GameConfig, Prompt};
 
 mod imp {
     use super::*;
@@ -41,6 +41,8 @@ mod imp {
         #[template_child]
         pub save_button: TemplateChild<gtk::Button>,
         #[template_child]
+        pub missed_group: TemplateChild<adw::PreferencesGroup>,
+        #[template_child]
         pub leaderboard_group: TemplateChild<adw::PreferencesGroup>,
         #[template_child]
         pub back_button: TemplateChild<gtk::Button>,
@@ -48,7 +50,7 @@ mod imp {
         pub retry_button: TemplateChild<gtk::Button>,
 
         #[property(get, set, construct_only)]
-        pub summary: Cell<Option<GameSummary>>,
+        pub summary: RefCell<Option<GameSummary>>,
         pub leaderboard: RefCell<Leaderboard>,
         pub rows: RefCell<Vec<adw::ActionRow>>,
         pub saved: Cell<bool>,
@@ -83,6 +85,9 @@ mod imp {
                 view.show_leaderboard(None);
             }
             view.show_summary();
+            if config.is_practice() {
+                view.show_missed();
+            }
 
             // The button is always shown, so a remembered name can be saved
             // without editing it, as the apply button of the row needs. It is
@@ -141,7 +146,7 @@ glib::wrapper! {
 impl ResultsView {
     pub fn new(summary: &GameSummary) -> Self {
         glib::Object::builder()
-            .property("summary", *summary)
+            .property("summary", summary.clone())
             .build()
     }
 
@@ -162,7 +167,7 @@ impl ResultsView {
 
     fn show_summary(&self) {
         let imp = self.imp();
-        let GameSummary { config, result } = self.game_summary();
+        let GameSummary { config, result, .. } = self.game_summary();
 
         imp.score_label.set_text(&i18n_fmt! {
             // Translators: {} is the number of questions answered correctly
@@ -179,6 +184,30 @@ impl ResultsView {
                 .average_ms()
                 .map_or_else(|| gettext("—"), labels::format_average),
         );
+    }
+
+    /// Lists the facts answered wrong in a practice round.
+    fn show_missed(&self) {
+        let imp = self.imp();
+        let missed: Vec<String> = self
+            .game_summary()
+            .missed
+            .iter()
+            .filter_map(|prompt| match prompt {
+                Prompt::Arithmetic(question) => Some(question.solution()),
+                _ => None,
+            })
+            .collect();
+        if missed.is_empty() {
+            imp.missed_group
+                .set_description(Some(&gettext("No mistakes")));
+        }
+        for solution in missed {
+            let row = adw::ActionRow::builder().title(solution).build();
+            row.add_css_class("numeric");
+            imp.missed_group.add(&row);
+        }
+        imp.missed_group.set_visible(true);
     }
 
     /// Shows the name entry when the score earns a place in the leaderboard.

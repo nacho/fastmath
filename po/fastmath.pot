@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-27 12:46+0100\n"
+"POT-Creation-Date: 2026-11-27 12:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -80,25 +80,25 @@ msgstr ""
 msgid "Answer"
 msgstr ""
 
-#: resources/ui/game_view.ui:95
+#: resources/ui/game_view.ui:106
 msgid "Numerator"
 msgstr ""
 
-#: resources/ui/game_view.ui:118
+#: resources/ui/game_view.ui:129
 msgid "Denominator"
 msgstr ""
 
-#: resources/ui/game_view.ui:140 resources/ui/game_view.ui:142
+#: resources/ui/game_view.ui:151 resources/ui/game_view.ui:153
 #: resources/ui/shortcuts_dialog.ui:26
 msgid "Less Than"
 msgstr ""
 
-#: resources/ui/game_view.ui:156 resources/ui/game_view.ui:158
+#: resources/ui/game_view.ui:167 resources/ui/game_view.ui:169
 #: resources/ui/shortcuts_dialog.ui:32
 msgid "Equal To"
 msgstr ""
 
-#: resources/ui/game_view.ui:172 resources/ui/game_view.ui:174
+#: resources/ui/game_view.ui:183 resources/ui/game_view.ui:185
 #: resources/ui/shortcuts_dialog.ui:38
 msgid "Greater Than"
 msgstr ""
@@ -139,15 +139,19 @@ msgstr ""
 msgid "_Save"
 msgstr ""
 
-#: resources/ui/results_view.ui:111
+#: resources/ui/results_view.ui:112
+msgid "Facts to Practise"
+msgstr ""
+
+#: resources/ui/results_view.ui:117
 msgid "Leaderboard"
 msgstr ""
 
-#: resources/ui/results_view.ui:122
+#: resources/ui/results_view.ui:128
 msgid "_Back"
 msgstr ""
 
-#: resources/ui/results_view.ui:131
+#: resources/ui/results_view.ui:137
 msgid "_Play Again"
 msgstr ""
 
@@ -362,19 +366,19 @@ msgid_plural "Two pizzas in {} slices each, {} slices eaten"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/game_view.rs:548
+#: src/game_view.rs:595
 msgid "Abandon this round?"
 msgstr ""
 
-#: src/game_view.rs:549
+#: src/game_view.rs:596
 msgid "Your progress in this round will be lost."
 msgstr ""
 
-#: src/game_view.rs:552
+#: src/game_view.rs:599
 msgid "_Keep Playing"
 msgstr ""
 
-#: src/game_view.rs:553
+#: src/game_view.rs:600
 msgid "_Abandon"
 msgstr ""
 
@@ -571,22 +575,26 @@ msgstr ""
 
 #. Translators: {} is the number of questions answered correctly
 #. in the round, for example "12 correct answers".
-#: src/results_view.rs:170
+#: src/results_view.rs:175
 #, rust-format
 msgid "{} correct answer"
 msgid_plural "{} correct answers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/results_view.rs:180
+#: src/results_view.rs:185
 msgid "—"
 msgstr ""
 
-#: src/results_view.rs:249
+#: src/results_view.rs:203
+msgid "No mistakes"
+msgstr ""
+
+#: src/results_view.rs:278
 msgid "No scores yet with these settings"
 msgstr ""
 
-#: src/results_view.rs:251
+#: src/results_view.rs:280
 msgid "Best scores with these settings"
 msgstr ""
 
@@ -594,7 +602,7 @@ msgstr ""
 #. is the number of correct answers, and the second {} is
 #. the average time per answer, already with its unit, for
 #. example "12 correct, 2.5 s per answer".
-#: src/results_view.rs:269
+#: src/results_view.rs:298
 #, rust-format
 msgid "{} correct, {} per answer"
 msgstr ""

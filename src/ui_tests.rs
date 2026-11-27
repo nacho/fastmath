@@ -22,12 +22,12 @@ use crate::config;
 use crate::fraction::{Fraction, Picture, Shape};
 use crate::fraction_label::FractionLabel;
 use crate::fraction_picture::FractionPicture;
-use crate::game_view::GameView;
+use crate::game_view::{GameSummary, GameView};
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
 use crate::practice::FactHistory;
 use crate::results_view::ResultsView;
-use crate::round::{Answer, GameConfig, Mode, PRACTICE_QUESTIONS, QUESTIONS_PER_ROUND};
+use crate::round::{Answer, GameConfig, Mode, PRACTICE_QUESTIONS, Prompt, QUESTIONS_PER_ROUND};
 use crate::start_view::StartView;
 
 fn config() -> GameConfig {
@@ -207,21 +207,52 @@ fn a_practice_round_has_no_clock_and_20_questions() {
     assert_eq!(view.tick(), glib::ControlFlow::Continue);
     assert_eq!(finished.get(), 0);
 
-    for _ in 0..PRACTICE_QUESTIONS {
+    // A wrong answer shows the right one until the next answer.
+    assert!(imp.feedback_label.get_visible());
+    assert_eq!(imp.feedback_label.opacity(), 0.0);
+    let Some(Prompt::Arithmetic(missed)) = imp.round.borrow().as_ref().unwrap().current().copied()
+    else {
+        panic!("not an arithmetic question");
+    };
+    answer(&view, &(missed.answer + 1).to_string());
+    assert_eq!(imp.feedback_label.opacity(), 1.0);
+    assert_eq!(imp.feedback_label.text(), missed.solution());
+
+    for _ in 1..PRACTICE_QUESTIONS {
         assert_eq!(finished.get(), 0);
         let correct = current_number(&view);
         answer(&view, &correct.to_string());
+        assert_eq!(imp.feedback_label.opacity(), 0.0);
     }
     assert_eq!(finished.get(), 1);
     let summary = view.summary();
-    assert_eq!(summary.result.correct, PRACTICE_QUESTIONS);
+    assert_eq!(summary.result.correct, PRACTICE_QUESTIONS - 1);
     assert_eq!(summary.result.unanswered, 0);
 
-    // No leaderboard and no name entry.
+    // No leaderboard and no name entry, but the facts to practise.
     let results = ResultsView::new(&summary);
-    assert!(!results.imp().leaderboard_group.get_visible());
-    assert!(!results.imp().save_group.get_visible());
-    assert!(results.imp().config_label.text().ends_with("Practice"));
+    let imp = results.imp();
+    assert!(!imp.leaderboard_group.get_visible());
+    assert!(!imp.save_group.get_visible());
+    assert!(imp.config_label.text().ends_with("Practice"));
+    assert!(imp.missed_group.get_visible());
+    let row = imp
+        .missed_group
+        .row(0)
+        .and_downcast::<adw::ActionRow>()
+        .unwrap();
+    assert_eq!(row.title(), missed.solution());
+    assert!(imp.missed_group.row(1).is_none());
+
+    let perfect = GameSummary {
+        missed: Vec::new(),
+        ..summary
+    };
+    let results = ResultsView::new(&perfect);
+    assert_eq!(
+        results.imp().missed_group.description().unwrap(),
+        "No mistakes"
+    );
 }
 
 fn level_subtitle(view: &StartView) -> String {
@@ -309,6 +340,9 @@ fn a_full_round_ends_after_60_answers() {
     let finished = watch_finished(&view);
     let imp = view.imp();
     view.start_clock();
+
+    // Only practice shows the right answer after a wrong one.
+    assert!(!imp.feedback_label.get_visible());
 
     // Only digits can be typed.
     imp.answer_entry.set_text("1a2 3");

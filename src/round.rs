@@ -186,6 +186,8 @@ pub struct Round {
     wrong: u32,
     answer_time: Duration,
     last_answer_at: Duration,
+    /// The questions answered wrong, in order.
+    missed: Vec<Prompt>,
 }
 
 impl Round {
@@ -208,6 +210,7 @@ impl Round {
             wrong: 0,
             answer_time: Duration::ZERO,
             last_answer_at: Duration::ZERO,
+            missed: Vec::new(),
         }
     }
 
@@ -242,6 +245,7 @@ impl Round {
             AnswerResult::Correct
         } else {
             self.wrong += 1;
+            self.missed.push(question);
             // A missed fact comes back later in a practice round.
             if let (Questions::Practice(g), Prompt::Arithmetic(q)) = (&mut self.questions, question)
             {
@@ -252,6 +256,11 @@ impl Round {
 
         self.current = (self.answered() < self.limit).then(|| self.questions.next());
         Some(Answered { result, time })
+    }
+
+    /// The questions answered wrong so far, in order.
+    pub fn missed(&self) -> &[Prompt] {
+        &self.missed
     }
 
     /// Ends the round early, for example when the time is up.
@@ -329,6 +338,7 @@ mod tests {
     fn wrong_answers_are_counted_and_the_round_moves_on() {
         let mut round = round(5);
         let first = *round.current().unwrap();
+        assert!(round.missed().is_empty());
         let answered = round.submit(wrong(&round), secs(2)).unwrap();
         assert_eq!(answered.result, AnswerResult::Wrong);
         // The first answer takes the time since the round started.
@@ -336,6 +346,11 @@ mod tests {
         assert_ne!(round.current(), Some(&first));
         assert_eq!(round.result().wrong, 1);
         assert_eq!(round.result().correct, 0);
+
+        // The round keeps the questions answered wrong.
+        assert_eq!(round.missed(), [first]);
+        round.submit(correct(&round), secs(3));
+        assert_eq!(round.missed(), [first]);
     }
 
     #[test]

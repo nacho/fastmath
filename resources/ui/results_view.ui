@@ -107,6 +107,12 @@
               </object>
             </child>
             <child>
+              <object class="AdwPreferencesGroup" id="missed_group">
+                <property name="visible">false</property>
+                <property name="title" translatable="yes">Facts to Practise</property>
+              </object>
+            </child>
+            <child>
               <object class="AdwPreferencesGroup" id="leaderboard_group">
                 <property name="title" translatable="yes">Leaderboard</property>
               </object>

@@ -113,7 +113,10 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   wrong answer, 0.5 for a right one slower than 1.5 times the average of
   its operation, 0 otherwise. Facts from 0.2 that the generator could ask
   (`Generator::could_ask`) are weak, and a fact missed in the round becomes
-  fully weak for the rest of it.
+  fully weak for the rest of it. After a wrong answer, `GameView` shows the right
+  one (`Question::solution()`, "7 × 8 = 56") in `feedback_label` for 1.5 s;
+  `GameSummary.missed` carries the missed questions to the results page,
+  which lists them in "Facts to Practise".
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time

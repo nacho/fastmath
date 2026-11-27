@@ -13,6 +13,7 @@ use crate::G_LOG_DOMAIN;
 use crate::comparison::Part;
 use crate::fraction_label::FractionLabel;
 use crate::fraction_picture::FractionPicture;
+use crate::generator::Question;
 use crate::labels;
 use crate::practice::FactHistory;
 use crate::round::{Answer, AnswerResult, Answered, GameConfig, Mode, Prompt, Round, RoundResult};
@@ -22,12 +23,16 @@ use crate::sound_player::SoundPlayer;
 const TICK: Duration = Duration::from_millis(100);
 /// How long the answer entry or button shows whether the answer was right.
 const FLASH: Duration = Duration::from_millis(400);
+/// How long a practice round shows the right answer after a wrong one.
+const FEEDBACK: Duration = Duration::from_millis(1500);
 
 /// What was played and how it went.
-#[derive(Clone, Copy, Debug, glib::Boxed)]
+#[derive(Clone, Debug, glib::Boxed)]
 #[boxed_type(name = "FastmathGameSummary", nullable)]
 pub struct GameSummary {
     pub config: GameConfig,
+    /// The questions answered wrong, in order.
+    pub missed: Vec<Prompt>,
     pub result: RoundResult,
 }
 
@@ -50,6 +55,8 @@ mod imp {
         pub question_box: TemplateChild<gtk::Box>,
         #[template_child]
         pub answer_entry: TemplateChild<gtk::Entry>,
+        #[template_child]
+        pub feedback_label: TemplateChild<gtk::Label>,
         #[template_child]
         pub compare_box: TemplateChild<gtk::Box>,
         #[template_child]
@@ -74,6 +81,7 @@ mod imp {
         pub done: Cell<bool>,
         pub timer: RefCell<Option<glib::SourceId>>,
         pub flash: RefCell<Option<glib::SourceId>>,
+        pub feedback: RefCell<Option<glib::SourceId>>,
         pub sound_player: SoundPlayer,
         /// The answers to arithmetic facts, for practice rounds.
         pub history: RefCell<Option<FactHistory>>,
@@ -146,6 +154,9 @@ mod imp {
             *self.round.borrow_mut() = Some(round);
             self.answer_entry
                 .set_visible(config.mode == Mode::Arithmetic);
+            // It is shown transparent so the page does not move when it
+            // appears.
+            self.feedback_label.set_visible(config.is_practice());
             self.compare_box
                 .set_visible(config.mode == Mode::Comparison);
             self.fraction_box
@@ -225,7 +236,10 @@ mod imp {
 
         fn dispose(&self) {
             self.obj().stop_timer();
-            if let Some(source) = self.flash.take() {
+            for source in [self.flash.take(), self.feedback.take()]
+                .into_iter()
+                .flatten()
+            {
                 source.remove();
             }
             self.sound_player.stop_music();
@@ -439,6 +453,11 @@ impl GameView {
         {
             history.record(&question, result == AnswerResult::Correct, time);
         }
+        if let (true, Some(Prompt::Arithmetic(question))) =
+            (self.game_config().is_practice(), question)
+        {
+            self.show_feedback(&question, result);
+        }
 
         // Show the result on what the player used to answer.
         let widgets: Vec<gtk::Widget> = match answer {
@@ -475,6 +494,34 @@ impl GameView {
         } else {
             self.show_question();
         }
+    }
+
+    /// In practice, shows the right answer for a moment after a wrong one,
+    /// and hides it on the next answer.
+    fn show_feedback(&self, question: &Question, result: AnswerResult) {
+        let imp = self.imp();
+        if let Some(source) = imp.feedback.take() {
+            source.remove();
+        }
+        if result == AnswerResult::Correct {
+            imp.feedback_label.set_opacity(0.0);
+            return;
+        }
+        imp.feedback_label.set_text(&question.solution());
+        imp.feedback_label.set_opacity(1.0);
+        let source = glib::timeout_add_local_once(
+            FEEDBACK,
+            glib::clone!(
+                #[weak(rename_to = view)]
+                self,
+                move || {
+                    let imp = view.imp();
+                    imp.feedback.take();
+                    imp.feedback_label.set_opacity(0.0);
+                }
+            ),
+        );
+        *imp.feedback.borrow_mut() = Some(source);
     }
 
     /// Highlights `widgets`, the entries or a button, for a moment with a
@@ -602,12 +649,11 @@ impl GameView {
     /// The configuration and the result of the round.
     pub fn summary(&self) -> GameSummary {
         let round = self.imp().round.borrow();
+        let round = round.as_ref().expect("the round is set in constructed()");
         GameSummary {
             config: self.game_config(),
-            result: round
-                .as_ref()
-                .expect("the round is set in constructed()")
-                .result(),
+            missed: round.missed().to_vec(),
+            result: round.result(),
         }
     }
 

@@ -79,6 +79,17 @@
                   </object>
                 </child>
                 <child>
+                  <object class="GtkLabel" id="feedback_label">
+                    <property name="visible">false</property>
+                    <property name="opacity">0</property>
+                    <style>
+                      <class name="title-3"/>
+                      <class name="error"/>
+                      <class name="numeric"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox" id="fraction_box">
                     <property name="visible">false</property>
                     <property name="orientation">vertical</property>
