@@ -38,6 +38,11 @@
       and asks which fraction was eaten, is left or is coloured, from halves
       to twelfths and more than a whole.
     </p>
+    <p>
+      Fast Math remembers which arithmetic facts you answer wrong or slowly.
+      Practice rounds have no clock and ask those facts more often, and show
+      the right answer after a mistake.
+    </p>
   </description>
 
   <launchable type="desktop-id">io.github.nacho.fastmath.desktop</launchable>
