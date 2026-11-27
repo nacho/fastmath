@@ -122,7 +122,13 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   `facts.json` (`FactHistory::forget`). "Progress" (`win.progress`) pushes a
   new `FastmathProgressView`, which loads the history in `constructed()` and
   shows `FactHistory::operation_stats` for the operation picked in the header
-  bar, or a status page when there is no history.
+  bar, or a status page when there is no history. × and ÷ get a grid of
+  2 to 12 or 2 to 20 (`size_group`), where 56 ÷ 7 sits in row 7, column 8
+  like 7 × 8. Each answered cell is a focusable label with the
+  `FactHistory::fact_stats` text as tooltip and accessible label, and the
+  CSS class `.fact-weak-0`…`.fact-weak-4` from `weakness_step()` (below 0.1,
+  0.2, 0.4, 0.7, above); unanswered cells are `.fact-unseen`. The colours
+  are libadwaita palette colours in `style.css`.
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time

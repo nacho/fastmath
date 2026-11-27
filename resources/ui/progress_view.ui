@@ -70,6 +70,143 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwPreferencesGroup" id="grid_group">
+                        <property name="header-suffix">
+                          <object class="AdwToggleGroup" id="size_group">
+                            <property name="active-name">12</property>
+                            <property name="valign">center</property>
+                            <child>
+                              <object class="AdwToggle">
+                                <property name="name">12</property>
+                                <property name="label">12 × 12</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwToggle">
+                                <property name="name">20</property>
+                                <property name="label">20 × 20</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                        <child>
+                          <object class="GtkScrolledWindow">
+                            <property name="hscrollbar-policy">automatic</property>
+                            <property name="vscrollbar-policy">never</property>
+                            <property name="propagate-natural-height">true</property>
+                            <property name="child">
+                              <object class="GtkGrid" id="fact_grid">
+                                <property name="halign">center</property>
+                                <property name="row-spacing">2</property>
+                                <property name="column-spacing">2</property>
+                                <property name="margin-top">6</property>
+                                <property name="margin-bottom">6</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">6</property>
+                            <property name="margin-top">12</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="halign">center</property>
+                                <property name="spacing">4</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Strong</property>
+                                    <property name="margin-end">4</property>
+                                    <style>
+                                      <class name="caption"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="accessible-role">presentation</property>
+                                    <style>
+                                      <class name="fact-cell"/>
+                                      <class name="fact-weak-0"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="accessible-role">presentation</property>
+                                    <style>
+                                      <class name="fact-cell"/>
+                                      <class name="fact-weak-1"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="accessible-role">presentation</property>
+                                    <style>
+                                      <class name="fact-cell"/>
+                                      <class name="fact-weak-2"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="accessible-role">presentation</property>
+                                    <style>
+                                      <class name="fact-cell"/>
+                                      <class name="fact-weak-3"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="accessible-role">presentation</property>
+                                    <style>
+                                      <class name="fact-cell"/>
+                                      <class name="fact-weak-4"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Weak</property>
+                                    <property name="margin-start">4</property>
+                                    <style>
+                                      <class name="caption"/>
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="halign">center</property>
+                                <property name="spacing">8</property>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="accessible-role">presentation</property>
+                                    <style>
+                                      <class name="fact-cell"/>
+                                      <class name="fact-unseen"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Not answered yet</property>
+                                    <style>
+                                      <class name="caption"/>
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </property>
               </object>

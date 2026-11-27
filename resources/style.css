@@ -67,3 +67,39 @@
     background-color: currentColor;
     margin: 2px 0;
 }
+
+/* The facts of the progress grid, from strong to weak. */
+.fact-cell {
+    min-width: 22px;
+    min-height: 22px;
+    border-radius: 4px;
+}
+
+.fact-cell:focus-visible {
+    outline: 2px solid @accent_color;
+    outline-offset: 1px;
+}
+
+.fact-weak-0 {
+    background-color: @green_4;
+}
+
+.fact-weak-1 {
+    background-color: @green_2;
+}
+
+.fact-weak-2 {
+    background-color: @yellow_3;
+}
+
+.fact-weak-3 {
+    background-color: @orange_3;
+}
+
+.fact-weak-4 {
+    background-color: @red_3;
+}
+
+.fact-unseen {
+    background-color: color-mix(in srgb, @view_fg_color 10%, @view_bg_color);
+}

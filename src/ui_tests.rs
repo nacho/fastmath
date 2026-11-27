@@ -606,28 +606,27 @@ fn forgetting_the_history_asks_first(data_dir: &std::path::Path) {
 /// Saves a small known history: a wrong and a slow 7 × 8, a fast 3 × 4.
 fn save_known_history() {
     let mut history = FactHistory::load();
-    let q = |op, a, b, answer| crate::generator::Question { op, a, b, answer };
-    history.record(
-        &q(Operation::Multiply, 7, 8, 56),
-        false,
-        Duration::from_millis(9000),
-    );
-    history.record(
-        &q(Operation::Multiply, 8, 7, 56),
-        true,
-        Duration::from_millis(3000),
-    );
-    history.record(
-        &q(Operation::Multiply, 3, 4, 12),
-        true,
-        Duration::from_millis(1000),
-    );
-    history.record(
-        &q(Operation::Multiply, 3, 4, 12),
-        true,
-        Duration::from_millis(1000),
-    );
+    let answers = [
+        (Operation::Multiply, 7, 8, 56, false, 9000),
+        (Operation::Multiply, 8, 7, 56, true, 3000),
+        (Operation::Multiply, 3, 4, 12, true, 1000),
+        (Operation::Multiply, 3, 4, 12, true, 1000),
+        (Operation::Multiply, 9, 6, 54, false, 5000),
+        (Operation::Divide, 56, 7, 8, false, 5000),
+    ];
+    for (op, a, b, answer, correct, ms) in answers {
+        let question = crate::generator::Question { op, a, b, answer };
+        history.record(&question, correct, Duration::from_millis(ms));
+    }
     history.save();
+}
+
+/// The cell of the progress grid for `row` and `column`, which start at
+/// `first`, after the header row and column.
+fn grid_cell(view: &ProgressView, first: u32, row: u32, column: u32) -> gtk::Widget {
+    let x = (column - first + 1) as i32;
+    let y = (row - first + 1) as i32;
+    view.imp().fact_grid.child_at(x, y).expect("a cell")
 }
 
 fn progress_shows_the_history() {
@@ -644,10 +643,48 @@ fn progress_shows_the_history() {
     assert_eq!(imp.stack.visible_child_name().unwrap(), "progress");
     assert_eq!(
         imp.summary_label.text(),
-        "Multiplication: 75% right, 1.7 s on average, 1 weak fact"
+        "Multiplication: 60% right, 1.7 s on average, 2 weak facts"
     );
+
+    // Both cells of a fact show its weakness, unanswered facts are grey.
+    assert!(imp.grid_group.get_visible() && imp.size_group.get_visible());
+    for (row, column) in [(6, 9), (9, 6)] {
+        let cell = grid_cell(&view, 2, row, column);
+        assert!(cell.has_css_class("fact-weak-4"), "{row} × {column}");
+        assert!(cell.is_focusable());
+    }
+    assert!(grid_cell(&view, 2, 8, 7).has_css_class("fact-weak-3"));
+    assert!(grid_cell(&view, 2, 3, 4).has_css_class("fact-weak-0"));
+    let unseen = grid_cell(&view, 2, 5, 5);
+    assert!(unseen.has_css_class("fact-unseen") && !unseen.is_focusable());
+    assert_eq!(
+        grid_cell(&view, 2, 7, 8).tooltip_text().unwrap(),
+        "7 × 8: 1 right out of 2, 3.0 s on average"
+    );
+    assert_eq!(
+        grid_cell(&view, 2, 6, 9).tooltip_text().unwrap(),
+        "6 × 9: 0 right out of 1"
+    );
+
+    // Rows and columns of 2 to 12, or 2 to 20.
+    let cell_rows = |view: &ProgressView| {
+        (1..)
+            .take_while(|y| view.imp().fact_grid.child_at(1, *y).is_some())
+            .count()
+    };
+    assert_eq!(cell_rows(&view), 11);
+    imp.size_group.set_active_name(Some("20"));
+    assert_eq!(cell_rows(&view), 19);
+    imp.size_group.set_active_name(Some("12"));
+
+    // Quotients sit where their products do: 56 ÷ 7 in row 7, column 8.
+    imp.operation_group.set_active_name(Some("d"));
+    assert!(grid_cell(&view, 2, 7, 8).has_css_class("fact-weak-4"));
+    assert!(grid_cell(&view, 2, 8, 7).has_css_class("fact-unseen"));
+
     imp.operation_group.set_active_name(Some("a"));
     assert_eq!(imp.summary_label.text(), "Addition: no answers yet");
+    assert!(!imp.size_group.get_visible());
 
     // The menu item opens it.
     let window: FastmathWindow = glib::Object::new();

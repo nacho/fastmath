@@ -102,6 +102,29 @@ pub struct AnswerRecord {
     pub ms: u64,
 }
 
+/// How the player does with one fact.
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct FactStats {
+    /// The kept answers, and how many of them were right.
+    pub answered: u32,
+    pub right: u32,
+    /// The average time of the right answers.
+    pub average_ms: Option<u64>,
+    /// From 0 (strong) to 1 (weak).
+    pub weakness: f64,
+}
+
+/// The colour step of a weakness, from 0 (strong) to 4 (weak).
+pub fn weakness_step(weakness: f64) -> u8 {
+    match weakness {
+        w if w < 0.1 => 0,
+        w if w < WEAK => 1,
+        w if w < 0.4 => 2,
+        w if w < 0.7 => 3,
+        _ => 4,
+    }
+}
+
 /// How the player does with all the facts of an operation.
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct OperationStats {
@@ -259,6 +282,23 @@ impl FactHistory {
 
     pub fn is_empty(&self) -> bool {
         self.facts.is_empty()
+    }
+
+    /// How the player does with the fact of `question`, if it was answered.
+    pub fn fact_stats(&self, question: &Question) -> Option<FactStats> {
+        let key = FactKey::of(question);
+        let answers = self.facts.get(&key)?;
+        let times: Vec<u64> = answers
+            .iter()
+            .filter(|answer| answer.correct)
+            .map(|answer| answer.ms)
+            .collect();
+        Some(FactStats {
+            answered: answers.len() as u32,
+            right: times.len() as u32,
+            average_ms: (!times.is_empty()).then(|| times.iter().sum::<u64>() / times.len() as u64),
+            weakness: self.weakness(&key),
+        })
     }
 
     pub fn operation_stats(&self, op: Operation) -> OperationStats {
@@ -621,5 +661,35 @@ mod tests {
         let empty = history.operation_stats(Operation::Divide);
         assert_eq!((empty.answered, empty.right, empty.weak), (0, 0, 0));
         assert_eq!(empty.average_ms, None);
+    }
+
+    #[test]
+    fn fact_stats_of_answered_facts() {
+        let mut history = FactHistory::default();
+        history.record(&q(Operation::Multiply, 7, 8), false, ms(9000));
+        history.record(&q(Operation::Multiply, 8, 7), true, ms(3000));
+        history.record(&q(Operation::Multiply, 7, 8), true, ms(2000));
+        let stats = history.fact_stats(&q(Operation::Multiply, 8, 7)).unwrap();
+        assert_eq!((stats.answered, stats.right), (3, 2));
+        assert_eq!(stats.average_ms, Some(2500));
+        assert_eq!(
+            stats.weakness,
+            history.weakness(&FactKey::of(&q(Operation::Multiply, 7, 8)))
+        );
+        assert_eq!(history.fact_stats(&q(Operation::Multiply, 6, 9)), None);
+
+        history.record(&q(Operation::Divide, 56, 7), false, ms(4000));
+        let stats = history.fact_stats(&q(Operation::Divide, 56, 7)).unwrap();
+        assert_eq!(stats.average_ms, None);
+        assert_eq!(weakness_step(stats.weakness), 4);
+    }
+
+    #[test]
+    fn weakness_steps() {
+        let steps: Vec<u8> = [0.0, 0.09, 0.1, 0.19, 0.2, 0.39, 0.4, 0.69, 0.7, 1.0]
+            .into_iter()
+            .map(weakness_step)
+            .collect();
+        assert_eq!(steps, [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]);
     }
 }

@@ -3,9 +3,10 @@ use i18n_format::i18n_fmt;
 
 use crate::comparison::{self, ComparisonKind, ComparisonKinds};
 use crate::fraction::{Ask, FractionQuestion, Shape};
+use crate::generator::Question;
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
-use crate::practice::OperationStats;
+use crate::practice::{FactStats, OperationStats};
 use crate::round::{GameConfig, Mode};
 
 pub fn operation_name(op: Operation) -> String {
@@ -50,6 +51,35 @@ pub fn operation_progress(op: Operation, stats: &OperationStats) -> String {
             // facts, which picks the plural form, for example
             // "Multiplication: 0% right, 3 weak facts".
             i18n_nfmt("{}: {}% right, {} weak fact", "{}: {}% right, {} weak facts", weak, name, percent, weak)
+        },
+    }
+}
+
+/// How the player does with a fact, for example "7 × 8: 3 right out of 5,
+/// 2.4 s on average".
+pub fn fact_progress(question: &Question, stats: &FactStats) -> String {
+    let fact = question.text();
+    let (right, answered) = (stats.right, stats.answered);
+    match stats.average_ms {
+        Some(ms) => {
+            let average = format_average(ms);
+            i18n_fmt! {
+                // Translators: How the player does with a fact. The first {}
+                // is the fact, the second {} the number of right answers,
+                // the third {} the number of answers kept, at most 5, which
+                // picks the plural form, and the fourth {} the average time
+                // of a right answer, for example "7 × 8: 3 right out of 5,
+                // 2.4 s on average".
+                i18n_nfmt("{}: {} right out of {}, {} on average", "{}: {} right out of {}, {} on average", answered, fact, right, answered, average)
+            }
+        }
+        None => i18n_fmt! {
+            // Translators: How the player does with a fact never answered
+            // right. The first {} is the fact, the second {} the number of
+            // right answers, 0, and the third {} the number of answers kept,
+            // at most 5, which picks the plural form, for example "7 × 8: 0
+            // right out of 2".
+            i18n_nfmt("{}: {} right out of {}", "{}: {} right out of {}", answered, fact, right, answered)
         },
     }
 }
