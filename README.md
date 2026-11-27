@@ -14,6 +14,8 @@ A mental arithmetic game for GNOME. Answer as many questions as you can before t
 
 A wrong answer moves on to the next question and costs nothing. Press Escape to abandon a round.
 
+Fast Math remembers the last answers to each arithmetic fact. Turn on **Practice Weak Facts** for a round of 20 questions with no clock and no leaderboard, where the facts you got wrong or answered slowly come back more often.
+
 ## Levels
 
 | Level | Addition and subtraction | Multiplication and division |

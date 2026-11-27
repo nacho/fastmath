@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 18:18+0100\n"
+"POT-Creation-Date: 2026-11-27 12:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -164,7 +164,7 @@ msgid "Comparison"
 msgstr ""
 
 #: resources/ui/shortcuts_dialog.ui:46 resources/ui/start_view.ui:180
-#: src/labels.rs:33 src/labels.rs:215
+#: src/labels.rs:33 src/labels.rs:216
 msgid "Fractions"
 msgstr ""
 
@@ -272,7 +272,15 @@ msgstr ""
 msgid "In seconds"
 msgstr ""
 
-#: resources/ui/start_view.ui:236
+#: resources/ui/start_view.ui:232
+msgid "Practice Weak Facts"
+msgstr ""
+
+#: resources/ui/start_view.ui:233
+msgid "No clock and 20 questions, the facts you miss come back more often"
+msgstr ""
+
+#: resources/ui/start_view.ui:242
 msgid "_Start"
 msgstr ""
 
@@ -313,7 +321,7 @@ msgstr ""
 #. first {} is the number of slices and the second {} the
 #. number of eaten slices, which picks the plural form, for
 #. example "A pizza in 8 slices, 3 of them eaten".
-#: src/fraction_picture.rs:161
+#: src/fraction_picture.rs:227
 #, rust-format
 msgid "A pizza in {} slices, {} of them eaten"
 msgid_plural "A pizza in {} slices, {} of them eaten"
@@ -324,7 +332,7 @@ msgstr[1] ""
 #. first {} is the number of squares and the second {} the
 #. number of eaten squares, which picks the plural form, for
 #. example "A chocolate bar of 8 squares, 3 of them eaten".
-#: src/fraction_picture.rs:168
+#: src/fraction_picture.rs:234
 #, rust-format
 msgid "A chocolate bar of {} squares, {} of them eaten"
 msgid_plural "A chocolate bar of {} squares, {} of them eaten"
@@ -335,7 +343,7 @@ msgstr[1] ""
 #. first {} is the number of squares and the second {} the
 #. number of coloured squares, which picks the plural form,
 #. for example "A grid of 8 squares, 3 of them coloured".
-#: src/fraction_picture.rs:175
+#: src/fraction_picture.rs:241
 #, rust-format
 msgid "A grid of {} squares, {} of them coloured"
 msgid_plural "A grid of {} squares, {} of them coloured"
@@ -347,26 +355,26 @@ msgstr[1] ""
 #. second {} the number of eaten slices of both pizzas, which
 #. picks the plural form, for example "Two pizzas in 4 slices
 #. each, 7 slices eaten".
-#: src/fraction_picture.rs:183
+#: src/fraction_picture.rs:249
 #, rust-format
 msgid "Two pizzas in {} slices each, {} slice eaten"
 msgid_plural "Two pizzas in {} slices each, {} slices eaten"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/game_view.rs:513
+#: src/game_view.rs:548
 msgid "Abandon this round?"
 msgstr ""
 
-#: src/game_view.rs:514
+#: src/game_view.rs:549
 msgid "Your progress in this round will be lost."
 msgstr ""
 
-#: src/game_view.rs:517
+#: src/game_view.rs:552
 msgid "_Keep Playing"
 msgstr ""
 
-#: src/game_view.rs:518
+#: src/game_view.rs:553
 msgid "_Abandon"
 msgstr ""
 
@@ -548,31 +556,37 @@ msgctxt "decimal separator"
 msgid "."
 msgstr ""
 
+#. Translators: Shown instead of the time limit for a practice
+#. round, which has no clock.
+#: src/labels.rs:225
+msgid "Practice"
+msgstr ""
+
 #. Translators: {} is a number of seconds with one decimal and "s" is
 #. the abbreviation of seconds, for example "2.5 s".
-#: src/labels.rs:231
+#: src/labels.rs:238
 #, rust-format
 msgid "{} s"
 msgstr ""
 
 #. Translators: {} is the number of questions answered correctly
 #. in the round, for example "12 correct answers".
-#: src/results_view.rs:165
+#: src/results_view.rs:170
 #, rust-format
 msgid "{} correct answer"
 msgid_plural "{} correct answers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/results_view.rs:175
+#: src/results_view.rs:180
 msgid "—"
 msgstr ""
 
-#: src/results_view.rs:241
+#: src/results_view.rs:249
 msgid "No scores yet with these settings"
 msgstr ""
 
-#: src/results_view.rs:243
+#: src/results_view.rs:251
 msgid "Best scores with these settings"
 msgstr ""
 
@@ -580,7 +594,7 @@ msgstr ""
 #. is the number of correct answers, and the second {} is
 #. the average time per answer, already with its unit, for
 #. example "12 correct, 2.5 s per answer".
-#: src/results_view.rs:261
+#: src/results_view.rs:269
 #, rust-format
 msgid "{} correct, {} per answer"
 msgstr ""

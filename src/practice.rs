@@ -6,11 +6,25 @@ use std::time::Duration;
 
 use crate::G_LOG_DOMAIN;
 use crate::choice::Choice;
-use crate::generator::Question;
-use crate::operation::Operation;
+use crate::generator::{Generator, Question};
+use crate::level::Level;
+use crate::operation::{Operation, OperationSet};
 
 /// How many answers of each fact are kept.
 const KEPT_ANSWERS: usize = 5;
+/// How much each kept answer counts in the weakness of a fact, the newest
+/// first.
+const WEIGHTS: [f64; KEPT_ANSWERS] = [1.0, 0.6, 0.36, 0.22, 0.13];
+/// How much a wrong answer and a slow right answer count, from 0 to 1.
+const WRONG: f64 = 1.0;
+const SLOW: f64 = 0.5;
+/// A right answer is slow when it takes this many times the average of the
+/// right answers of its operation.
+const SLOW_FACTOR: f64 = 1.5;
+/// The weakness from which a fact is practised.
+const WEAK: f64 = 0.2;
+/// The share of practice questions that are weak facts, when there are any.
+const WEAK_SHARE: f64 = 0.6;
 
 /// An arithmetic fact. 7 × 8 and 8 × 7 are the same fact, and so are 3 + 5
 /// and 5 + 3, so the operands of additions and multiplications are kept in
@@ -42,7 +56,24 @@ impl FactKey {
         format!("{}-{}-{}", self.op.id(), self.a, self.b)
     }
 
-    /// Parses the output of `id`.
+    /// The question of the fact, with the operands in their kept order.
+    fn question(&self) -> Question {
+        let answer = match self.op {
+            Operation::Add => self.a + self.b,
+            Operation::Subtract => self.a - self.b,
+            Operation::Multiply => self.a * self.b,
+            Operation::Divide => self.a / self.b,
+        };
+        Question {
+            op: self.op,
+            a: self.a,
+            b: self.b,
+            answer,
+        }
+    }
+
+    /// Parses the output of `id`. Facts that cannot be asked, such as a
+    /// division by 0, are rejected.
     fn from_id(id: &str) -> Option<Self> {
         let mut parts = id.split('-');
         let letter = parts.next()?;
@@ -51,7 +82,12 @@ impl FactKey {
             .find(|op| letter.len() == 1 && letter.starts_with(op.id()))?;
         let a = parts.next()?.parse().ok()?;
         let b = parts.next()?.parse().ok()?;
-        if parts.next().is_some() {
+        let valid = match op {
+            Operation::Add | Operation::Multiply => a <= b,
+            Operation::Subtract => b <= a,
+            Operation::Divide => b > 0 && a % b == 0,
+        };
+        if parts.next().is_some() || !valid {
             return None;
         }
         Some(FactKey { op, a, b })
@@ -142,6 +178,60 @@ impl FactHistory {
         answers.drain(..excess);
     }
 
+    /// The average time of the right answers of `op`, in milliseconds.
+    fn average_ms(&self, op: Operation) -> Option<f64> {
+        let times: Vec<u64> = self
+            .facts
+            .iter()
+            .filter(|(key, _)| key.op == op)
+            .flat_map(|(_, answers)| answers.iter())
+            .filter(|answer| answer.correct)
+            .map(|answer| answer.ms)
+            .collect();
+        (!times.is_empty()).then(|| times.iter().sum::<u64>() as f64 / times.len() as f64)
+    }
+
+    /// How weak a fact is, from 0 (its recent answers were right and fast)
+    /// to 1 (they were all wrong). A wrong answer counts the most and a
+    /// right one slower than `SLOW_FACTOR` times the average of its
+    /// operation half of that. Recent answers count more.
+    fn weakness(&self, key: &FactKey) -> f64 {
+        let Some(answers) = self.facts.get(key) else {
+            return 0.0;
+        };
+        let slow_ms = self.average_ms(key.op).map(|average| average * SLOW_FACTOR);
+        let (sum, total) =
+            answers
+                .iter()
+                .rev()
+                .zip(WEIGHTS)
+                .fold((0.0, 0.0), |(sum, total), (answer, weight)| {
+                    let penalty = if !answer.correct {
+                        WRONG
+                    } else if slow_ms.is_some_and(|slow| answer.ms as f64 > slow) {
+                        SLOW
+                    } else {
+                        0.0
+                    };
+                    (sum + weight * penalty, total + weight)
+                });
+        if total > 0.0 { sum / total } else { 0.0 }
+    }
+
+    /// The weak facts that `generator` could ask, with their weakness.
+    fn weak_facts(&self, generator: &Generator) -> Vec<(FactKey, f64)> {
+        let mut weak: Vec<(FactKey, f64)> = self
+            .facts
+            .keys()
+            .filter(|key| generator.could_ask(&key.question()))
+            .map(|key| (*key, self.weakness(key)))
+            .filter(|(_, weakness)| *weakness >= WEAK)
+            .collect();
+        // The order of a HashMap changes on every run.
+        weak.sort_by_key(|(key, _)| key.id());
+        weak
+    }
+
     #[cfg(test)]
     fn answers(&self, question: &Question) -> &[AnswerRecord] {
         self.facts
@@ -152,6 +242,77 @@ impl FactHistory {
     #[cfg(test)]
     pub fn len(&self) -> usize {
         self.facts.len()
+    }
+}
+
+/// Produces practice questions: about `WEAK_SHARE` of them are weak facts,
+/// the weaker the more often, and the rest new random questions.
+pub struct PracticeGenerator {
+    generator: Generator,
+    weak: Vec<(FactKey, f64)>,
+    rng: fastrand::Rng,
+    last: Option<FactKey>,
+}
+
+impl PracticeGenerator {
+    pub fn new(ops: OperationSet, level: Level, history: &FactHistory) -> Self {
+        Self::with_rng(Generator::new(ops, level), history, fastrand::Rng::new())
+    }
+
+    pub fn with_rng(generator: Generator, history: &FactHistory, rng: fastrand::Rng) -> Self {
+        PracticeGenerator {
+            weak: history.weak_facts(&generator),
+            generator,
+            rng,
+            last: None,
+        }
+    }
+
+    /// Returns the next question, never the same fact as the previous one.
+    pub fn next_question(&mut self) -> Question {
+        loop {
+            let question = if !self.weak.is_empty() && self.rng.f64() < WEAK_SHARE {
+                self.weak_question()
+            } else {
+                self.generator.next_question()
+            };
+            let key = FactKey::of(&question);
+            if self.last != Some(key) {
+                self.last = Some(key);
+                return question;
+            }
+        }
+    }
+
+    /// A weak fact, picked by weakness, with the operands of a sum or a
+    /// product in either order.
+    fn weak_question(&mut self) -> Question {
+        let total: f64 = self.weak.iter().map(|(_, weakness)| weakness).sum();
+        let mut target = self.rng.f64() * total;
+        let key = self
+            .weak
+            .iter()
+            .find(|(_, weakness)| {
+                target -= weakness;
+                target < 0.0
+            })
+            .or(self.weak.last())
+            .map(|(key, _)| *key)
+            .expect("weak facts are not empty");
+        let mut question = key.question();
+        if matches!(question.op, Operation::Add | Operation::Multiply) && self.rng.bool() {
+            std::mem::swap(&mut question.a, &mut question.b);
+        }
+        question
+    }
+
+    /// Practises `question` as a weak fact for the rest of the round.
+    pub fn missed(&mut self, question: &Question) {
+        let key = FactKey::of(question);
+        match self.weak.iter_mut().find(|(k, _)| *k == key) {
+            Some((_, weakness)) => *weakness = WRONG,
+            None => self.weak.push((key, WRONG)),
+        }
     }
 }
 
@@ -192,11 +353,13 @@ mod tests {
     #[test]
     fn keys_round_trip() {
         for op in Operation::ALL {
-            let key = FactKey { op, a: 12, b: 3 };
+            let key = FactKey::of(&q(op, 12, 3));
             assert_eq!(FactKey::from_id(&key.id()), Some(key));
         }
         assert_eq!(FactKey::of(&q(Operation::Multiply, 8, 7)).id(), "m-7-8");
-        for bad in ["", "x-1-2", "m-1", "m-1-2-3", "m-a-2", "mm-1-2"] {
+        for bad in [
+            "", "x-1-2", "m-1", "m-1-2-3", "m-a-2", "mm-1-2", "m-8-7", "s-5-9", "d-7-0", "d-7-2",
+        ] {
             assert_eq!(FactKey::from_id(bad), None, "{bad}");
         }
     }
@@ -244,5 +407,146 @@ mod tests {
         assert_eq!(FactHistory::load_from(&path), FactHistory::default());
         let _ = fs::remove_file(&path);
         assert_eq!(FactHistory::load_from(&path), FactHistory::default());
+    }
+
+    #[test]
+    fn wrong_answers_are_weaker_than_slow_ones_and_slow_than_fast() {
+        let mut history = FactHistory::default();
+        let (wrong, slow, fast) = (
+            q(Operation::Multiply, 7, 8),
+            q(Operation::Multiply, 6, 9),
+            q(Operation::Multiply, 3, 4),
+        );
+        history.record(&wrong, false, ms(2000));
+        history.record(&slow, true, ms(6000));
+        for _ in 0..4 {
+            history.record(&fast, true, ms(1000));
+        }
+        // The average of the right answers of × is 2000 ms, the wrong one
+        // does not count, so 6000 ms is slow.
+        assert_eq!(history.average_ms(Operation::Multiply), Some(2000.0));
+        assert_eq!(history.average_ms(Operation::Add), None);
+        let weakness = |question| history.weakness(&FactKey::of(question));
+        assert_eq!(weakness(&wrong), WRONG);
+        assert_eq!(weakness(&slow), SLOW);
+        assert_eq!(weakness(&fast), 0.0);
+        assert_eq!(weakness(&q(Operation::Multiply, 2, 2)), 0.0);
+    }
+
+    #[test]
+    fn newer_answers_count_more() {
+        let mut history = FactHistory::default();
+        let (old_mistake, new_mistake) = (q(Operation::Add, 2, 3), q(Operation::Add, 4, 5));
+        history.record(&old_mistake, false, ms(1000));
+        history.record(&old_mistake, true, ms(1000));
+        history.record(&new_mistake, true, ms(1000));
+        history.record(&new_mistake, false, ms(1000));
+        let weakness = |question| history.weakness(&FactKey::of(question));
+        assert!(weakness(&new_mistake) > weakness(&old_mistake));
+
+        // Getting a fact right and fast again makes it less weak, until it
+        // is no longer practised.
+        let mut history = FactHistory::default();
+        let fact = q(Operation::Add, 4, 5);
+        history.record(&fact, false, ms(1000));
+        let mut previous = history.weakness(&FactKey::of(&fact));
+        for _ in 0..4 {
+            history.record(&fact, true, ms(1000));
+            let now = history.weakness(&FactKey::of(&fact));
+            assert!(now < previous, "{now} {previous}");
+            previous = now;
+        }
+        assert!(previous < WEAK, "{previous}");
+    }
+
+    fn generator(ops: &str, level: u32, seed: u64) -> Generator {
+        Generator::with_rng(
+            OperationSet::from_id_string(ops),
+            Level::new(level),
+            fastrand::Rng::with_seed(seed),
+        )
+    }
+
+    const SAMPLES: usize = 3000;
+
+    #[test]
+    fn without_history_practice_is_like_a_normal_round() {
+        let mut practice = PracticeGenerator::with_rng(
+            generator("asmd", 2, 1),
+            &FactHistory::default(),
+            fastrand::Rng::with_seed(2),
+        );
+        let mut normal = generator("asmd", 2, 1);
+        for _ in 0..100 {
+            assert_eq!(practice.next_question(), normal.next_question());
+        }
+    }
+
+    #[test]
+    fn weak_facts_come_more_often_the_weaker_they_are() {
+        let mut history = FactHistory::default();
+        let wrong = [(7, 8), (6, 7), (8, 9)].map(|(a, b)| q(Operation::Multiply, a, b));
+        let slow = [(6, 9), (4, 7), (3, 8)].map(|(a, b)| q(Operation::Multiply, a, b));
+        for fact in &wrong {
+            history.record(fact, false, ms(1000));
+        }
+        for fact in &slow {
+            history.record(fact, true, ms(9000));
+        }
+        for _ in 0..5 {
+            history.record(&q(Operation::Multiply, 2, 3), true, ms(1000));
+        }
+        // Weak, but another operation or too large for level 2.
+        history.record(&q(Operation::Add, 7, 8), false, ms(1000));
+        history.record(&q(Operation::Multiply, 7, 12), false, ms(1000));
+
+        let mut practice = PracticeGenerator::with_rng(
+            generator("m", 2, 3),
+            &history,
+            fastrand::Rng::with_seed(4),
+        );
+        let questions: Vec<Question> = (0..SAMPLES).map(|_| practice.next_question()).collect();
+        let count = |facts: &[Question]| {
+            let keys: Vec<FactKey> = facts.iter().map(FactKey::of).collect();
+            questions
+                .iter()
+                .filter(|q| keys.contains(&FactKey::of(q)))
+                .count()
+        };
+        let share = (count(&wrong) + count(&slow)) as f64 / SAMPLES as f64;
+        assert!((0.5..0.7).contains(&share), "{share}");
+        assert!(
+            count(&wrong) > count(&slow) * 3 / 2,
+            "{} {}",
+            count(&wrong),
+            count(&slow)
+        );
+        assert!(
+            questions
+                .iter()
+                .all(|q| q.op == Operation::Multiply && q.a <= 10 && q.b <= 10)
+        );
+        // Both orders of a product come up.
+        assert!(questions.contains(&q(Operation::Multiply, 8, 7)));
+        assert!(questions.contains(&q(Operation::Multiply, 7, 8)));
+        // The same fact never comes twice in a row.
+        assert!(
+            questions
+                .windows(2)
+                .all(|w| FactKey::of(&w[0]) != FactKey::of(&w[1]))
+        );
+    }
+
+    #[test]
+    fn missed_facts_come_back() {
+        let mut practice = PracticeGenerator::with_rng(
+            generator("asmd", 3, 5),
+            &FactHistory::default(),
+            fastrand::Rng::with_seed(6),
+        );
+        let missed = practice.next_question();
+        practice.missed(&missed);
+        let back = (0..10).any(|_| FactKey::of(&practice.next_question()) == FactKey::of(&missed));
+        assert!(back);
     }
 }

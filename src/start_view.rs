@@ -53,6 +53,8 @@ mod imp {
         #[template_child]
         pub duration_row: TemplateChild<adw::SpinRow>,
         #[template_child]
+        pub practice_row: TemplateChild<adw::SwitchRow>,
+        #[template_child]
         pub start_button: TemplateChild<gtk::Button>,
         pub settings: OnceCell<gio::Settings>,
     }
@@ -175,6 +177,14 @@ impl StartView {
         settings
             .bind("duration-secs", &*imp.duration_row, "value")
             .build();
+        settings
+            .bind("practice", &*imp.practice_row, "active")
+            .build();
+        imp.practice_row.connect_active_notify(glib::clone!(
+            #[weak(rename_to = this)]
+            self,
+            move |_| this.update_duration_row()
+        ));
 
         settings
             .bind("mode", &*imp.mode_group, "active-name")
@@ -202,6 +212,8 @@ impl StartView {
         let imp = self.imp();
         let mode = self.mode();
         imp.operations_group.set_visible(mode == Mode::Arithmetic);
+        imp.practice_row.set_visible(mode == Mode::Arithmetic);
+        self.update_duration_row();
         imp.comparisons_group.set_visible(mode == Mode::Comparison);
 
         // Changing the model selects the first level, so keep the saved one.
@@ -215,6 +227,17 @@ impl StartView {
         imp.level_row.set_selected(level.number() - 1);
 
         self.choices_changed();
+    }
+
+    /// Whether the player practises the weak facts, which only arithmetic
+    /// rounds can.
+    fn practice(&self) -> bool {
+        self.mode() == Mode::Arithmetic && self.imp().practice_row.is_active()
+    }
+
+    /// Practice rounds have no time limit.
+    fn update_duration_row(&self) {
+        self.imp().duration_row.set_sensitive(!self.practice());
     }
 
     /// Describes what each kind of comparison asks at the selected level.
@@ -270,6 +293,7 @@ impl StartView {
             mode: self.mode(),
             ops: self.operations(),
             kinds: self.comparison_kinds(),
+            practice: self.practice(),
             level: Level::new(settings.uint("level")),
             duration_secs: settings.uint("duration-secs"),
         }

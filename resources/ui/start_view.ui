@@ -227,6 +227,12 @@
                     </property>
                   </object>
                 </child>
+                <child>
+                  <object class="AdwSwitchRow" id="practice_row">
+                    <property name="title" translatable="yes">Practice Weak Facts</property>
+                    <property name="subtitle" translatable="yes">No clock and 20 questions, the facts you miss come back more often</property>
+                  </object>
+                </child>
               </object>
             </child>
             <child>

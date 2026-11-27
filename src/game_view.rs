@@ -133,10 +133,17 @@ mod imp {
             let view = self.obj();
 
             let config = view.game_config();
-            *self.round.borrow_mut() = Some(Round::new(&config));
             if config.mode == Mode::Arithmetic {
                 *self.history.borrow_mut() = Some(FactHistory::load());
             }
+            let round = Round::new(
+                &config,
+                self.history
+                    .borrow()
+                    .as_ref()
+                    .unwrap_or(&FactHistory::default()),
+            );
+            *self.round.borrow_mut() = Some(round);
             self.answer_entry
                 .set_visible(config.mode == Mode::Arithmetic);
             self.compare_box
@@ -287,6 +294,9 @@ impl GameView {
     }
 
     fn start_timer(&self) {
+        if self.game_config().is_practice() {
+            return;
+        }
         let source = glib::timeout_add_local(
             TICK,
             glib::clone!(
@@ -307,6 +317,9 @@ impl GameView {
     }
 
     pub(crate) fn tick(&self) -> glib::ControlFlow {
+        if self.game_config().is_practice() {
+            return glib::ControlFlow::Continue;
+        }
         let elapsed = self.elapsed();
         if elapsed >= self.total_time() {
             // The source is removed by returning Break.
@@ -321,6 +334,11 @@ impl GameView {
 
     fn update_clock(&self, elapsed: Duration) {
         let imp = self.imp();
+        if self.game_config().is_practice() {
+            // The progress bar shows the questions answered instead.
+            imp.time_label.set_visible(false);
+            return;
+        }
         let total = self.total_time();
         let remaining = total.saturating_sub(elapsed);
         let remaining_secs = remaining.as_secs_f64().ceil() as u32;
@@ -364,6 +382,10 @@ impl GameView {
                     }
                 };
                 imp.question_box.append(&widget);
+            }
+            if self.game_config().is_practice() {
+                imp.progress_bar
+                    .set_fraction(f64::from(round.answered()) / f64::from(round.limit()));
             }
             let number = round.answered() + 1;
             imp.counter_label

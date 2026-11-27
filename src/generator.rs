@@ -45,6 +45,25 @@ impl Generator {
         }
     }
 
+    /// Whether this generator could ask `question`: it uses one of its
+    /// operations, with the operands of its level.
+    pub fn could_ask(&self, question: &Question) -> bool {
+        let q = question;
+        if !self.ops.contains(&q.op) {
+            return false;
+        }
+        let max = self.level.max_operand(q.op);
+        let operand = |n: u32, min: u32| (min..=max).contains(&n);
+        match q.op {
+            Operation::Add => operand(q.a, 1) && operand(q.b, 1) && q.answer == q.a + q.b,
+            Operation::Subtract => {
+                operand(q.a, 1) && (1..=q.a).contains(&q.b) && q.answer == q.a - q.b
+            }
+            Operation::Multiply => operand(q.a, 2) && operand(q.b, 2) && q.answer == q.a * q.b,
+            Operation::Divide => operand(q.b, 2) && operand(q.answer, 2) && q.a == q.b * q.answer,
+        }
+    }
+
     /// Returns the next question, never equal to the previous one.
     pub fn next_question(&mut self) -> Question {
         loop {
@@ -223,6 +242,34 @@ mod tests {
         for op in Operation::ALL {
             assert!(ops.contains(&op));
         }
+    }
+
+    #[test]
+    fn generators_could_ask_their_own_questions_only() {
+        for op in Operation::ALL {
+            for level in 1..=LEVEL_COUNT {
+                let mut gen_ = generator(single(op), level);
+                for _ in 0..SAMPLES {
+                    let q = gen_.next_question();
+                    assert!(gen_.could_ask(&q), "{q:?}");
+                }
+            }
+        }
+        let gen_ = generator(single(Operation::Multiply), 2);
+        let q = |op, a, b, answer| Question { op, a, b, answer };
+        assert!(gen_.could_ask(&q(Operation::Multiply, 7, 8, 56)));
+        // Another operation, too large for the level, a factor of 1 or a
+        // wrong answer.
+        assert!(!gen_.could_ask(&q(Operation::Add, 7, 8, 15)));
+        assert!(!gen_.could_ask(&q(Operation::Multiply, 7, 11, 77)));
+        assert!(!gen_.could_ask(&q(Operation::Multiply, 1, 8, 8)));
+        assert!(!gen_.could_ask(&q(Operation::Multiply, 7, 8, 54)));
+        let gen_ = generator(single(Operation::Divide), 2);
+        assert!(gen_.could_ask(&q(Operation::Divide, 56, 7, 8)));
+        assert!(!gen_.could_ask(&q(Operation::Divide, 56, 7, 9)));
+        let gen_ = generator(single(Operation::Subtract), 1);
+        assert!(gen_.could_ask(&q(Operation::Subtract, 9, 9, 0)));
+        assert!(!gen_.could_ask(&q(Operation::Subtract, 5, 9, 0)));
     }
 
     #[test]

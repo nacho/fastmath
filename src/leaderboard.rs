@@ -152,6 +152,7 @@ mod tests {
             mode: Mode::Arithmetic,
             ops: OperationSet::from_id_string("am"),
             kinds: ComparisonKinds::ALL,
+            practice: false,
             level: Level::new(2),
             duration_secs: 120,
         };

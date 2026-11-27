@@ -27,7 +27,7 @@ use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
 use crate::practice::FactHistory;
 use crate::results_view::ResultsView;
-use crate::round::{Answer, GameConfig, Mode, QUESTIONS_PER_ROUND};
+use crate::round::{Answer, GameConfig, Mode, PRACTICE_QUESTIONS, QUESTIONS_PER_ROUND};
 use crate::start_view::StartView;
 
 fn config() -> GameConfig {
@@ -35,6 +35,7 @@ fn config() -> GameConfig {
         mode: Mode::Arithmetic,
         ops: OperationSet::ALL,
         kinds: ComparisonKinds::ALL,
+        practice: false,
         level: Level::new(1),
         duration_secs: 120,
     }
@@ -170,6 +171,57 @@ fn start_view_keeps_the_choices(settings: &gio::Settings) {
     assert!(!imp.comparisons_group.get_visible());
     assert!(!imp.start_button.is_sensitive());
     imp.all_button.emit_by_name::<()>("clicked", &[]);
+
+    // Practice is for arithmetic only, and has no time limit.
+    assert!(imp.practice_row.get_visible());
+    assert!(imp.duration_row.is_sensitive());
+    imp.practice_row.set_active(true);
+    assert!(settings.boolean("practice"));
+    assert!(view.game_config().is_practice());
+    assert!(!imp.duration_row.is_sensitive());
+    imp.mode_group.set_active_name(Some("comparison"));
+    assert!(!imp.practice_row.get_visible());
+    assert!(imp.duration_row.is_sensitive());
+    assert!(!view.game_config().is_practice());
+    imp.mode_group.set_active_name(Some("arithmetic"));
+    assert!(!imp.duration_row.is_sensitive());
+    imp.practice_row.set_active(false);
+    assert!(!settings.boolean("practice"));
+}
+
+fn a_practice_round_has_no_clock_and_20_questions() {
+    let config = GameConfig {
+        practice: true,
+        ..config()
+    };
+    let view = GameView::new(&config);
+    let finished = watch_finished(&view);
+    let imp = view.imp();
+    view.start_clock();
+    assert!(!imp.time_label.get_visible());
+    assert_eq!(imp.counter_label.text(), "1 / 20");
+
+    // Time never runs out.
+    imp.started_at
+        .set(Some(Instant::now() - Duration::from_secs(3600)));
+    assert_eq!(view.tick(), glib::ControlFlow::Continue);
+    assert_eq!(finished.get(), 0);
+
+    for _ in 0..PRACTICE_QUESTIONS {
+        assert_eq!(finished.get(), 0);
+        let correct = current_number(&view);
+        answer(&view, &correct.to_string());
+    }
+    assert_eq!(finished.get(), 1);
+    let summary = view.summary();
+    assert_eq!(summary.result.correct, PRACTICE_QUESTIONS);
+    assert_eq!(summary.result.unanswered, 0);
+
+    // No leaderboard and no name entry.
+    let results = ResultsView::new(&summary);
+    assert!(!results.imp().leaderboard_group.get_visible());
+    assert!(!results.imp().save_group.get_visible());
+    assert!(results.imp().config_label.text().ends_with("Practice"));
 }
 
 fn level_subtitle(view: &StartView) -> String {
@@ -534,6 +586,7 @@ fn ui_smoke() {
     a_comparison_round_is_answered_with_buttons(ComparisonKinds::from_id_string("f"), true);
     assert_eq!(FactHistory::load().len(), facts);
     a_round_ends_when_the_time_is_up();
+    a_practice_round_has_no_clock_and_20_questions();
     results_keep_a_leaderboard();
     a_fractions_round_is_answered_in_the_entries();
     fraction_pictures_describe_themselves();

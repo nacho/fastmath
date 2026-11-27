@@ -207,7 +207,8 @@ pub fn format_clock(secs: u32) -> String {
 }
 
 /// Describes what was played, for example
-/// "Addition, Division · Level 2 · 2:00" or "Decimals · Level 1 · 2:00".
+/// "Addition, Division · Level 2 · 2:00", "Decimals · Level 1 · 2:00" or
+/// "Addition · Level 2 · Practice".
 pub fn config_summary(config: &GameConfig) -> String {
     let questions = match config.mode {
         Mode::Arithmetic => operations_summary(config.ops),
@@ -218,7 +219,13 @@ pub fn config_summary(config: &GameConfig) -> String {
         "{} · {} · {}",
         questions,
         level_name(config.level),
-        format_clock(config.duration_secs)
+        if config.is_practice() {
+            // Translators: Shown instead of the time limit for a practice
+            // round, which has no clock.
+            gettext("Practice")
+        } else {
+            format_clock(config.duration_secs)
+        }
     )
 }
 

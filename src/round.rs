@@ -6,9 +6,12 @@ use crate::fraction::{FractionGenerator, FractionQuestion};
 use crate::generator::{Generator, Question};
 use crate::level::Level;
 use crate::operation::OperationSet;
+use crate::practice::{FactHistory, PracticeGenerator};
 
 /// The number of questions in a round.
 pub const QUESTIONS_PER_ROUND: u32 = 60;
+/// The number of questions in a practice round, which has no clock.
+pub const PRACTICE_QUESTIONS: u32 = 20;
 
 /// The kind of questions in a round.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
@@ -49,8 +52,18 @@ pub struct GameConfig {
     pub ops: OperationSet,
     /// What a comparison round compares.
     pub kinds: ComparisonKinds,
+    /// Whether an arithmetic round practises the weak facts, with no clock.
+    pub practice: bool,
     pub level: Level,
     pub duration_secs: u32,
+}
+
+impl GameConfig {
+    /// Whether the round practises weak facts, with no clock and no
+    /// leaderboard. Only arithmetic rounds can.
+    pub fn is_practice(&self) -> bool {
+        self.practice && self.mode == Mode::Arithmetic
+    }
 }
 
 /// What the player answers.
@@ -106,13 +119,19 @@ impl Prompt {
 /// Where the questions of a round come from.
 pub enum Questions {
     Arithmetic(Generator),
+    Practice(PracticeGenerator),
     Comparison(ComparisonGenerator),
     Fractions(FractionGenerator),
 }
 
 impl Questions {
-    pub fn new(config: &GameConfig) -> Self {
+    /// The questions of `config`. Practice rounds pick the weak facts of
+    /// `history`.
+    pub fn new(config: &GameConfig, history: &FactHistory) -> Self {
         match config.mode {
+            Mode::Arithmetic if config.is_practice() => {
+                Questions::Practice(PracticeGenerator::new(config.ops, config.level, history))
+            }
             Mode::Arithmetic => Questions::Arithmetic(Generator::new(config.ops, config.level)),
             Mode::Comparison => {
                 Questions::Comparison(ComparisonGenerator::new(config.kinds, config.level))
@@ -124,6 +143,7 @@ impl Questions {
     fn next(&mut self) -> Prompt {
         match self {
             Questions::Arithmetic(g) => Prompt::Arithmetic(g.next_question()),
+            Questions::Practice(g) => Prompt::Arithmetic(g.next_question()),
             Questions::Comparison(g) => Prompt::Comparison(g.next_comparison()),
             Questions::Fractions(g) => Prompt::Fraction(g.next_question()),
         }
@@ -169,8 +189,13 @@ pub struct Round {
 }
 
 impl Round {
-    pub fn new(config: &GameConfig) -> Self {
-        Self::with_questions(Questions::new(config), QUESTIONS_PER_ROUND)
+    pub fn new(config: &GameConfig, history: &FactHistory) -> Self {
+        let limit = if config.is_practice() {
+            PRACTICE_QUESTIONS
+        } else {
+            QUESTIONS_PER_ROUND
+        };
+        Self::with_questions(Questions::new(config, history), limit)
     }
 
     pub fn with_questions(mut questions: Questions, limit: u32) -> Self {
@@ -217,6 +242,11 @@ impl Round {
             AnswerResult::Correct
         } else {
             self.wrong += 1;
+            // A missed fact comes back later in a practice round.
+            if let (Questions::Practice(g), Prompt::Arithmetic(q)) = (&mut self.questions, question)
+            {
+                g.missed(&q);
+            }
             AnswerResult::Wrong
         };
 
@@ -392,6 +422,41 @@ mod tests {
         round.submit(wrong(&round), secs(3));
         let result = round.result();
         assert_eq!((result.correct, result.wrong), (1, 2));
+    }
+
+    #[test]
+    fn practice_rounds_have_20_questions() {
+        let config = GameConfig {
+            mode: Mode::Arithmetic,
+            ops: OperationSet::ALL,
+            kinds: ComparisonKinds::ALL,
+            practice: true,
+            level: Level::new(1),
+            duration_secs: 120,
+        };
+        let history = FactHistory::default();
+        let mut round = Round::new(&config, &history);
+        assert_eq!(round.limit(), PRACTICE_QUESTIONS);
+        for i in 0..PRACTICE_QUESTIONS {
+            assert!(matches!(round.current(), Some(Prompt::Arithmetic(_))));
+            round.submit(correct(&round), secs(i.into()));
+        }
+        assert!(round.is_finished());
+
+        // Only arithmetic rounds practise.
+        let comparison = GameConfig {
+            mode: Mode::Comparison,
+            ..config
+        };
+        assert_eq!(
+            Round::new(&comparison, &history).limit(),
+            QUESTIONS_PER_ROUND
+        );
+        let timed = GameConfig {
+            practice: false,
+            ..config
+        };
+        assert_eq!(Round::new(&timed, &history).limit(), QUESTIONS_PER_ROUND);
     }
 
     #[test]

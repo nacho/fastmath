@@ -75,9 +75,14 @@ mod imp {
             self.parent_constructed();
             let view = self.obj();
 
-            *self.leaderboard.borrow_mut() = Leaderboard::load(&view.game_summary().config);
+            // Practice rounds have no leaderboard.
+            let config = view.game_summary().config;
+            self.leaderboard_group.set_visible(!config.is_practice());
+            if !config.is_practice() {
+                *self.leaderboard.borrow_mut() = Leaderboard::load(&config);
+                view.show_leaderboard(None);
+            }
             view.show_summary();
-            view.show_leaderboard(None);
 
             // The button is always shown, so a remembered name can be saved
             // without editing it, as the apply button of the row needs. It is
@@ -179,6 +184,9 @@ impl ResultsView {
     /// Shows the name entry when the score earns a place in the leaderboard.
     fn offer_to_save(&self) {
         let imp = self.imp();
+        if self.game_summary().config.is_practice() {
+            return;
+        }
         let result = self.game_summary().result;
         let qualifies = result.correct > 0
             && imp

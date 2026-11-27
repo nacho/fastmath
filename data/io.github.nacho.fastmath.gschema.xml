@@ -22,6 +22,11 @@
       <summary>Comparisons</summary>
       <description>What to compare in comparison mode, as letters: w (whole numbers), d (decimals), f (fractions) and c (calculations).</description>
     </key>
+    <key name="practice" type="b">
+      <default>false</default>
+      <summary>Practice weak facts</summary>
+      <description>Whether arithmetic rounds practise the facts answered wrong or slowly, with no clock and 20 questions.</description>
+    </key>
     <key name="level" type="u">
       <range min="1" max="5"/>
       <default>1</default>

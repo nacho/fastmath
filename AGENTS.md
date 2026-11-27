@@ -61,9 +61,9 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   cost time, and stops while the abandon dialog is open.
 - The game logic (`choice.rs`, `operation.rs`, `level.rs`, `generator.rs`,
   `comparison.rs`, `fraction.rs`, `round.rs`, `leaderboard.rs` and
-  `practice.rs`) does not
-  use GTK. It uses GLib in `leaderboard.rs` for the data directory and
-  logging, and in `round.rs` and `fraction.rs`, where `GameConfig` and
+  `practice.rs`) does not use GTK. It uses GLib in `leaderboard.rs` and
+  `practice.rs` for the data directory and logging, and in `round.rs` and
+  `fraction.rs`, where `GameConfig` and
   `Fraction` are boxed types so widgets can take them as construct
   properties. Keep the question generation and scoring there and unit
   tested.
@@ -104,6 +104,16 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   `Round::submit` returns, and saves it to `$XDG_DATA_HOME/fastmath/facts.json`
   when the round ends. Each fact (`FactKey`, `"m-7-8"`; 7 × 8 and 8 × 7, or
   3 + 5 and 5 + 3, are the same fact) keeps its last 5 answers.
+- Practice rounds (`GameConfig::is_practice()`: the `practice` setting in
+  arithmetic mode) have no clock, `PRACTICE_QUESTIONS` (20) questions and no
+  leaderboard. `PracticeGenerator` asks a weak fact `WEAK_SHARE` (60%) of
+  the time, picked by weakness, otherwise a normal question, and never the
+  same fact twice in a row. A fact's weakness is the weighted mean of its
+  last answers (weights 1, 0.6, 0.36, 0.22, 0.13 from the newest): 1 for a
+  wrong answer, 0.5 for a right one slower than 1.5 times the average of
+  its operation, 0 otherwise. Facts from 0.2 that the generator could ask
+  (`Generator::could_ask`) are weak, and a fact missed in the round becomes
+  fully weak for the rest of it.
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time
