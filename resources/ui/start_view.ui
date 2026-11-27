@@ -9,6 +9,12 @@
     </section>
     <section>
       <item>
+        <attribute name="label" translatable="yes">_Forget Practice History</attribute>
+        <attribute name="action">app.forget-history</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
         <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
         <attribute name="action">app.shortcuts</attribute>
       </item>

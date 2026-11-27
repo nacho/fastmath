@@ -116,7 +116,9 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   fully weak for the rest of it. After a wrong answer, `GameView` shows the right
   one (`Question::solution()`, "7 × 8 = 56") in `feedback_label` for 1.5 s;
   `GameSummary.missed` carries the missed questions to the results page,
-  which lists them in "Facts to Practise".
+  which lists them in "Facts to Practise". "Forget Practice History" in the main menu
+  (`app.forget-history`) asks with an `AdwAlertDialog` and deletes
+  `facts.json` (`FactHistory::forget`).
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time

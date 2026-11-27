@@ -7,6 +7,7 @@ use libadwaita::prelude::*;
 use libadwaita::subclass::prelude::*;
 
 use crate::config;
+use crate::practice::FactHistory;
 use crate::window::FastmathWindow;
 
 mod imp {
@@ -88,7 +89,31 @@ impl FastmathApplication {
             gio::ActionEntry::builder("about")
                 .activate(|app: &Self, _, _| app.show_about())
                 .build(),
+            gio::ActionEntry::builder("forget-history")
+                .activate(|app: &Self, _, _| {
+                    Self::forget_history_dialog().present(app.active_window().as_ref());
+                })
+                .build(),
         ]);
+    }
+
+    /// Asks before deleting the practice history.
+    pub(crate) fn forget_history_dialog() -> adw::AlertDialog {
+        let dialog = adw::AlertDialog::builder()
+            .heading(gettext("Forget the practice history?"))
+            .body(gettext(
+                "Practice rounds will no longer know which facts you answered wrong or slowly.",
+            ))
+            .build();
+        dialog.add_responses(&[
+            ("cancel", &gettext("_Cancel")),
+            ("forget", &gettext("_Forget")),
+        ]);
+        dialog.set_response_appearance("forget", adw::ResponseAppearance::Destructive);
+        dialog.set_default_response(Some("cancel"));
+        dialog.set_close_response("cancel");
+        dialog.connect_response(Some("forget"), |_, _| FactHistory::forget());
+        dialog
     }
 
     fn show_shortcuts(&self) {

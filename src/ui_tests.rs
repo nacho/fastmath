@@ -17,6 +17,7 @@ use std::cmp::Ordering;
 use std::rc::Rc;
 use std::time::{Duration, Instant};
 
+use crate::application::FastmathApplication;
 use crate::comparison::{ComparisonKind, ComparisonKinds};
 use crate::config;
 use crate::fraction::{Fraction, Picture, Shape};
@@ -583,6 +584,23 @@ fn fraction_labels_show_and_describe_the_fraction() {
     assert_eq!(mixed.imp().whole_label.text(), "1");
 }
 
+/// Answers `dialog` as if the player picked `response`.
+fn respond(dialog: &adw::AlertDialog, response: &str) {
+    let signal = glib::subclass::SignalId::lookup("response", adw::AlertDialog::static_type())
+        .expect("the response signal");
+    dialog.emit_with_details::<()>(signal, glib::Quark::from_str(response), &[&response]);
+}
+
+fn forgetting_the_history_asks_first(data_dir: &std::path::Path) {
+    let path = data_dir.join("fastmath/facts.json");
+    assert!(path.exists());
+    respond(&FastmathApplication::forget_history_dialog(), "cancel");
+    assert!(path.exists());
+    respond(&FastmathApplication::forget_history_dialog(), "forget");
+    assert!(!path.exists());
+    assert_eq!(FactHistory::load().len(), 0);
+}
+
 fn the_shortcuts_dialog_loads() {
     adw::ShortcutsDialog::ensure_type();
     adw::ShortcutsSection::ensure_type();
@@ -625,6 +643,7 @@ fn ui_smoke() {
     a_fractions_round_is_answered_in_the_entries();
     fraction_pictures_describe_themselves();
     fraction_labels_show_and_describe_the_fraction();
+    forgetting_the_history_asks_first(&data_dir);
     the_shortcuts_dialog_loads();
 
     let _ = std::fs::remove_dir_all(&data_dir);

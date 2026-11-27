@@ -123,6 +123,19 @@ impl FactHistory {
         self.save_to(&Self::file_path());
     }
 
+    /// Deletes the history, so practice starts again from random questions.
+    pub fn forget() {
+        Self::forget_at(&Self::file_path());
+    }
+
+    pub fn forget_at(path: &Path) {
+        match fs::remove_file(path) {
+            Ok(()) => glib::debug!("Forgot the practice history"),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+            Err(e) => glib::warn!("Could not delete {}: {e}", path.display()),
+        }
+    }
+
     /// Reads a history file. A missing or malformed file gives an empty
     /// history, and unknown facts are skipped.
     pub fn load_from(path: &Path) -> Self {
@@ -405,8 +418,13 @@ mod tests {
 
         fs::write(&path, "not json").unwrap();
         assert_eq!(FactHistory::load_from(&path), FactHistory::default());
-        let _ = fs::remove_file(&path);
+
+        // Forgetting deletes the file, and a missing file is fine.
+        history.save_to(&path);
+        FactHistory::forget_at(&path);
+        assert!(!path.exists());
         assert_eq!(FactHistory::load_from(&path), FactHistory::default());
+        FactHistory::forget_at(&path);
     }
 
     #[test]

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-27 12:48+0100\n"
+"POT-Creation-Date: 2026-11-27 12:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,8 +20,8 @@ msgstr ""
 
 #: data/io.github.nacho.fastmath.desktop.in:2
 #: data/io.github.nacho.fastmath.metainfo.xml:5 resources/ui/game_view.ui:4
-#: resources/ui/start_view.ui:23 resources/ui/window.ui:4
-#: src/application.rs:109
+#: resources/ui/start_view.ui:29 resources/ui/window.ui:4
+#: src/application.rs:134
 msgid "Fast Math"
 msgstr ""
 
@@ -155,7 +155,7 @@ msgstr ""
 msgid "_Play Again"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:208
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:214
 msgid "Round"
 msgstr ""
 
@@ -167,7 +167,7 @@ msgstr ""
 msgid "Comparison"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:46 resources/ui/start_view.ui:180
+#: resources/ui/shortcuts_dialog.ui:46 resources/ui/start_view.ui:186
 #: src/labels.rs:33 src/labels.rs:216
 msgid "Fractions"
 msgstr ""
@@ -197,110 +197,131 @@ msgid "_Sound Effects"
 msgstr ""
 
 #: resources/ui/start_view.ui:12
+msgid "_Forget Practice History"
+msgstr ""
+
+#: resources/ui/start_view.ui:18
 msgid "_Keyboard Shortcuts"
 msgstr ""
 
-#: resources/ui/start_view.ui:16
+#: resources/ui/start_view.ui:22
 msgid "_About Fast Math"
 msgstr ""
 
-#: resources/ui/start_view.ui:33
+#: resources/ui/start_view.ui:39
 msgid "Main Menu"
 msgstr ""
 
-#: resources/ui/start_view.ui:48
+#: resources/ui/start_view.ui:54
 msgid "_Arithmetic"
 msgstr ""
 
-#: resources/ui/start_view.ui:55
+#: resources/ui/start_view.ui:61
 msgid "_Comparison"
 msgstr ""
 
-#: resources/ui/start_view.ui:62
+#: resources/ui/start_view.ui:68
 msgid "_Fractions"
 msgstr ""
 
-#: resources/ui/start_view.ui:72
+#: resources/ui/start_view.ui:78
 msgid "Operations"
 msgstr ""
 
-#: resources/ui/start_view.ui:73 resources/ui/start_view.ui:141
+#: resources/ui/start_view.ui:79 resources/ui/start_view.ui:147
 msgid "Select several to mix them in the same round"
 msgstr ""
 
-#: resources/ui/start_view.ui:76 resources/ui/start_view.ui:144
+#: resources/ui/start_view.ui:82 resources/ui/start_view.ui:150
 msgid "Select _All"
 msgstr ""
 
-#: resources/ui/start_view.ui:86 src/labels.rs:12
+#: resources/ui/start_view.ui:92 src/labels.rs:12
 msgid "Addition"
 msgstr ""
 
-#: resources/ui/start_view.ui:99 src/labels.rs:13
+#: resources/ui/start_view.ui:105 src/labels.rs:13
 msgid "Subtraction"
 msgstr ""
 
-#: resources/ui/start_view.ui:112 src/labels.rs:14
+#: resources/ui/start_view.ui:118 src/labels.rs:14
 msgid "Multiplication"
 msgstr ""
 
-#: resources/ui/start_view.ui:125 src/labels.rs:15
+#: resources/ui/start_view.ui:131 src/labels.rs:15
 msgid "Division"
 msgstr ""
 
-#: resources/ui/start_view.ui:140
+#: resources/ui/start_view.ui:146
 msgid "Comparisons"
 msgstr ""
 
-#: resources/ui/start_view.ui:154 src/labels.rs:31
+#: resources/ui/start_view.ui:160 src/labels.rs:31
 msgid "Whole Numbers"
 msgstr ""
 
-#: resources/ui/start_view.ui:167 src/labels.rs:32
+#: resources/ui/start_view.ui:173 src/labels.rs:32
 msgid "Decimals"
 msgstr ""
 
-#: resources/ui/start_view.ui:193 src/labels.rs:34
+#: resources/ui/start_view.ui:199 src/labels.rs:34
 msgid "Calculations"
 msgstr ""
 
-#: resources/ui/start_view.ui:211
+#: resources/ui/start_view.ui:217
 msgid "Level"
 msgstr ""
 
-#: resources/ui/start_view.ui:217
+#: resources/ui/start_view.ui:223
 msgid "Time Limit"
 msgstr ""
 
-#: resources/ui/start_view.ui:218
+#: resources/ui/start_view.ui:224
 msgid "In seconds"
 msgstr ""
 
-#: resources/ui/start_view.ui:232
+#: resources/ui/start_view.ui:238
 msgid "Practice Weak Facts"
 msgstr ""
 
-#: resources/ui/start_view.ui:233
+#: resources/ui/start_view.ui:239
 msgid "No clock and 20 questions, the facts you miss come back more often"
 msgstr ""
 
-#: resources/ui/start_view.ui:242
+#: resources/ui/start_view.ui:248
 msgid "_Start"
 msgstr ""
 
-#: src/application.rs:118
+#: src/application.rs:103
+msgid "Forget the practice history?"
+msgstr ""
+
+#: src/application.rs:105
+msgid ""
+"Practice rounds will no longer know which facts you answered wrong or slowly."
+msgstr ""
+
+#: src/application.rs:109
+msgid "_Cancel"
+msgstr ""
+
+#: src/application.rs:110
+msgid "_Forget"
+msgstr ""
+
+#: src/application.rs:143
 msgid "translator-credits"
 msgstr ""
 
-#: src/application.rs:121
+#: src/application.rs:146
 msgid "Sound Sources"
 msgstr ""
 
-#: src/application.rs:131
+#: src/application.rs:156
 msgid "Learn geography"
 msgstr ""
 
-#: src/application.rs:136
+#: src/application.rs:161
 msgid "Learn to type"
 msgstr ""
 
