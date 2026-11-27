@@ -27,9 +27,11 @@ use crate::game_view::{GameSummary, GameView};
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
 use crate::practice::FactHistory;
+use crate::progress_view::ProgressView;
 use crate::results_view::ResultsView;
 use crate::round::{Answer, GameConfig, Mode, PRACTICE_QUESTIONS, Prompt, QUESTIONS_PER_ROUND};
 use crate::start_view::StartView;
+use crate::window::FastmathWindow;
 
 fn config() -> GameConfig {
     GameConfig {
@@ -601,6 +603,60 @@ fn forgetting_the_history_asks_first(data_dir: &std::path::Path) {
     assert_eq!(FactHistory::load().len(), 0);
 }
 
+/// Saves a small known history: a wrong and a slow 7 × 8, a fast 3 × 4.
+fn save_known_history() {
+    let mut history = FactHistory::load();
+    let q = |op, a, b, answer| crate::generator::Question { op, a, b, answer };
+    history.record(
+        &q(Operation::Multiply, 7, 8, 56),
+        false,
+        Duration::from_millis(9000),
+    );
+    history.record(
+        &q(Operation::Multiply, 8, 7, 56),
+        true,
+        Duration::from_millis(3000),
+    );
+    history.record(
+        &q(Operation::Multiply, 3, 4, 12),
+        true,
+        Duration::from_millis(1000),
+    );
+    history.record(
+        &q(Operation::Multiply, 3, 4, 12),
+        true,
+        Duration::from_millis(1000),
+    );
+    history.save();
+}
+
+fn progress_shows_the_history() {
+    // Without answers there is nothing to show.
+    FactHistory::forget();
+    let view = ProgressView::new();
+    let imp = view.imp();
+    assert_eq!(imp.stack.visible_child_name().unwrap(), "empty");
+    assert!(!imp.operation_group.get_visible());
+
+    save_known_history();
+    let view = ProgressView::new();
+    let imp = view.imp();
+    assert_eq!(imp.stack.visible_child_name().unwrap(), "progress");
+    assert_eq!(
+        imp.summary_label.text(),
+        "Multiplication: 75% right, 1.7 s on average, 1 weak fact"
+    );
+    imp.operation_group.set_active_name(Some("a"));
+    assert_eq!(imp.summary_label.text(), "Addition: no answers yet");
+
+    // The menu item opens it.
+    let window: FastmathWindow = glib::Object::new();
+    WidgetExt::activate_action(&window, "win.progress", None).unwrap();
+    let page = window.imp().navigation_view.visible_page().unwrap();
+    assert!(page.is::<ProgressView>());
+    window.destroy();
+}
+
 fn the_shortcuts_dialog_loads() {
     adw::ShortcutsDialog::ensure_type();
     adw::ShortcutsSection::ensure_type();
@@ -644,6 +700,7 @@ fn ui_smoke() {
     fraction_pictures_describe_themselves();
     fraction_labels_show_and_describe_the_fraction();
     forgetting_the_history_asks_first(&data_dir);
+    progress_shows_the_history();
     the_shortcuts_dialog_loads();
 
     let _ = std::fs::remove_dir_all(&data_dir);

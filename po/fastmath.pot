@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fastmath\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-27 12:51+0100\n"
+"POT-Creation-Date: 2026-11-27 13:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: data/io.github.nacho.fastmath.desktop.in:2
 #: data/io.github.nacho.fastmath.metainfo.xml:5 resources/ui/game_view.ui:4
-#: resources/ui/start_view.ui:29 resources/ui/window.ui:4
+#: resources/ui/start_view.ui:33 resources/ui/window.ui:4
 #: src/application.rs:134
 msgid "Fast Math"
 msgstr ""
@@ -110,6 +110,20 @@ msgstr ""
 msgid "Greater Than"
 msgstr ""
 
+#: resources/ui/progress_view.ui:5
+msgid "Progress"
+msgstr ""
+
+#: resources/ui/progress_view.ui:49
+msgid "No Answers Yet"
+msgstr ""
+
+#: resources/ui/progress_view.ui:50
+msgid ""
+"Play arithmetic rounds to see which facts you know well and which need more "
+"practice"
+msgstr ""
+
 #: resources/ui/results_view.ui:4
 msgid "Results"
 msgstr ""
@@ -162,7 +176,7 @@ msgstr ""
 msgid "_Play Again"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:214
+#: resources/ui/shortcuts_dialog.ui:6 resources/ui/start_view.ui:218
 msgid "Round"
 msgstr ""
 
@@ -174,8 +188,8 @@ msgstr ""
 msgid "Comparison"
 msgstr ""
 
-#: resources/ui/shortcuts_dialog.ui:46 resources/ui/start_view.ui:186
-#: src/labels.rs:33 src/labels.rs:216
+#: resources/ui/shortcuts_dialog.ui:46 resources/ui/start_view.ui:190
+#: src/labels.rs:71 src/labels.rs:254
 msgid "Fractions"
 msgstr ""
 
@@ -204,98 +218,102 @@ msgid "_Sound Effects"
 msgstr ""
 
 #: resources/ui/start_view.ui:12
+msgid "_Progress"
+msgstr ""
+
+#: resources/ui/start_view.ui:16
 msgid "_Forget Practice History"
 msgstr ""
 
-#: resources/ui/start_view.ui:18
+#: resources/ui/start_view.ui:22
 msgid "_Keyboard Shortcuts"
 msgstr ""
 
-#: resources/ui/start_view.ui:22
+#: resources/ui/start_view.ui:26
 msgid "_About Fast Math"
 msgstr ""
 
-#: resources/ui/start_view.ui:39
+#: resources/ui/start_view.ui:43
 msgid "Main Menu"
 msgstr ""
 
-#: resources/ui/start_view.ui:54
+#: resources/ui/start_view.ui:58
 msgid "_Arithmetic"
 msgstr ""
 
-#: resources/ui/start_view.ui:61
+#: resources/ui/start_view.ui:65
 msgid "_Comparison"
 msgstr ""
 
-#: resources/ui/start_view.ui:68
+#: resources/ui/start_view.ui:72
 msgid "_Fractions"
 msgstr ""
 
-#: resources/ui/start_view.ui:78
+#: resources/ui/start_view.ui:82
 msgid "Operations"
 msgstr ""
 
-#: resources/ui/start_view.ui:79 resources/ui/start_view.ui:147
+#: resources/ui/start_view.ui:83 resources/ui/start_view.ui:151
 msgid "Select several to mix them in the same round"
 msgstr ""
 
-#: resources/ui/start_view.ui:82 resources/ui/start_view.ui:150
+#: resources/ui/start_view.ui:86 resources/ui/start_view.ui:154
 msgid "Select _All"
 msgstr ""
 
-#: resources/ui/start_view.ui:92 src/labels.rs:12
+#: resources/ui/start_view.ui:96 src/labels.rs:13
 msgid "Addition"
 msgstr ""
 
-#: resources/ui/start_view.ui:105 src/labels.rs:13
+#: resources/ui/start_view.ui:109 src/labels.rs:14
 msgid "Subtraction"
 msgstr ""
 
-#: resources/ui/start_view.ui:118 src/labels.rs:14
+#: resources/ui/start_view.ui:122 src/labels.rs:15
 msgid "Multiplication"
 msgstr ""
 
-#: resources/ui/start_view.ui:131 src/labels.rs:15
+#: resources/ui/start_view.ui:135 src/labels.rs:16
 msgid "Division"
 msgstr ""
 
-#: resources/ui/start_view.ui:146
+#: resources/ui/start_view.ui:150
 msgid "Comparisons"
 msgstr ""
 
-#: resources/ui/start_view.ui:160 src/labels.rs:31
+#: resources/ui/start_view.ui:164 src/labels.rs:69
 msgid "Whole Numbers"
 msgstr ""
 
-#: resources/ui/start_view.ui:173 src/labels.rs:32
+#: resources/ui/start_view.ui:177 src/labels.rs:70
 msgid "Decimals"
 msgstr ""
 
-#: resources/ui/start_view.ui:199 src/labels.rs:34
+#: resources/ui/start_view.ui:203 src/labels.rs:72
 msgid "Calculations"
 msgstr ""
 
-#: resources/ui/start_view.ui:217
+#: resources/ui/start_view.ui:221
 msgid "Level"
 msgstr ""
 
-#: resources/ui/start_view.ui:223
+#: resources/ui/start_view.ui:227
 msgid "Time Limit"
 msgstr ""
 
-#: resources/ui/start_view.ui:224
+#: resources/ui/start_view.ui:228
 msgid "In seconds"
 msgstr ""
 
-#: resources/ui/start_view.ui:238
+#: resources/ui/start_view.ui:242
 msgid "Practice Weak Facts"
 msgstr ""
 
-#: resources/ui/start_view.ui:239
+#: resources/ui/start_view.ui:243
 msgid "No clock and 20 questions, the facts you miss come back more often"
 msgstr ""
 
-#: resources/ui/start_view.ui:248
+#: resources/ui/start_view.ui:252
 msgid "_Start"
 msgstr ""
 
@@ -410,17 +428,49 @@ msgstr ""
 msgid "_Abandon"
 msgstr ""
 
-#: src/labels.rs:21
+#. Translators: {} is the name of an operation, for example
+#. "Multiplication: no answers yet".
+#: src/labels.rs:28
+#, rust-format
+msgid "{}: no answers yet"
+msgstr ""
+
+#. Translators: How the player does with an operation. The
+#. first {} is its name, the second {} the percentage of right
+#. answers, the third {} the average time of a right answer,
+#. for example "2.1 s", and the fourth {} the number of weak
+#. facts, which picks the plural form, for example
+#. "Multiplication: 86% right, 2.1 s on average, 12 weak facts".
+#: src/labels.rs:43
+#, rust-format
+msgid "{}: {}% right, {} on average, {} weak fact"
+msgid_plural "{}: {}% right, {} on average, {} weak facts"
+msgstr[0] ""
+msgstr[1] ""
+
+#. Translators: How the player does with an operation with no
+#. right answers yet. The first {} is its name, the second {} the
+#. percentage of right answers and the third {} the number of weak
+#. facts, which picks the plural form, for example
+#. "Multiplication: 0% right, 3 weak facts".
+#: src/labels.rs:52
+#, rust-format
+msgid "{}: {}% right, {} weak fact"
+msgid_plural "{}: {}% right, {} weak facts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/labels.rs:59
 msgid "All operations"
 msgstr ""
 
-#: src/labels.rs:40
+#: src/labels.rs:78
 msgid "All comparisons"
 msgstr ""
 
 #. Translators: {} is the difficulty level number, from 1 to 5, for
 #. example "Level 2".
-#: src/labels.rs:54
+#: src/labels.rs:92
 #, rust-format
 msgid "Level {}"
 msgstr ""
@@ -428,7 +478,7 @@ msgstr ""
 #. Translators: This describes a difficulty level of the
 #. fractions mode. {} is the level number, for example
 #. "Level 1: halves, thirds and quarters".
-#: src/labels.rs:72
+#: src/labels.rs:110
 #, rust-format
 msgid "Level {}: halves, thirds and quarters"
 msgstr ""
@@ -436,7 +486,7 @@ msgstr ""
 #. Translators: This describes a difficulty level of the
 #. fractions mode, with fractions like 5/12. {} is the
 #. level number, for example "Level 2: up to twelfths".
-#: src/labels.rs:78
+#: src/labels.rs:116
 #, rust-format
 msgid "Level {}: up to twelfths"
 msgstr ""
@@ -445,7 +495,7 @@ msgstr ""
 #. fractions mode, asking which fraction was eaten or is
 #. left. {} is the level number, for example "Level 3:
 #. eaten and left".
-#: src/labels.rs:85
+#: src/labels.rs:123
 #, rust-format
 msgid "Level {}: eaten and left"
 msgstr ""
@@ -454,7 +504,7 @@ msgstr ""
 #. fractions mode, where 4/8 must be answered as 1/2. {}
 #. is the level number, for example "Level 4: simplest
 #. form".
-#: src/labels.rs:92
+#: src/labels.rs:130
 #, rust-format
 msgid "Level {}: simplest form"
 msgstr ""
@@ -462,7 +512,7 @@ msgstr ""
 #. Translators: This describes a difficulty level of the
 #. fractions mode, with answers like 7/4. {} is the level
 #. number, for example "Level 5: more than a whole".
-#: src/labels.rs:98
+#: src/labels.rs:136
 #, rust-format
 msgid "Level {}: more than a whole"
 msgstr ""
@@ -472,7 +522,7 @@ msgstr ""
 #. used in additions and subtractions, and the third {} is the largest
 #. number used in the multiplication tables and divisions, for
 #. example "Level 2: sums up to 20, tables up to 10".
-#: src/labels.rs:111
+#: src/labels.rs:149
 #, rust-format
 msgid "Level {}: sums up to {}, tables up to {}"
 msgstr ""
@@ -481,7 +531,7 @@ msgstr ""
 #. difficulty level. Both {} are the same number, for example
 #. "Negative numbers, from −100 to 100". The first one comes
 #. after a minus sign.
-#: src/labels.rs:127
+#: src/labels.rs:165
 #, rust-format
 msgid "Negative numbers, from −{} to {}"
 msgstr ""
@@ -489,48 +539,48 @@ msgstr ""
 #. Translators: This describes the whole numbers compared at a
 #. difficulty level. {} is the largest number, for example
 #. "Up to 20".
-#: src/labels.rs:136
+#: src/labels.rs:174
 #, rust-format
 msgid "Up to {}"
 msgstr ""
 
-#: src/labels.rs:140
+#: src/labels.rs:178
 msgid "Tenths"
 msgstr ""
 
-#: src/labels.rs:141
+#: src/labels.rs:179
 msgid "Tenths and hundredths"
 msgstr ""
 
-#: src/labels.rs:142
+#: src/labels.rs:180
 msgid "Thousandths"
 msgstr ""
 
-#: src/labels.rs:143
+#: src/labels.rs:181
 msgid "Negative numbers with hundredths"
 msgstr ""
 
-#: src/labels.rs:144
+#: src/labels.rs:182
 msgid "Negative numbers with thousandths"
 msgstr ""
 
-#: src/labels.rs:147
+#: src/labels.rs:185
 msgid "The same denominator"
 msgstr ""
 
-#: src/labels.rs:148
+#: src/labels.rs:186
 msgid "The same numerator"
 msgstr ""
 
-#: src/labels.rs:149
+#: src/labels.rs:187
 msgid "Equivalent fractions"
 msgstr ""
 
-#: src/labels.rs:150
+#: src/labels.rs:188
 msgid "Different denominators"
 msgstr ""
 
-#: src/labels.rs:151
+#: src/labels.rs:189
 msgid "Improper fractions and mixed numbers"
 msgstr ""
 
@@ -538,7 +588,7 @@ msgstr ""
 #. at a difficulty level, for example "7 + 2 ? 8". {} is
 #. the largest number added or subtracted, for example
 #. "A sum or a difference and a number, up to 10".
-#: src/labels.rs:163
+#: src/labels.rs:201
 #, rust-format
 msgid "A sum or a difference and a number, up to {}"
 msgstr ""
@@ -549,7 +599,7 @@ msgstr ""
 #. the second {} the largest multiplication table, for
 #. example "A calculation and a number, sums up to 20,
 #. tables up to 10".
-#: src/labels.rs:172
+#: src/labels.rs:210
 #, rust-format
 msgid "A calculation and a number, sums up to {}, tables up to {}"
 msgstr ""
@@ -560,43 +610,43 @@ msgstr ""
 #. and the second {} the largest multiplication table, for
 #. example "Two calculations, sums up to 50, tables up to
 #. 12".
-#: src/labels.rs:181
+#: src/labels.rs:219
 #, rust-format
 msgid "Two calculations, sums up to {}, tables up to {}"
 msgstr ""
 
-#: src/labels.rs:191
+#: src/labels.rs:229
 msgid "What fraction is coloured?"
 msgstr ""
 
-#: src/labels.rs:192
+#: src/labels.rs:230
 msgid "What fraction is not coloured?"
 msgstr ""
 
-#: src/labels.rs:193
+#: src/labels.rs:231
 msgid "How much was eaten?"
 msgstr ""
 
-#: src/labels.rs:194
+#: src/labels.rs:232
 msgid "How much is left?"
 msgstr ""
 
 #. Translators: The decimal separator, as in 8.25. Translate it as ","
 #. if your language writes 8,25.
-#: src/labels.rs:201
+#: src/labels.rs:239
 msgctxt "decimal separator"
 msgid "."
 msgstr ""
 
 #. Translators: Shown instead of the time limit for a practice
 #. round, which has no clock.
-#: src/labels.rs:225
+#: src/labels.rs:263
 msgid "Practice"
 msgstr ""
 
 #. Translators: {} is a number of seconds with one decimal and "s" is
 #. the abbreviation of seconds, for example "2.5 s".
-#: src/labels.rs:238
+#: src/labels.rs:276
 #, rust-format
 msgid "{} s"
 msgstr ""

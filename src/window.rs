@@ -5,6 +5,7 @@ use libadwaita::subclass::prelude::*;
 
 use crate::config;
 use crate::game_view::GameView;
+use crate::progress_view::ProgressView;
 use crate::results_view::ResultsView;
 use crate::round::GameConfig;
 use crate::start_view::StartView;
@@ -30,6 +31,10 @@ mod imp {
         fn class_init(klass: &mut Self::Class) {
             StartView::ensure_type();
             klass.bind_template();
+
+            klass.install_action("win.progress", None, |window, _, _| {
+                window.show_progress();
+            });
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -104,6 +109,11 @@ impl FastmathWindow {
 
         imp.navigation_view
             .replace(&[imp.start_view.clone().upcast(), results.upcast()]);
+    }
+
+    /// Shows how the player does with each fact, on top of the start page.
+    pub(crate) fn show_progress(&self) {
+        self.imp().navigation_view.push(&ProgressView::new());
     }
 
     fn show_start(&self) {

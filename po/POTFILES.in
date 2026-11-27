@@ -1,6 +1,7 @@
 data/io.github.nacho.fastmath.desktop.in
 data/io.github.nacho.fastmath.metainfo.xml
 resources/ui/game_view.ui
+resources/ui/progress_view.ui
 resources/ui/results_view.ui
 resources/ui/shortcuts_dialog.ui
 resources/ui/start_view.ui
@@ -10,4 +11,5 @@ src/fraction_label.rs
 src/fraction_picture.rs
 src/game_view.rs
 src/labels.rs
+src/progress_view.rs
 src/results_view.rs

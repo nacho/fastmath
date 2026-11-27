@@ -102,6 +102,18 @@ pub struct AnswerRecord {
     pub ms: u64,
 }
 
+/// How the player does with all the facts of an operation.
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct OperationStats {
+    /// The kept answers, and how many of them were right.
+    pub answered: u32,
+    pub right: u32,
+    /// The average time of the right answers.
+    pub average_ms: Option<u64>,
+    /// How many facts are weak enough to practise.
+    pub weak: u32,
+}
+
 /// The last answers to every arithmetic fact the player has answered, from
 /// every round.
 #[derive(Default, Debug, PartialEq)]
@@ -243,6 +255,25 @@ impl FactHistory {
         // The order of a HashMap changes on every run.
         weak.sort_by_key(|(key, _)| key.id());
         weak
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.facts.is_empty()
+    }
+
+    pub fn operation_stats(&self, op: Operation) -> OperationStats {
+        let facts: Vec<(&FactKey, &Vec<AnswerRecord>)> =
+            self.facts.iter().filter(|(key, _)| key.op == op).collect();
+        let answers = facts.iter().flat_map(|(_, answers)| answers.iter());
+        OperationStats {
+            answered: answers.clone().count() as u32,
+            right: answers.filter(|answer| answer.correct).count() as u32,
+            average_ms: self.average_ms(op).map(|ms| ms.round() as u64),
+            weak: facts
+                .iter()
+                .filter(|(key, _)| self.weakness(key) >= WEAK)
+                .count() as u32,
+        }
     }
 
     #[cfg(test)]
@@ -566,5 +597,29 @@ mod tests {
         practice.missed(&missed);
         let back = (0..10).any(|_| FactKey::of(&practice.next_question()) == FactKey::of(&missed));
         assert!(back);
+    }
+
+    #[test]
+    fn operation_stats_count_all_answers_and_time_the_right_ones() {
+        let mut history = FactHistory::default();
+        assert!(history.is_empty());
+        history.record(&q(Operation::Multiply, 7, 8), false, ms(9000));
+        history.record(&q(Operation::Multiply, 8, 7), true, ms(3000));
+        history.record(&q(Operation::Multiply, 3, 4), true, ms(1000));
+        history.record(&q(Operation::Multiply, 3, 4), true, ms(1000));
+        history.record(&q(Operation::Add, 2, 2), true, ms(500));
+        assert!(!history.is_empty());
+
+        let stats = history.operation_stats(Operation::Multiply);
+        assert_eq!(stats.answered, 4);
+        assert_eq!(stats.right, 3);
+        // The wrong answer does not count for the time.
+        assert_eq!(stats.average_ms, Some(1667));
+        // 7 × 8 has a wrong and a slow answer; 3 × 4 was right and fast.
+        assert_eq!(stats.weak, 1);
+
+        let empty = history.operation_stats(Operation::Divide);
+        assert_eq!((empty.answered, empty.right, empty.weak), (0, 0, 0));
+        assert_eq!(empty.average_ms, None);
     }
 }

@@ -5,6 +5,7 @@ use crate::comparison::{self, ComparisonKind, ComparisonKinds};
 use crate::fraction::{Ask, FractionQuestion, Shape};
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
+use crate::practice::OperationStats;
 use crate::round::{GameConfig, Mode};
 
 pub fn operation_name(op: Operation) -> String {
@@ -13,6 +14,43 @@ pub fn operation_name(op: Operation) -> String {
         Operation::Subtract => gettext("Subtraction"),
         Operation::Multiply => gettext("Multiplication"),
         Operation::Divide => gettext("Division"),
+    }
+}
+
+/// How the player does with an operation, for example "Multiplication: 86%
+/// right, 2.1 s on average, 12 weak facts".
+pub fn operation_progress(op: Operation, stats: &OperationStats) -> String {
+    let name = operation_name(op);
+    if stats.answered == 0 {
+        return i18n_fmt! {
+            // Translators: {} is the name of an operation, for example
+            // "Multiplication: no answers yet".
+            i18n_fmt("{}: no answers yet", name)
+        };
+    }
+    let percent = (100 * stats.right + stats.answered / 2) / stats.answered;
+    let weak = stats.weak;
+    match stats.average_ms {
+        Some(ms) => {
+            let average = format_average(ms);
+            i18n_fmt! {
+                // Translators: How the player does with an operation. The
+                // first {} is its name, the second {} the percentage of right
+                // answers, the third {} the average time of a right answer,
+                // for example "2.1 s", and the fourth {} the number of weak
+                // facts, which picks the plural form, for example
+                // "Multiplication: 86% right, 2.1 s on average, 12 weak facts".
+                i18n_nfmt("{}: {}% right, {} on average, {} weak fact", "{}: {}% right, {} on average, {} weak facts", weak, name, percent, average, weak)
+            }
+        }
+        None => i18n_fmt! {
+            // Translators: How the player does with an operation with no
+            // right answers yet. The first {} is its name, the second {} the
+            // percentage of right answers and the third {} the number of weak
+            // facts, which picks the plural form, for example
+            // "Multiplication: 0% right, 3 weak facts".
+            i18n_nfmt("{}: {}% right, {} weak fact", "{}: {}% right, {} weak facts", weak, name, percent, weak)
+        },
     }
 }
 

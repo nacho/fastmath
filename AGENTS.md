@@ -24,6 +24,7 @@ src/
                         # denominator entries, clock, sounds,
                         # abandon dialog
   results_view.rs       # Score, leaderboard, name entry, Play Again / Back
+  progress_view.rs      # FastmathProgressView: the practice history of each operation
   sound_player.rs       # gtk::MediaFile wrapper, copied from Mundi
   labels.rs             # Translatable names and formatting shared by views
   ui_tests.rs           # Ignored tests that need a display
@@ -118,7 +119,10 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   `GameSummary.missed` carries the missed questions to the results page,
   which lists them in "Facts to Practise". "Forget Practice History" in the main menu
   (`app.forget-history`) asks with an `AdwAlertDialog` and deletes
-  `facts.json` (`FactHistory::forget`).
+  `facts.json` (`FactHistory::forget`). "Progress" (`win.progress`) pushes a
+  new `FastmathProgressView`, which loads the history in `constructed()` and
+  shows `FactHistory::operation_stats` for the operation picked in the header
+  bar, or a status page when there is no history.
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time
