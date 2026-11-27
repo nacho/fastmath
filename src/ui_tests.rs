@@ -25,6 +25,7 @@ use crate::fraction_picture::FractionPicture;
 use crate::game_view::GameView;
 use crate::level::Level;
 use crate::operation::{Operation, OperationSet};
+use crate::practice::FactHistory;
 use crate::results_view::ResultsView;
 use crate::round::{Answer, GameConfig, Mode, QUESTIONS_PER_ROUND};
 use crate::start_view::StartView;
@@ -523,9 +524,15 @@ fn ui_smoke() {
     settings.set_boolean("sound-effects", false).unwrap();
 
     start_view_keeps_the_choices(&settings);
+    assert_eq!(FactHistory::load().len(), 0);
     a_full_round_ends_after_60_answers();
+    // Arithmetic rounds keep the answers of each fact, comparisons don't.
+    let facts = FactHistory::load().len();
+    assert!(facts > 0);
+    assert!(data_dir.join("fastmath/facts.json").exists());
     a_comparison_round_is_answered_with_buttons(ComparisonKinds::from_id_string("wd"), false);
     a_comparison_round_is_answered_with_buttons(ComparisonKinds::from_id_string("f"), true);
+    assert_eq!(FactHistory::load().len(), facts);
     a_round_ends_when_the_time_is_up();
     results_keep_a_leaderboard();
     a_fractions_round_is_answered_in_the_entries();

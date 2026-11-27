@@ -14,6 +14,7 @@ use crate::comparison::Part;
 use crate::fraction_label::FractionLabel;
 use crate::fraction_picture::FractionPicture;
 use crate::labels;
+use crate::practice::FactHistory;
 use crate::round::{Answer, AnswerResult, Answered, GameConfig, Mode, Prompt, Round, RoundResult};
 use crate::sound_player::SoundPlayer;
 
@@ -74,6 +75,8 @@ mod imp {
         pub timer: RefCell<Option<glib::SourceId>>,
         pub flash: RefCell<Option<glib::SourceId>>,
         pub sound_player: SoundPlayer,
+        /// The answers to arithmetic facts, for practice rounds.
+        pub history: RefCell<Option<FactHistory>>,
     }
 
     #[glib::object_subclass]
@@ -131,6 +134,9 @@ mod imp {
 
             let config = view.game_config();
             *self.round.borrow_mut() = Some(Round::new(&config));
+            if config.mode == Mode::Arithmetic {
+                *self.history.borrow_mut() = Some(FactHistory::load());
+            }
             self.answer_entry
                 .set_visible(config.mode == Mode::Arithmetic);
             self.compare_box
@@ -394,17 +400,23 @@ impl GameView {
         }
 
         let elapsed = self.elapsed();
-        let (result, finished) = {
+        let (question, answered, finished) = {
             let mut round = imp.round.borrow_mut();
             let Some(round) = round.as_mut() else {
                 return;
             };
-            let result = round.submit(answer, elapsed);
-            (result, round.is_finished())
+            let question = round.current().copied();
+            let answered = round.submit(answer, elapsed);
+            (question, answered, round.is_finished())
         };
-        let Some(Answered { result, .. }) = result else {
+        let Some(Answered { result, time }) = answered else {
             return;
         };
+        if let (Some(history), Some(Prompt::Arithmetic(question))) =
+            (imp.history.borrow_mut().as_mut(), question)
+        {
+            history.record(&question, result == AnswerResult::Correct, time);
+        }
 
         // Show the result on what the player used to answer.
         let widgets: Vec<gtk::Widget> = match answer {
@@ -493,6 +505,7 @@ impl GameView {
         if let Some(round) = imp.round.borrow_mut().as_mut() {
             round.finish();
         }
+        self.save_history();
         glib::debug!("Round finished: {:?}", self.summary().result);
         self.set_can_pop(true);
         self.emit_by_name::<()>("finished", &[]);
@@ -547,9 +560,17 @@ impl GameView {
         self.focus_answer();
     }
 
+    /// Saves the answers of the round, also when it is abandoned.
+    fn save_history(&self) {
+        if let Some(history) = self.imp().history.borrow().as_ref() {
+            history.save();
+        }
+    }
+
     fn abandon(&self) {
         let imp = self.imp();
         imp.done.set(true);
+        self.save_history();
         self.stop_timer();
         imp.sound_player.stop_music();
         self.set_can_pop(true);

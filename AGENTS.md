@@ -40,6 +40,7 @@ src/
   round.rs              # Game logic: Mode, Prompt/Answer, round state machine,
                         # GameConfig, RoundResult
   leaderboard.rs        # Game logic: top-10 JSON store
+  practice.rs           # Game logic: FactHistory, the last answers of each arithmetic fact
 resources/              # GResource: ui/*.ui, style.css, sounds/*.oga
 data/                   # Desktop file, metainfo, GSettings schema, icons
 po/                     # Translations
@@ -59,7 +60,8 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   game clock starts when the page is shown, so the page transition does not
   cost time, and stops while the abandon dialog is open.
 - The game logic (`choice.rs`, `operation.rs`, `level.rs`, `generator.rs`,
-  `comparison.rs`, `fraction.rs`, `round.rs` and `leaderboard.rs`) does not
+  `comparison.rs`, `fraction.rs`, `round.rs`, `leaderboard.rs` and
+  `practice.rs`) does not
   use GTK. It uses GLib in `leaderboard.rs` for the data directory and
   logging, and in `round.rs` and `fraction.rs`, where `GameConfig` and
   `Fraction` are boxed types so widgets can take them as construct
@@ -97,6 +99,11 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   in the `fraction-*` named colours of `style.css`, which it looks up and
   caches like Mundi's map widget (again when the dark or high contrast
   style changes), and sets a translatable accessible label.
+- Practice history: `GameView` records every answer of an arithmetic round
+  (timed or abandoned too) in `FactHistory`, with the time that
+  `Round::submit` returns, and saves it to `$XDG_DATA_HOME/fastmath/facts.json`
+  when the round ends. Each fact (`FactKey`, `"m-7-8"`; 7 × 8 and 8 × 7, or
+  3 + 5 and 5 + 3, are the same fact) keeps its last 5 answers.
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time

@@ -19,6 +19,7 @@ mod labels;
 mod leaderboard;
 mod level;
 mod operation;
+mod practice;
 mod results_view;
 mod round;
 mod sound_player;
