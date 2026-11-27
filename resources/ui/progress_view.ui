@@ -207,6 +207,12 @@
                         </child>
                       </object>
                     </child>
+                    <child>
+                      <object class="AdwPreferencesGroup" id="beyond_group">
+                        <property name="visible">false</property>
+                        <property name="title" translatable="yes">Other Weak Facts</property>
+                      </object>
+                    </child>
                   </object>
                 </property>
               </object>

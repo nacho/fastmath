@@ -1,6 +1,7 @@
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use libadwaita as adw;
+use libadwaita::prelude::*;
 use libadwaita::subclass::prelude::*;
 
 use crate::choice::Choice;
@@ -11,6 +12,8 @@ use crate::practice::{FactHistory, weakness_step};
 
 /// The sizes of the tables of products and quotients.
 const TABLE_SIZES: [u32; 2] = [12, 20];
+/// The largest number of the grids of sums and differences.
+const SUM_SIZE: u32 = 20;
 
 mod imp {
     use super::*;
@@ -34,11 +37,12 @@ mod imp {
         #[template_child]
         pub summary_label: TemplateChild<gtk::Label>,
         #[template_child]
-        pub grid_group: TemplateChild<adw::PreferencesGroup>,
-        #[template_child]
         pub size_group: TemplateChild<adw::ToggleGroup>,
         #[template_child]
         pub fact_grid: TemplateChild<gtk::Grid>,
+        #[template_child]
+        pub beyond_group: TemplateChild<adw::PreferencesGroup>,
+        pub beyond_rows: RefCell<Vec<adw::ActionRow>>,
         pub history: RefCell<FactHistory>,
     }
 
@@ -136,31 +140,47 @@ impl ProgressView {
             .set_text(&labels::operation_progress(op, &stats));
 
         let table = matches!(op, Operation::Multiply | Operation::Divide);
-        imp.grid_group.set_visible(table);
         imp.size_group.set_visible(table);
-        if table {
-            self.fill_grid(op, 2..=self.table_size());
+        let (first, last) = if table {
+            (2, self.table_size())
+        } else {
+            (1, SUM_SIZE)
+        };
+        self.fill_grid(op, first..=last);
+        self.list_beyond(op, last);
+    }
+
+    /// Lists the weak facts of `op` that do not fit in a grid up to `max`.
+    fn list_beyond(&self, op: Operation, max: u32) {
+        let imp = self.imp();
+        for row in imp.beyond_rows.take() {
+            imp.beyond_group.remove(&row);
+        }
+        let facts = imp.history.borrow().weak_facts_beyond(op, max);
+        imp.beyond_group.set_visible(!facts.is_empty());
+        for (question, stats) in facts {
+            let row = adw::ActionRow::builder()
+                .title(question.solution())
+                .subtitle(labels::fact_progress(&question, &stats))
+                .build();
+            imp.beyond_group.add(&row);
+            imp.beyond_rows.borrow_mut().push(row);
         }
     }
 
-    /// The fact in `row` and `column` of the grid of `op`. Quotients are
-    /// placed like the products they come from: 56 ÷ 7 is in row 7,
-    /// column 8, like 7 × 8.
-    fn fact_at(op: Operation, row: u32, column: u32) -> Question {
-        match op {
-            Operation::Divide => Question {
-                op,
-                a: row * column,
-                b: row,
-                answer: column,
-            },
-            _ => Question {
-                op,
-                a: row,
-                b: column,
-                answer: row * column,
-            },
-        }
+    /// The fact in `row` and `column` of the grid of `op`, if any. Quotients
+    /// are placed like the products they come from: 56 ÷ 7 is in row 7,
+    /// column 8, like 7 × 8. Differences take the column from the row, so
+    /// there are none above the diagonal.
+    fn fact_at(op: Operation, row: u32, column: u32) -> Option<Question> {
+        let (a, b, answer) = match op {
+            Operation::Add => (row, column, row + column),
+            Operation::Subtract if column > row => return None,
+            Operation::Subtract => (row, column, row - column),
+            Operation::Multiply => (row, column, row * column),
+            Operation::Divide => (row * column, row, column),
+        };
+        Some(Question { op, a, b, answer })
     }
 
     /// Fills the grid with the facts of `op` for the numbers in `range`,
@@ -185,8 +205,12 @@ impl ProgressView {
         }
         for (y, row) in (1..).zip(range.clone()) {
             for (x, column) in (1..).zip(range.clone()) {
-                let question = Self::fact_at(op, row, column);
                 let cell = gtk::Label::new(None);
+                let Some(question) = Self::fact_at(op, row, column) else {
+                    // Keeps the place of a fact that cannot be asked.
+                    grid.attach(&cell, x, y, 1, 1);
+                    continue;
+                };
                 cell.add_css_class("fact-cell");
                 match history.fact_stats(&question) {
                     Some(stats) => {

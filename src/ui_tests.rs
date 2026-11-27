@@ -647,7 +647,7 @@ fn progress_shows_the_history() {
     );
 
     // Both cells of a fact show its weakness, unanswered facts are grey.
-    assert!(imp.grid_group.get_visible() && imp.size_group.get_visible());
+    assert!(imp.size_group.get_visible());
     for (row, column) in [(6, 9), (9, 6)] {
         let cell = grid_cell(&view, 2, row, column);
         assert!(cell.has_css_class("fact-weak-4"), "{row} × {column}");
@@ -685,6 +685,51 @@ fn progress_shows_the_history() {
     imp.operation_group.set_active_name(Some("a"));
     assert_eq!(imp.summary_label.text(), "Addition: no answers yet");
     assert!(!imp.size_group.get_visible());
+
+    // Sums and differences up to 20, and the weak facts beyond the grid.
+    let mut history = FactHistory::load();
+    let answers = [
+        (Operation::Add, 3, 5, 8),
+        (Operation::Add, 7, 8, 15),
+        (Operation::Add, 37, 48, 85),
+        (Operation::Multiply, 15, 15, 225),
+    ];
+    for (op, a, b, answer) in answers {
+        let question = crate::generator::Question { op, a, b, answer };
+        history.record(&question, false, Duration::from_millis(5000));
+    }
+    history.save();
+    let view = ProgressView::new();
+    let imp = view.imp();
+    let beyond = |view: &ProgressView| -> Vec<String> {
+        let imp = view.imp();
+        if !imp.beyond_group.get_visible() {
+            return Vec::new();
+        }
+        imp.beyond_rows
+            .borrow()
+            .iter()
+            .map(|row| row.title().to_string())
+            .collect()
+    };
+    assert_eq!(beyond(&view), ["15 × 15 = 225"]);
+    imp.size_group.set_active_name(Some("20"));
+    assert!(beyond(&view).is_empty());
+    assert!(grid_cell(&view, 2, 15, 15).has_css_class("fact-weak-4"));
+
+    imp.operation_group.set_active_name(Some("a"));
+    for (row, column) in [(3, 5), (5, 3), (7, 8), (8, 7)] {
+        assert!(grid_cell(&view, 1, row, column).has_css_class("fact-weak-4"));
+    }
+    assert!(grid_cell(&view, 1, 20, 20).has_css_class("fact-unseen"));
+    assert_eq!(beyond(&view), ["37 + 48 = 85"]);
+
+    // Nothing to ask above the diagonal of differences.
+    imp.operation_group.set_active_name(Some("s"));
+    let blank = grid_cell(&view, 1, 5, 9);
+    assert!(!blank.has_css_class("fact-cell") && !blank.is_focusable());
+    assert!(grid_cell(&view, 1, 9, 5).has_css_class("fact-unseen"));
+    assert!(beyond(&view).is_empty());
 
     // The menu item opens it.
     let window: FastmathWindow = glib::Object::new();

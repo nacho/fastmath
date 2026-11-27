@@ -301,6 +301,30 @@ impl FactHistory {
         })
     }
 
+    /// The weak facts of `op` with a number larger than `max` in the
+    /// progress grid, the weakest first: an operand of a sum, a difference
+    /// or a product, or the divisor or the quotient of a division.
+    pub fn weak_facts_beyond(&self, op: Operation, max: u32) -> Vec<(Question, FactStats)> {
+        let mut facts: Vec<(Question, FactStats)> = self
+            .facts
+            .keys()
+            .filter(|key| key.op == op)
+            .map(|key| key.question())
+            .filter(|q| match op {
+                Operation::Divide => q.b > max || q.answer > max,
+                _ => q.a > max || q.b > max,
+            })
+            .filter_map(|q| Some((q, self.fact_stats(&q)?)))
+            .filter(|(_, stats)| stats.weakness >= WEAK)
+            .collect();
+        facts.sort_by(|(qa, a), (qb, b)| {
+            b.weakness
+                .total_cmp(&a.weakness)
+                .then_with(|| FactKey::of(qa).id().cmp(&FactKey::of(qb).id()))
+        });
+        facts
+    }
+
     pub fn operation_stats(&self, op: Operation) -> OperationStats {
         let facts: Vec<(&FactKey, &Vec<AnswerRecord>)> =
             self.facts.iter().filter(|(key, _)| key.op == op).collect();
@@ -691,5 +715,39 @@ mod tests {
             .map(weakness_step)
             .collect();
         assert_eq!(steps, [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]);
+    }
+
+    #[test]
+    fn weak_facts_beyond_the_grid() {
+        let mut history = FactHistory::default();
+        history.record(&q(Operation::Add, 37, 48), false, ms(5000));
+        history.record(&q(Operation::Add, 7, 8), false, ms(5000));
+        history.record(&q(Operation::Add, 30, 2), false, ms(5000));
+        history.record(&q(Operation::Add, 30, 2), true, ms(500));
+        history.record(&q(Operation::Add, 25, 25), true, ms(500));
+        history.record(&q(Operation::Multiply, 15, 15), false, ms(5000));
+        history.record(&q(Operation::Divide, 225, 15), false, ms(5000));
+
+        // Within 20 and strong facts are not listed, the weakest comes first.
+        let beyond: Vec<Question> = history
+            .weak_facts_beyond(Operation::Add, 20)
+            .into_iter()
+            .map(|(q, _)| q)
+            .collect();
+        assert_eq!(
+            beyond,
+            [q(Operation::Add, 37, 48), q(Operation::Add, 2, 30)]
+        );
+
+        let products = history.weak_facts_beyond(Operation::Multiply, 12);
+        assert_eq!(products.len(), 1);
+        assert!(
+            history
+                .weak_facts_beyond(Operation::Multiply, 20)
+                .is_empty()
+        );
+        // 225 ÷ 15 is in row 15, column 15.
+        assert_eq!(history.weak_facts_beyond(Operation::Divide, 12).len(), 1);
+        assert!(history.weak_facts_beyond(Operation::Divide, 20).is_empty());
     }
 }

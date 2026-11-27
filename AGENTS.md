@@ -124,7 +124,9 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   shows `FactHistory::operation_stats` for the operation picked in the header
   bar, or a status page when there is no history. × and ÷ get a grid of
   2 to 12 or 2 to 20 (`size_group`), where 56 ÷ 7 sits in row 7, column 8
-  like 7 × 8. Each answered cell is a focusable label with the
+  like 7 × 8; + and − a grid of 1 to 20, with blank cells above the
+  diagonal of differences. Weak facts with larger numbers are listed under
+  "Other Weak Facts" (`FactHistory::weak_facts_beyond`). Each answered cell is a focusable label with the
   `FactHistory::fact_stats` text as tooltip and accessible label, and the
   CSS class `.fact-weak-0`…`.fact-weak-4` from `weakness_step()` (below 0.1,
   0.2, 0.4, 0.7, above); unanswered cells are `.fact-unseen`. The colours
