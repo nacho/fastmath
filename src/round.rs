@@ -136,6 +136,14 @@ pub enum AnswerResult {
     Wrong,
 }
 
+/// How an answer went.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Answered {
+    pub result: AnswerResult,
+    /// The time since the previous answer, or since the round started.
+    pub time: Duration,
+}
+
 /// The outcome of a round.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct RoundResult {
@@ -197,10 +205,11 @@ impl Round {
 
     /// Answers the current question `elapsed` after the round started, and
     /// moves on to the next one. Returns `None` if the round is over.
-    pub fn submit(&mut self, answer: Answer, elapsed: Duration) -> Option<AnswerResult> {
+    pub fn submit(&mut self, answer: Answer, elapsed: Duration) -> Option<Answered> {
         let question = self.current?;
 
-        self.answer_time += elapsed.saturating_sub(self.last_answer_at);
+        let time = elapsed.saturating_sub(self.last_answer_at);
+        self.answer_time += time;
         self.last_answer_at = elapsed;
 
         let result = if question.is_correct(answer) {
@@ -212,7 +221,7 @@ impl Round {
         };
 
         self.current = (self.answered() < self.limit).then(|| self.questions.next());
-        Some(result)
+        Some(Answered { result, time })
     }
 
     /// Ends the round early, for example when the time is up.
@@ -266,8 +275,14 @@ mod tests {
         let mut round = round(QUESTIONS_PER_ROUND);
         for i in 0..QUESTIONS_PER_ROUND {
             assert!(!round.is_finished());
-            let result = round.submit(correct(&round), secs(i as u64 + 1));
-            assert_eq!(result, Some(AnswerResult::Correct));
+            let answered = round.submit(correct(&round), secs(i as u64 + 1));
+            assert_eq!(
+                answered,
+                Some(Answered {
+                    result: AnswerResult::Correct,
+                    time: secs(1),
+                })
+            );
         }
         assert!(round.is_finished());
         assert!(round.current().is_none());
@@ -284,11 +299,25 @@ mod tests {
     fn wrong_answers_are_counted_and_the_round_moves_on() {
         let mut round = round(5);
         let first = *round.current().unwrap();
-        let result = round.submit(wrong(&round), secs(2));
-        assert_eq!(result, Some(AnswerResult::Wrong));
+        let answered = round.submit(wrong(&round), secs(2)).unwrap();
+        assert_eq!(answered.result, AnswerResult::Wrong);
+        // The first answer takes the time since the round started.
+        assert_eq!(answered.time, secs(2));
         assert_ne!(round.current(), Some(&first));
         assert_eq!(round.result().wrong, 1);
         assert_eq!(round.result().correct, 0);
+    }
+
+    #[test]
+    fn each_answer_takes_the_time_since_the_previous_one() {
+        let mut round = round(5);
+        let times: Vec<Duration> = [3, 4, 10]
+            .into_iter()
+            .map(|at| round.submit(correct(&round), secs(at)).unwrap().time)
+            .collect();
+        assert_eq!(times, [secs(3), secs(1), secs(6)]);
+        round.finish();
+        assert_eq!(round.submit(Answer::Number(1), secs(11)), None);
     }
 
     #[test]

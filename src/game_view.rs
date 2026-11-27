@@ -14,7 +14,7 @@ use crate::comparison::Part;
 use crate::fraction_label::FractionLabel;
 use crate::fraction_picture::FractionPicture;
 use crate::labels;
-use crate::round::{Answer, AnswerResult, GameConfig, Mode, Prompt, Round, RoundResult};
+use crate::round::{Answer, AnswerResult, Answered, GameConfig, Mode, Prompt, Round, RoundResult};
 use crate::sound_player::SoundPlayer;
 
 /// How often the clock and the progress bar are refreshed.
@@ -402,7 +402,7 @@ impl GameView {
             let result = round.submit(answer, elapsed);
             (result, round.is_finished())
         };
-        let Some(result) = result else {
+        let Some(Answered { result, .. }) = result else {
             return;
         };
 
