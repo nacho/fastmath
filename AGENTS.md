@@ -94,8 +94,9 @@ build-aux/              # Devel Flatpak manifest (GNOME 51), pre-commit hook
   `Shape` is a pizza, a chocolate bar or a grid; bars and grids have
   `rows` × `cols` squares (at most 6 columns) and appear from level 2.
   `FastmathFractionPicture` draws with `GtkSnapshot` and `gsk::PathBuilder`
-  in GNOME palette colours (grid outlines use `widget.color()`), redraws when the dark style changes, and sets
-  a translatable accessible label.
+  in the `fraction-*` named colours of `style.css`, which it looks up and
+  caches like Mundi's map widget (again when the dark or high contrast
+  style changes), and sets a translatable accessible label.
 - Leaderboards are JSON files in `$XDG_DATA_HOME/fastmath/`, one per
   operations/level/duration (`asmd-2-120.json`, or `c-wdfc-2-120.json` for
   comparisons, `f-2-120.json` for fractions), ranked by correct answers and then by a lower average time

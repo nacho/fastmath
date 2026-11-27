@@ -15,37 +15,51 @@ const SPACING: i32 = 24;
 const LINE_WIDTH: f32 = 3.0;
 const DASH: [f32; 2] = [6.0, 5.0];
 
-/// A colour from its red, green and blue bytes.
-const fn rgb(red: u8, green: u8, blue: u8) -> gdk::RGBA {
-    gdk::RGBA::new(
-        red as f32 / 255.0,
-        green as f32 / 255.0,
-        blue as f32 / 255.0,
-        1.0,
-    )
+/// The colours of the pictures, the `fraction-*` named colours of
+/// style.css.
+#[derive(Clone, Copy, Debug)]
+struct Colors {
+    pizza: gdk::RGBA,
+    pizza_edge: gdk::RGBA,
+    chocolate: gdk::RGBA,
+    chocolate_edge: gdk::RGBA,
+    eaten: gdk::RGBA,
+    eaten_edge: gdk::RGBA,
+    grid: gdk::RGBA,
+    grid_blank: gdk::RGBA,
+    grid_edge: gdk::RGBA,
 }
 
-// GNOME palette colours.
-const YELLOW_3: gdk::RGBA = rgb(0xf6, 0xd3, 0x2d);
-const YELLOW_5: gdk::RGBA = rgb(0xe5, 0xa5, 0x0a);
-const LIGHT_3: gdk::RGBA = rgb(0xde, 0xdd, 0xda);
-const LIGHT_5: gdk::RGBA = rgb(0x9a, 0x99, 0x96);
-const DARK_2: gdk::RGBA = rgb(0x5e, 0x5c, 0x64);
-const DARK_4: gdk::RGBA = rgb(0x24, 0x1f, 0x31);
-const BLUE_2: gdk::RGBA = rgb(0x62, 0xa0, 0xea);
-const BROWN_3: gdk::RGBA = rgb(0x86, 0x5e, 0x3c);
-const BROWN_5: gdk::RGBA = rgb(0x63, 0x45, 0x2c);
-const WHITE: gdk::RGBA = rgb(0xff, 0xff, 0xff);
+impl Default for Colors {
+    /// Grey everywhere, until the colours are looked up.
+    fn default() -> Self {
+        let grey = gdk::RGBA::new(0.5, 0.5, 0.5, 1.0);
+        Colors {
+            pizza: grey,
+            pizza_edge: grey,
+            chocolate: grey,
+            chocolate_edge: grey,
+            eaten: grey,
+            eaten_edge: grey,
+            grid: grey,
+            grid_blank: grey,
+            grid_edge: grey,
+        }
+    }
+}
 
 mod imp {
     use super::*;
-    use std::cell::Cell;
+    use std::cell::{Cell, RefCell};
 
     #[derive(Default, glib::Properties)]
     #[properties(wrapper_type = super::FractionPicture)]
     pub struct FractionPicture {
         #[property(get, set, construct_only)]
         pub picture: Cell<Option<Picture>>,
+        pub(super) colors: Cell<Colors>,
+        /// The StyleManager handlers, disconnected on dispose.
+        pub style_handlers: RefCell<Vec<glib::SignalHandlerId>>,
     }
 
     #[glib::object_subclass]
@@ -67,12 +81,65 @@ mod imp {
             obj.set_halign(gtk::Align::Center);
             obj.update_property(&[gtk::accessible::Property::Label(&obj.description())]);
 
-            // Redraw with the colours of the new style.
-            adw::StyleManager::default().connect_dark_notify(glib::clone!(
+            // The new style's CSS is only loaded after the notification, so
+            // look the colours up again once idle.
+            let refresh = glib::clone!(
                 #[weak]
                 obj,
-                move |_| obj.queue_draw()
+                move |_: &adw::StyleManager| {
+                    glib::idle_add_local_once(glib::clone!(
+                        #[weak]
+                        obj,
+                        move || {
+                            obj.imp().cache_colors();
+                            obj.queue_draw();
+                        }
+                    ));
+                }
+            );
+            let style = adw::StyleManager::default();
+            *self.style_handlers.borrow_mut() = vec![
+                style.connect_dark_notify(refresh.clone()),
+                style.connect_high_contrast_notify(refresh),
+            ];
+            glib::idle_add_local_once(glib::clone!(
+                #[weak]
+                obj,
+                move || {
+                    obj.imp().cache_colors();
+                    obj.queue_draw();
+                }
             ));
+        }
+
+        fn dispose(&self) {
+            let style = adw::StyleManager::default();
+            for handler in self.style_handlers.take() {
+                style.disconnect(handler);
+            }
+        }
+    }
+
+    impl FractionPicture {
+        pub(super) fn cache_colors(&self) {
+            #[allow(deprecated)]
+            let ctx = self.obj().style_context();
+            let lookup = |name: &str| {
+                #[allow(deprecated)]
+                ctx.lookup_color(name)
+                    .unwrap_or(gdk::RGBA::new(0.5, 0.5, 0.5, 1.0))
+            };
+            self.colors.set(Colors {
+                pizza: lookup("fraction-pizza-color"),
+                pizza_edge: lookup("fraction-pizza-edge-color"),
+                chocolate: lookup("fraction-chocolate-color"),
+                chocolate_edge: lookup("fraction-chocolate-edge-color"),
+                eaten: lookup("fraction-eaten-color"),
+                eaten_edge: lookup("fraction-eaten-edge-color"),
+                grid: lookup("fraction-grid-color"),
+                grid_blank: lookup("fraction-grid-blank-color"),
+                grid_edge: lookup("fraction-grid-edge-color"),
+            });
         }
     }
 
@@ -92,19 +159,19 @@ mod imp {
             let obj = self.obj();
             let picture = obj.shown();
             let size = obj.shape_size() as f32;
-            let dark = adw::StyleManager::default().is_dark();
+            let colors = self.colors.get();
             for index in 0..picture.wholes {
                 let x = index as f32 * (size + SPACING as f32);
                 let bounds = graphene::Rect::new(x, 0.0, size, size);
                 match picture.shape {
-                    Shape::Pizza => draw_pizza(snapshot, &bounds, &picture, index, dark),
+                    Shape::Pizza => draw_pizza(snapshot, &bounds, &picture, index, &colors),
                     Shape::Bar { rows, cols } => draw_bar(
                         snapshot,
                         &bounds,
                         rows,
                         cols,
                         picture.shaded_in(index),
-                        dark,
+                        &colors,
                     ),
                     Shape::Grid { rows, cols } => draw_grid(
                         snapshot,
@@ -112,8 +179,7 @@ mod imp {
                         rows,
                         cols,
                         picture.shaded_in(index),
-                        dark,
-                        &obj.color(),
+                        &colors,
                     ),
                 }
             }
@@ -186,14 +252,14 @@ impl FractionPicture {
     }
 }
 
-/// Draws pizza number `index` of `picture` in `bounds`: yellow slices with
-/// an orange outline, and eaten ones in grey with a dashed outline.
+/// Draws pizza number `index` of `picture` in `bounds`: slices with a
+/// solid outline, and eaten ones with a dashed outline.
 fn draw_pizza(
     snapshot: &gtk::Snapshot,
     bounds: &graphene::Rect,
     picture: &Picture,
     index: u32,
-    dark: bool,
+    colors: &Colors,
 ) {
     let center = bounds.center();
     let radius = bounds.width() / 2.0 - LINE_WIDTH;
@@ -201,11 +267,6 @@ fn draw_pizza(
     let eaten = picture.shaded_in(index);
     let sweep = TAU / pieces as f32;
 
-    let (eaten_fill, eaten_line) = if dark {
-        (DARK_2, LIGHT_5)
-    } else {
-        (LIGHT_3, LIGHT_5)
-    };
     let solid = gsk::Stroke::new(LINE_WIDTH);
     let dashed = gsk::Stroke::new(LINE_WIDTH);
     dashed.set_dash(&DASH);
@@ -232,11 +293,11 @@ fn draw_pizza(
         let path = builder.to_path();
 
         if slice < eaten {
-            snapshot.append_fill(&path, gsk::FillRule::Winding, &eaten_fill);
-            snapshot.append_stroke(&path, &dashed, &eaten_line);
+            snapshot.append_fill(&path, gsk::FillRule::Winding, &colors.eaten);
+            snapshot.append_stroke(&path, &dashed, &colors.eaten_edge);
         } else {
-            snapshot.append_fill(&path, gsk::FillRule::Winding, &YELLOW_3);
-            snapshot.append_stroke(&path, &solid, &YELLOW_5);
+            snapshot.append_fill(&path, gsk::FillRule::Winding, &colors.pizza);
+            snapshot.append_stroke(&path, &solid, &colors.pizza_edge);
         }
     }
 }
@@ -271,57 +332,49 @@ fn square(cell: &graphene::Rect, inset: f32, radius: f32) -> gsk::Path {
     builder.to_path()
 }
 
-/// Draws a chocolate bar: brown squares with darker edges, and eaten ones in
-/// grey with a dashed outline.
+/// Draws a chocolate bar: squares with darker edges, and eaten ones with a
+/// dashed outline.
 fn draw_bar(
     snapshot: &gtk::Snapshot,
     bounds: &graphene::Rect,
     rows: u32,
     cols: u32,
     eaten: u32,
-    dark: bool,
+    colors: &Colors,
 ) {
     let solid = gsk::Stroke::new(LINE_WIDTH);
     let dashed = gsk::Stroke::new(LINE_WIDTH);
     dashed.set_dash(&DASH);
-    let (eaten_fill, eaten_line) = if dark {
-        (DARK_2, LIGHT_5)
-    } else {
-        (LIGHT_3, LIGHT_5)
-    };
     for (index, cell) in cells(bounds, rows, cols).iter().enumerate() {
         let path = square(cell, LINE_WIDTH, 4.0);
         if (index as u32) < eaten {
-            snapshot.append_fill(&path, gsk::FillRule::Winding, &eaten_fill);
-            snapshot.append_stroke(&path, &dashed, &eaten_line);
+            snapshot.append_fill(&path, gsk::FillRule::Winding, &colors.eaten);
+            snapshot.append_stroke(&path, &dashed, &colors.eaten_edge);
         } else {
-            snapshot.append_fill(&path, gsk::FillRule::Winding, &BROWN_3);
-            snapshot.append_stroke(&path, &solid, &BROWN_5);
+            snapshot.append_fill(&path, gsk::FillRule::Winding, &colors.chocolate);
+            snapshot.append_stroke(&path, &solid, &colors.chocolate_edge);
         }
     }
 }
 
-/// Draws a grid of squares: blue coloured ones and white ones, or dark ones
-/// in the dark style, outlined in the text colour.
+/// Draws a grid of squares, coloured or blank, with solid outlines.
 fn draw_grid(
     snapshot: &gtk::Snapshot,
     bounds: &graphene::Rect,
     rows: u32,
     cols: u32,
     coloured: u32,
-    dark: bool,
-    outline: &gdk::RGBA,
+    colors: &Colors,
 ) {
     let stroke = gsk::Stroke::new(LINE_WIDTH / 1.5);
-    let blank = if dark { DARK_4 } else { WHITE };
     for (index, cell) in cells(bounds, rows, cols).iter().enumerate() {
         let path = square(cell, 0.0, 0.0);
         let fill = if (index as u32) < coloured {
-            BLUE_2
+            &colors.grid
         } else {
-            blank
+            &colors.grid_blank
         };
-        snapshot.append_fill(&path, gsk::FillRule::Winding, &fill);
-        snapshot.append_stroke(&path, &stroke, outline);
+        snapshot.append_fill(&path, gsk::FillRule::Winding, fill);
+        snapshot.append_stroke(&path, &stroke, &colors.grid_edge);
     }
 }

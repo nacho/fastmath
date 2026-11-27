@@ -1,3 +1,14 @@
+/* The colours of the fractions pictures. */
+@define-color fraction-pizza-color @yellow_3;
+@define-color fraction-pizza-edge-color @yellow_5;
+@define-color fraction-chocolate-color @brown_3;
+@define-color fraction-chocolate-edge-color @brown_5;
+@define-color fraction-eaten-color color-mix(in srgb, @view_fg_color 15%, @view_bg_color);
+@define-color fraction-eaten-edge-color color-mix(in srgb, @view_fg_color 45%, @view_bg_color);
+@define-color fraction-grid-color @blue_2;
+@define-color fraction-grid-blank-color @view_bg_color;
+@define-color fraction-grid-edge-color @view_fg_color;
+
 .question {
     font-size: 4rem;
     font-weight: 800;
