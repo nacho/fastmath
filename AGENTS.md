@@ -24,7 +24,7 @@ src/
                         # denominator entries, clock, sounds,
                         # abandon dialog
   results_view.rs       # Score, leaderboard, name entry, Play Again / Back
-  progress_view.rs      # FastmathProgressView: the practice history of each operation
+  progress_view.rs      # FastmathProgressView: grids of the practice history per operation
   sound_player.rs       # gtk::MediaFile wrapper, copied from Mundi
   labels.rs             # Translatable names and formatting shared by views
   ui_tests.rs           # Ignored tests that need a display

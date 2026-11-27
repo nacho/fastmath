@@ -41,7 +41,8 @@
     <p>
       Fast Math remembers which arithmetic facts you answer wrong or slowly.
       Practice rounds have no clock and ask those facts more often, and show
-      the right answer after a mistake.
+      the right answer after a mistake. The progress view shows a grid of
+      the facts of each operation, coloured from strong to weak.
     </p>
   </description>
 

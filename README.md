@@ -16,6 +16,8 @@ A wrong answer moves on to the next question and costs nothing. Press Escape to 
 
 Fast Math remembers the last answers to each arithmetic fact. Turn on **Practice Weak Facts** for a round of 20 questions with no clock and no leaderboard, where the facts you got wrong or answered slowly come back more often. After a wrong answer the right one shows for a moment, and the results list the facts to keep practising. **Forget Practice History** in the main menu starts again from scratch.
 
+**Progress** in the main menu shows how you do with each operation: a grid of the facts coloured from green (strong) to red (weak), grey for the ones not answered yet, the times tables up to 12 × 12 or 20 × 20 and sums and differences up to 20. Hover or focus a fact to see how many of its last answers were right and how fast you were. Weak facts with larger numbers are listed below the grid.
+
 ## Levels
 
 | Level | Addition and subtraction | Multiplication and division |
